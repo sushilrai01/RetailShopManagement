@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Core/" />
+  <Folder Name="/src/Core/Application/">
+    <Project Path="RetailShopManagement.Application/RetailShopManagement.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Core/Domain/">
+    <Project Path="RetailShopManagement.Domain/RetailShopManagement.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="RetailShopManagement.Infrastructure/RetailShopManagement.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Presentation/">
+    <Project Path="RetailShopManagement.WebApp/RetailShopManagement.WebApp.csproj" />
+  </Folder>
+</Solution>
