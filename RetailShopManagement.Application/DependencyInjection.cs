@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RetailShopManagement.Application.Services.Products;
 
 namespace RetailShopManagement.Application
 {
@@ -12,7 +13,7 @@ namespace RetailShopManagement.Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             // Register application services, handlers, etc. here
-            // e.g., services.AddTransient<IProductService, ProductService>();
+            services.AddScoped<IProductService, ProductService>();
             return services;
         }
     }
