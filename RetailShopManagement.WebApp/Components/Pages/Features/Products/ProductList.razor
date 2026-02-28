@@ -1,0 +1,88 @@
+﻿@page "/product"
+@using RetailShopManagement.Application.Services.Products
+@inject IProductService ProductService
+@inject IJSRuntime Js
+@attribute [StreamRendering]
+
+<PageTitle>Products</PageTitle>
+
+<h3>Product</h3>
+@if (!productList.Any())
+{
+    <p>
+        <em>No item found...</em>
+    </p>
+}
+else
+{
+    <table class="table table-borderless table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in productList)
+            {
+                @* <tr @onclick="() => SelectProduct(item)"> *@
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td>@item.Price</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Unit</td>
+                    <td>@item.Category.Name</td>
+                    <td>
+                        <button class="btn btn-info" @onclick="() => ShowProduct(item)"
+                                @onclick:stopPropagation="true">
+                            Show Details
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Product> productList = new List<Product>();
+    private Product? SelectedProduct { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+
+        var result = await ProductService.GetAllProductsAsync();
+        if (result is { Count: > 0 })
+        {
+            productList = result.OrderBy(x => x.CategoryId).ToList();
+        }
+
+    }
+
+    private void SelectProduct(Product? selectedProduct)
+    {
+        Console.WriteLine("row selected!");
+        if (selectedProduct is null) return;
+        SelectedProduct = selectedProduct;
+        StateHasChanged();
+    }
+
+    private async Task ShowProduct(Product? selectedProduct)
+    {
+        Console.WriteLine("row clicked!");
+
+        SelectedProduct ??= selectedProduct;
+
+        await Js.InvokeVoidAsync(
+            "alert",
+            $"Product: {SelectedProduct.Name} - ${SelectedProduct.Price} - {SelectedProduct.Category.Name}"
+        );
+    }
+}
