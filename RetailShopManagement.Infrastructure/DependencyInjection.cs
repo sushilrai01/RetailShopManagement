@@ -4,15 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using RetailShopManagement.Infrastructure.Persistence;
 
 namespace RetailShopManagement.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services,
+            IConfiguration configuration)
         {
             // Register application services, handlers, etc. here
-            // e.g., services.AddTransient<IProductService, ProductService>();
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            });
+
             return services;
         }
     }

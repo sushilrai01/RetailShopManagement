@@ -6,13 +6,13 @@ namespace RetailShopManagement.Domain.Common
     {
         public T Id { get; set; }
         public string CreatedBy { get; set; }
-        public DateTimeOffset CreatedOn { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 
     public abstract class BaseDerivedEntity<T> : BaseEntity<T>
     {
         public string? LastModifiedBy { get; set; }
-        public DateTimeOffset? LastModifiedOn { get; set; }
+        public DateTime? LastModifiedOn { get; set; }
     }
 }
 
