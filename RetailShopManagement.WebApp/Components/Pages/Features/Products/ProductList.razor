@@ -57,12 +57,14 @@ else
     {
         await Task.Delay(500);
 
-        var result = await ProductService.GetAllProductsAsync();
-        if (result is { Count: > 0 })
+        var response = await ProductService.GetAllProductsAsync();
+        if (!response.IsSuccess)
         {
-            productList = result.OrderBy(x => x.CategoryId).ToList();
+            return;
         }
+        productList = response.Data.ToList();
 
+        StateHasChanged();
     }
 
     private void SelectProduct(Product? selectedProduct)
