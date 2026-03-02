@@ -1,9 +1,10 @@
 ﻿using RetailShopManagement.Domain.Entities;
+using RetailShopManagement.Domain.Models.Common;
 
 namespace RetailShopManagement.WebApp.Services.AppServices.Products
 {
     public interface IProductService
     {
-        Task<IList<Product>> GetAllProductsAsync();
+        Task<ApiResponse<IList<Product>>> GetAllProductsAsync();
     }
 }
