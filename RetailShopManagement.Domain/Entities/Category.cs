@@ -1,4 +1,4 @@
-﻿using RetailShopManagement.Domain.Common;
+﻿using RetailShopManagement.Domain.Abstractions;
 
 namespace RetailShopManagement.Domain.Entities;
 

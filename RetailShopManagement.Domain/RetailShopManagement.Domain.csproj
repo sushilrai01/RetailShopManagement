@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Common\" />
+    <Folder Include="Abstractions\" />
     <Folder Include="Constants\" />
   </ItemGroup>
 

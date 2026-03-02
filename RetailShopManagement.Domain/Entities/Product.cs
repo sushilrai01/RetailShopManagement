@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RetailShopManagement.Domain.Common;
+using RetailShopManagement.Domain.Abstractions;
 
 namespace RetailShopManagement.Domain.Entities
 {

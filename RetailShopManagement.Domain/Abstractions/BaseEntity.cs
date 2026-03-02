@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace RetailShopManagement.Domain.Common
+﻿namespace RetailShopManagement.Domain.Abstractions
 {
     public abstract class BaseEntity<T>
     {
