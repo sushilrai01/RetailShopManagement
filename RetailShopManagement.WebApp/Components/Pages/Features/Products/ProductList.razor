@@ -1,5 +1,5 @@
 ﻿@page "/product"
-@rendermode InteractiveServer
+@* @rendermode InteractiveServer*@
 
 @inject IProductService ProductService
 @inject IJSRuntime Js
@@ -55,11 +55,25 @@ else
 @code {
     private List<ProductDto> productList = new List<ProductDto>();
     private ProductDto? SelectedProduct { get; set; }
- 
+
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(500);
 
+        await LoadProducts();
+        StateHasChanged();
+    }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+
+    //     }
+    // }
+
+    private async Task LoadProducts()
+    {
         var response = await ProductService.GetAllProductsAsync();
         if (!response.IsSuccess)
         {
@@ -72,7 +86,7 @@ else
 
     private void SelectProduct(ProductDto? selectedProduct)
     {
-        Console.WriteLine("row selected!");
+        // Console.WriteLine("row selected!");
         if (selectedProduct is null) return;
         SelectedProduct = selectedProduct;
         StateHasChanged();
@@ -80,7 +94,7 @@ else
 
     private async Task ShowProduct(ProductDto? selectedProduct)
     {
-        Console.WriteLine("row clicked!");
+        // Console.WriteLine("row clicked!");
 
         SelectedProduct = selectedProduct;
 
