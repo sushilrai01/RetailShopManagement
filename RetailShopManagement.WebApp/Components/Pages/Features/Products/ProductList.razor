@@ -1,4 +1,6 @@
 ﻿@page "/product"
+@rendermode InteractiveServer
+
 @inject IProductService ProductService
 @inject IJSRuntime Js
 @attribute [StreamRendering]
@@ -29,8 +31,8 @@ else
         <tbody>
             @foreach (var item in productList)
             {
-                @* <tr @onclick="() => SelectProduct(item)"> *@
-                <tr>
+                <tr @onclick="() => SelectProduct(item)">
+                @* <tr> *@
                     <td>@item.Name</td>
                     <td>@item.Description</td>
                     <td>@item.Price</td>
@@ -40,6 +42,7 @@ else
                     <td>
                         <button class="btn btn-info" @onclick="() => ShowProduct(item)"
                                 @onclick:stopPropagation="true">
+                            <i class="fa-solid fa-info"></i>
                             Show Details
                         </button>
                     </td>
@@ -79,11 +82,21 @@ else
     {
         Console.WriteLine("row clicked!");
 
-        SelectedProduct ??= selectedProduct;
+        SelectedProduct = selectedProduct;
+
+        if (SelectedProduct is null)
+        {
+            await Js.InvokeVoidAsync(
+                "alert",
+                "Please select item."
+            );
+            return;
+        }
+
+        var alertMsg = $"Product: {SelectedProduct.Name} - ${SelectedProduct.Price} - {SelectedProduct.Category.Name}";
 
         await Js.InvokeVoidAsync(
             "alert",
-            $"Product: {SelectedProduct.Name} - ${SelectedProduct.Price} - {SelectedProduct.Category.Name}"
-        );
+            alertMsg);
     }
 }
