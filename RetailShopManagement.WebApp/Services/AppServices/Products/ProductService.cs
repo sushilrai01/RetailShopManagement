@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.CQRS.Products.Query;
 using RetailShopManagement.Domain.Entities;
 using RetailShopManagement.Domain.Models.Common;
@@ -7,13 +8,13 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Products
 {
     public class ProductService(IMediator mediator) : BaseService(mediator), IProductService
     {
-        public async Task<ApiResponse<IList<Product>>> GetAllProductsAsync()
+        public async Task<ApiResponse<IList<ProductDto>>> GetAllProductsAsync()
         {
             try
             {
                 var result = await Mediator.Send(new GetProductListQuery() { });
 
-                return new ApiResponse<IList<Product>>()
+                return new ApiResponse<IList<ProductDto>>()
                 {
                     Message = $"GetAllProductsAsync fetch success.",
                     IsSuccess = true,
@@ -23,7 +24,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Products
             }
             catch (Exception ex)
             {
-                return new ApiResponse<IList<Product>>()
+                return new ApiResponse<IList<ProductDto>>()
                 {
                     Message = ex.InnerException?.Message ?? ex.Message,
                     IsSuccess = false,

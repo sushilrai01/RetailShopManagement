@@ -7,7 +7,7 @@
 
 <PageTitle>Products</PageTitle>
 
-<h3>Product</h3>
+<h3>Products</h3>
 @if (!productList.Any())
 {
     <p>
@@ -32,13 +32,13 @@ else
             @foreach (var item in productList)
             {
                 <tr @onclick="() => SelectProduct(item)">
-                @* <tr> *@
+                    @* <tr> *@
                     <td>@item.Name</td>
                     <td>@item.Description</td>
                     <td>@item.Price</td>
                     <td>@item.Quantity</td>
                     <td>@item.Unit</td>
-                    <td>@item.Category.Name</td>
+                    <td>@item.CategoryName</td>
                     <td>
                         <button class="btn btn-info" @onclick="() => ShowProduct(item)"
                                 @onclick:stopPropagation="true">
@@ -53,9 +53,9 @@ else
 }
 
 @code {
-    private List<Product> productList = new List<Product>();
-    private Product? SelectedProduct { get; set; }
-
+    private List<ProductDto> productList = new List<ProductDto>();
+    private ProductDto? SelectedProduct { get; set; }
+ 
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(500);
@@ -70,7 +70,7 @@ else
         StateHasChanged();
     }
 
-    private void SelectProduct(Product? selectedProduct)
+    private void SelectProduct(ProductDto? selectedProduct)
     {
         Console.WriteLine("row selected!");
         if (selectedProduct is null) return;
@@ -78,7 +78,7 @@ else
         StateHasChanged();
     }
 
-    private async Task ShowProduct(Product? selectedProduct)
+    private async Task ShowProduct(ProductDto? selectedProduct)
     {
         Console.WriteLine("row clicked!");
 
@@ -93,7 +93,7 @@ else
             return;
         }
 
-        var alertMsg = $"Product: {SelectedProduct.Name} - ${SelectedProduct.Price} - {SelectedProduct.Category.Name}";
+        var alertMsg = $"ProductDto: {SelectedProduct.Name} - ${SelectedProduct.Price} - {SelectedProduct.CategoryName}";
 
         await Js.InvokeVoidAsync(
             "alert",
