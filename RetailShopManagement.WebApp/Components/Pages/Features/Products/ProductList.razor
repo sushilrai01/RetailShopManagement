@@ -59,7 +59,8 @@
         </div>
     </div>
 </div>
-<div>
+
+<div class="table-responsive">
     @if (!productList.Any())
     {
         <p>
@@ -68,7 +69,7 @@
     }
     else
     {
-        <table class="table table-borderless table-striped">
+        <table class="table table-borderless table-striped table-hover">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -77,6 +78,7 @@
                     <th>Quantity</th>
                     <th>Unit</th>
                     <th>Category</th>
+                    <th>CreatedOn</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -91,13 +93,14 @@
                         <td>@item.Quantity</td>
                         <td>@item.Unit</td>
                         <td>@item.CategoryName</td>
+                        <td>@item.CreatedOn</td>
                         <td>
                             <button class="btn btn-info m-1" @onclick="() => ShowProductDetails(item)"
                                     @onclick:stopPropagation="true">
                                 <i class="fa-solid fa-info"></i>
                                 Details
                             </button>
-                            <button class="btn btn-info m-1" @onclick="() => ShowProductDetails(item)"
+                            <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
                                     @onclick:stopPropagation="true">
                                 <i class="fa-solid fa-pen-to-square"></i>
                                 Edit
@@ -200,9 +203,16 @@
         await LoadProducts();
 
     }
+
     private void CreateNewProduct()
     {
-        NavigationManager.NavigateTo("/error");
+        NavigationManager.NavigateTo("/product/create");
+    }
+
+    private void Edit(ProductDto? selectedProduct)
+    {
+        if (selectedProduct is null) return;
+        NavigationManager.NavigateTo($"/product/edit/{selectedProduct.Id}");
     }
 
     private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)

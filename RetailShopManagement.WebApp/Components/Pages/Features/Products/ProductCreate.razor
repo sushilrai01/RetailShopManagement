@@ -1,0 +1,101 @@
+﻿@page "/product/create"
+
+@using RetailShopManagement.Domain.Constants
+
+<h3>Create Product</h3>
+
+<EditForm Model="ProductModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="row">
+
+        <!-- Category -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Category</label>
+            <InputSelect class="form-select" @bind-Value="ProductModel.CategoryId">
+
+                @foreach (var category in CategoryFields)
+                {
+                    <option value="@category.Value">
+                        @category.Text
+                    </option>
+                }
+            </InputSelect>
+        </div>
+        <!-- Name -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Product Name</label>
+            <InputText class="form-control" @bind-Value="ProductModel.Name" />
+        </div>
+
+        <!-- Price -->
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Price</label>
+            <InputNumber class="form-control" @bind-Value="ProductModel.Price" />
+        </div>
+
+        <!-- Quantity -->
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Quantity</label>
+            <InputNumber class="form-control" @bind-Value="ProductModel.Quantity" />
+        </div>
+
+        <!-- Unit -->
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Unit</label>
+            <InputSelect class="form-select" @bind-Value="ProductModel.Unit">
+                @foreach (var unit in UnitsConst.UnitsFields)
+                {
+                    <option value="@unit.Value">@unit.Text</option>
+                }
+            </InputSelect>
+        </div>
+
+        <!-- Description -->
+        <div class="col-md-12 mb-3">
+            <label class="form-label">Description</label>
+            <InputTextArea class="form-control" @bind-Value="ProductModel.Description" rows="4" />
+        </div>
+
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        <i class="fa-regular fa-floppy-disk"></i>
+        Save
+    </button>
+
+    <a href="/products" class="btn btn-secondary ms-2">
+        Cancel
+    </a>
+
+</EditForm>
+@code {
+
+    private ProductDto ProductModel { get; set; } = new();
+
+    private IList<IntDropDownField> CategoryFields { get; set; } = new List<IntDropDownField>();
+    [Inject] private IProductService ProductService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        CategoryFields = await CategoryTypes;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // TODO: Call CreateProductCommand
+        var response = await ProductService.CreateProductAsync(ProductModel);
+
+        if (!response.IsSuccess)
+        {
+            Console.WriteLine("Failed to create product: " + response.Message);
+            NavigationManager.NavigateTo("/error");
+            return;
+        }
+
+        // Navigate back to list
+        NavigationManager.NavigateTo("/products");
+    }
+}

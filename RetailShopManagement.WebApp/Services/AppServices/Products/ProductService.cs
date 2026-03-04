@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using RetailShopManagement.Application.Common.Models;
+using RetailShopManagement.Application.CQRS.Products.Command;
 using RetailShopManagement.Application.CQRS.Products.Query;
 using RetailShopManagement.Domain.Entities;
 using RetailShopManagement.Domain.Models.Common;
@@ -44,6 +45,42 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Products
                 //throw new Exception($"An error occurred while retrieving products: {ex.Message}", ex);
             }
 
+        }
+
+        public async Task<ApiResponse<Guid>> CreateProductAsync(ProductDto createProductModel)
+        {
+            var method = "Create Product";
+            var apiAction = ApiAction.Create;
+
+            try
+            {
+                var result = await Mediator.Send(new CreateProductCommand()
+                {
+                    Name = createProductModel.Name,
+                    CategoryId = createProductModel.CategoryId,
+                    Description = createProductModel.Description,
+                    Price = createProductModel.Price,
+                    Quantity = createProductModel.Quantity,
+                    Unit = createProductModel.Unit
+                });
+
+                return new ApiResponse<Guid>()
+                {
+                    Message = ReturnMessage.Success(method, apiAction),
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                    Data = result
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<Guid>()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Failed",
+                };
+            }
         }
     }
 }
