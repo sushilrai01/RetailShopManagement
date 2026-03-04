@@ -29,22 +29,10 @@
                     </div>
                     <div class="col-md-6">
 
-                        <!-- TODO: Make DateRangePicker Component -->
-                        <div class="row g-3 align-items-end">
-
-                            <div class="col-md-6">
-                                <label class="form-label">From</label>
-                                <InputDate class="form-control"
-                                           @bind-Value="StartDate" />
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">To</label>
-                                <InputDate class="form-control"
-                                           @bind-Value="EndDate" />
-                            </div>
-
-                        </div>
+                        <!-- Make DateRangePicker Component -->
+                        <DateRangePicker StartDate="StartDate"
+                                         EndDate="EndDate"
+                                         OnDateRangeChanged="OnDateRangeChangeEventHandler" />
                     </div>
 
                     <div class="col-md-2">
@@ -215,6 +203,13 @@
     private void CreateNewProduct()
     {
         NavigationManager.NavigateTo("/error");
+    }
+
+    private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)
+    {
+        StartDate = dateRange.StartDate;
+        EndDate = dateRange.EndDate;
+        await LoadProducts();
     }
 
 }

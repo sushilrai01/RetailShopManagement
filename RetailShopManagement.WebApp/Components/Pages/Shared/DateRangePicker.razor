@@ -1,0 +1,91 @@
+﻿<div class="row g-3 align-items-end">
+
+    <div class="col-md-6">
+        <label class="form-label">From</label>
+        <InputDate class="form-control"
+                   @bind-Value="StartDate"
+                   @bind-Value:after="NotifyRangeChanged" />
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">To</label>
+        <InputDate class="form-control"
+                   @bind-Value="EndDate"
+                   @bind-Value:after="NotifyRangeChanged" />
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public DateTime? StartDate { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> StartDateChanged { get; set; }
+
+    [Parameter]
+    public DateTime? EndDate { get; set; }
+
+    [Parameter]
+    public EventCallback<DateTime?> EndDateChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<DateRange> OnDateRangeChanged { get; set; }
+    private bool isFirstInitialization = true;
+
+    public class DateRange
+    {
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+        if (isFirstInitialization)
+        {
+            CheckInitializeDateRange();
+
+            isFirstInitialization = false;
+        }
+
+    }
+
+    private void CheckInitializeDateRange()
+    {
+        if (StartDate == null || EndDate == null)
+        {
+            StartDate = DateTime.Now.Date.AddDays(-14);
+            EndDate = DateTime.Now.Date;
+        }
+    }
+
+    private async Task OnStartDateChanged(DateTime? value)
+    {
+        StartDate = value;
+        await StartDateChanged.InvokeAsync(value);
+        await NotifyRangeChanged();
+    }
+
+    private async Task OnEndDateChanged(DateTime? value)
+    {
+        EndDate = value;
+        await EndDateChanged.InvokeAsync(value);
+        await NotifyRangeChanged();
+    }
+
+    private async Task NotifyRangeChanged()
+    {
+
+        CheckInitializeDateRange();
+
+        var date = new DateRange()
+        {
+            EndDate = EndDate,
+            StartDate = StartDate
+        };
+
+        await OnDateRangeChanged.InvokeAsync(date);
+    }
+}
