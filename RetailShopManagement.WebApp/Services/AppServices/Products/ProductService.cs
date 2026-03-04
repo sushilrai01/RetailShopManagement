@@ -9,11 +9,16 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Products
 {
     public class ProductService(IMediator mediator) : BaseService(mediator), IProductService
     {
-        public async Task<ApiResponse<IList<ProductDto>>> GetAllProductsAsync()
+        public async Task<ApiResponse<IList<ProductDto>>> GetAllProductsAsync(int categoryId, DateTime? fromDate = null, DateTime? toDate = null)
         {
             try
             {
-                var result = await Mediator.Send(new GetProductListQuery() { });
+                var result = await Mediator.Send(new GetProductListQuery()
+                {
+                    CategoryId = categoryId,
+                    FromDate = fromDate,
+                    ToDate = toDate
+                });
 
                 return new ApiResponse<IList<ProductDto>>()
                 {

@@ -18,11 +18,18 @@ namespace RetailShopManagement.WebApp.Components
 
             if (response.IsSuccess)
             {
-                return response.Data.Select(c => new IntDropDownField
+                var categoryTypes = new List<IntDropDownField>()
+                {
+                    new IntDropDownField() { Value = 0}
+                };
+
+                categoryTypes.AddRange(response.Data.Select(c => new IntDropDownField
                 {
                     Value = c.Id,
                     Text = c.Name
-                }).ToList();
+                }).ToList());
+
+                return categoryTypes;
             }
 
             return new List<IntDropDownField>();

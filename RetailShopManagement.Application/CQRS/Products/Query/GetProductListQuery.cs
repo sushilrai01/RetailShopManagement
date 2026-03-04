@@ -14,7 +14,9 @@ namespace RetailShopManagement.Application.CQRS.Products.Query
     public class GetProductListQuery : IRequest<IList<ProductDto>>
 
     {
-
+        public int CategoryId { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
     }
 
     public class GetProductListQueryHandler(ApplicationDbContext context
@@ -25,8 +27,13 @@ namespace RetailShopManagement.Application.CQRS.Products.Query
         {
             //await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
+            var fromDate = request.FromDate ?? DateTime.Now.Date.AddDays(-14);
+            var toDate = request.ToDate ?? DateTime.Now;
+
             return await context.Products
                 .Include(x => x.Category)
+                .Where(x => x.Category.Id == request.CategoryId &&
+                            (x.CreatedOn >= fromDate && x.CreatedOn < toDate.Date.AddDays(1)))
                 .AsNoTracking()
                 .Select(x => new ProductDto()
                 {
@@ -36,6 +43,7 @@ namespace RetailShopManagement.Application.CQRS.Products.Query
                     Price = x.Price,
                     Quantity = x.Quantity,
                     Unit = x.Unit,
+                    CreatedOn = x.CreatedOn,
                     CategoryId = x.CategoryId,
                     CategoryName = x.Category.Name
                 })

@@ -6,6 +6,6 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Products
 {
     public interface IProductService
     {
-        Task<ApiResponse<IList<ProductDto>>> GetAllProductsAsync();
+        Task<ApiResponse<IList<ProductDto>>> GetAllProductsAsync(int categoryId, DateTime? fromDate = null, DateTime? toDate = null);
     }
 }

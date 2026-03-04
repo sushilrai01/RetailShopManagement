@@ -17,7 +17,8 @@ namespace RetailShopManagement.Application.Common.Models
         public string Unit { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
-    } 
+        public DateTime CreatedOn { get; set; }
+    }
 
     public class CategoryDto
     {
