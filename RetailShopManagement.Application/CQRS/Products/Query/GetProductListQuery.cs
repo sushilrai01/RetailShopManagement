@@ -39,6 +39,7 @@ namespace RetailShopManagement.Application.CQRS.Products.Query
                     CategoryId = x.CategoryId,
                     CategoryName = x.Category.Name
                 })
+                .OrderBy(x => x.CategoryId)
                 .ToListAsync(cancellationToken);
 
             //return await productService.GetAllProductsAsync();

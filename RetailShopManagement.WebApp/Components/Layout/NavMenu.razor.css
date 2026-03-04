@@ -89,6 +89,10 @@
     display: block;
 }
 
+.nav-icon-margin-right {
+    margin-right: 0.75rem;
+}
+
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;

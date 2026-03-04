@@ -17,5 +17,13 @@ namespace RetailShopManagement.Application.Common.Models
         public string Unit { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
+    } 
+
+    public class CategoryDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public IList<ProductDto> Products { get; set; } = new List<ProductDto>();
     }
+
 }

@@ -1,8 +1,8 @@
-﻿@page "/product"
+﻿@page "/products"
 @* @rendermode InteractiveServer*@
 
 @inject IProductService ProductService
-@inject IJSRuntime Js
+
 @attribute [StreamRendering]
 
 <PageTitle>Products</PageTitle>
@@ -43,7 +43,13 @@ else
                         <button class="btn btn-info" @onclick="() => ShowProduct(item)"
                                 @onclick:stopPropagation="true">
                             <i class="fa-solid fa-info"></i>
-                            Show Details
+                            Details
+                        </button>
+
+                        <button class="btn btn-info mx-1" @onclick="() => ShowProduct(item)"
+                                @onclick:stopPropagation="true">
+                            <i class="fa-solid fa-trash-can"></i>
+                            Delete
                         </button>
                     </td>
                 </tr>
@@ -55,11 +61,11 @@ else
 @code {
     private List<ProductDto> productList = new List<ProductDto>();
     private ProductDto? SelectedProduct { get; set; }
+    private IList<IntDropDownField> categoryTypes { get; set; } = new List<IntDropDownField>();
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(500);
-
+        categoryTypes = await CategoryTypes;
         await LoadProducts();
         StateHasChanged();
     }
@@ -100,7 +106,7 @@ else
 
         if (SelectedProduct is null)
         {
-            await Js.InvokeVoidAsync(
+            await Javascript.InvokeVoidAsync(
                 "alert",
                 "Please select item."
             );
@@ -109,7 +115,7 @@ else
 
         var alertMsg = $"ProductDto: {SelectedProduct.Name} - ${SelectedProduct.Price} - {SelectedProduct.CategoryName}";
 
-        await Js.InvokeVoidAsync(
+        await Javascript.InvokeVoidAsync(
             "alert",
             alertMsg);
     }

@@ -3,6 +3,7 @@ using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.CQRS.Products.Query;
 using RetailShopManagement.Domain.Entities;
 using RetailShopManagement.Domain.Models.Common;
+using RetailShopManagement.WebApp.Services.AppServices.Categories;
 
 namespace RetailShopManagement.WebApp.Services.AppServices.Products
 {
