@@ -128,7 +128,7 @@
             ToastService.ShowWarning("Please enter quantity.");
             return false;
         }
-        else if(ProductModel.Unit != UnitsConst.None)
+        else if(ProductModel.Unit == UnitsConst.None)
         {
             ToastService.ShowWarning("Please Select unit");
             return false;
