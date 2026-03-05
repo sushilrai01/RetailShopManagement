@@ -1,0 +1,58 @@
+﻿
+/*Toasts*/
+
+.bg-toast-success {
+    background-color: rgb(10 121 66) !important;
+}
+
+.bg-toast-info {
+    background-color: rgb(52 212 244) !important;
+}
+
+.bg-toast-warning {
+    background-color: rgb(243 192 39) !important;
+}
+
+.bg-toast-danger {
+    background-color: rgb(204 44 59) !important;
+}
+
+/*Toast Progress bar*/
+.toast-progress {
+    height: 3px;
+    background: #e9ecef;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 100%;
+    background: #0d6efd;
+    animation: progress linear forwards;
+}
+
+@keyframes progress {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0%;
+    }
+}
+
+/*Toast Slide In animation*/
+.slide-in {
+    animation: slideIn 0.35s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

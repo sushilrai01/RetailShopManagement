@@ -1,0 +1,62 @@
+﻿@using RetailShopManagement.WebApp.Services.AppServices.ToastService
+
+<div class="toast-container position-fixed top-0 end-0 p-3 slide-in" style="z-index: 99999999;">
+    @foreach (var toastOption in ToastOptions)
+    {
+        <div class="toast show align-items-center text-white bg-toast-@toastOption.Type border-0" style="border-radius: 5%;">
+            <div class="toast show shadow-lg border border-2 rounded">
+                <!-- TITLE HEADER -->
+                <div class="toast-header text-white bg-toast-@toastOption.Type">
+                    <strong class="me-auto">@toastOption.Title</strong>
+                    <button class="btn-close btn-close-white"
+                            @onclick="() => Hide(toastOption.Id)"></button>
+                </div>
+
+                <!-- MESSAGE BODY -->
+                <div class="toast-body bg-toast-@toastOption.Type">
+                    @toastOption.Content
+                </div>
+                <div class="toast-progress">
+                    <div class="progress-bar" style="animation-duration:@($"{toastOption.ToastTimeOut}ms")"></div>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+@code {
+
+    private List<ToastOption> ToastOptions { get; set; } = new() { };
+
+    private bool visible;
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += ShowToast;
+    }
+
+    private async void ShowToast(ToastOption options)
+    {
+        options.Id = Guid.NewGuid();
+        ToastOptions.Add(options);
+        // visible = true;
+
+        StateHasChanged();
+
+        await Task.Delay(options.ToastTimeOut);
+        Hide(options.Id);
+    }
+
+    private void Hide(Guid toastId)
+    {
+        // visible = false;
+        var toast = ToastOptions.FirstOrDefault(x => x.Id == toastId);
+
+        if (toast != null)
+        {
+            ToastOptions.Remove(toast);
+            StateHasChanged();
+        }
+    }
+}

@@ -145,14 +145,21 @@
 
     private async Task LoadProducts()
     {
-        if (selectedCategoryId == 0) return;
+        if (selectedCategoryId == 0)
+        {
+            ToastService.ShowInfo("Please select product category.");
+
+            return;
+        }
 
         var response = await ProductService.GetAllProductsAsync(selectedCategoryId, fromDate: StartDate, toDate: EndDate);
         if (!response.IsSuccess)
         {
+            ToastService.ShowError(response.Message);
             return;
         }
 
+        ToastService.ShowSuccess(response.Message);
         productList = response.Data.ToList();
 
         StateHasChanged();

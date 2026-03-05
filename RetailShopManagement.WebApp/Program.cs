@@ -4,6 +4,7 @@ using RetailShopManagement.WebApp.Components;
 using RetailShopManagement.WebApp.Extensions;
 using RetailShopManagement.WebApp.Services.AppServices.Products;
 using System.Reflection;
+using RetailShopManagement.WebApp.Services.AppServices.ToastService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,8 @@ builder.Services.AddPersistence(configuration);
 builder.Services.AddInfrastructure(configuration);
 
 builder.Services.AddApplicationModule();
+
+builder.Services.AddScoped<ToastService>();
 
 var app = builder.Build();
 
