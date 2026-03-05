@@ -21,8 +21,4 @@
     <ProjectReference Include="..\RetailShopManagement.Domain\RetailShopManagement.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="CQRS\Categories\Command\" />
-  </ItemGroup>
-
 </Project>

@@ -1,0 +1,62 @@
+﻿@page "/category/create"
+
+<h3>Create Category</h3>
+
+<EditForm Model="CategoryModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    @* <ValidationSummary /> *@
+
+    <div class="row">
+
+        <!-- Name -->
+        <div class="col-md-12 mb-3">
+            <label class="form-label sn-required-field">Category Name</label>
+            <InputText class="form-control" @bind-Value="CategoryModel.Name" />
+        </div>
+        @* 
+        <!-- Description -->
+        <div class="col-md-12 mb-3">
+            <label class="form-label sn-required-field">Description</label>
+            <InputTextArea class="form-control" @bind-Value="ProductModel.Description" rows="4" />
+        </div>  *@
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        <i class="fa-regular fa-floppy-disk"></i>
+        Save
+    </button>
+
+    <a href="/categories" class="btn btn-secondary ms-2">
+        Cancel
+    </a>
+
+</EditForm>
+
+@code {
+
+    private CategoryDto CategoryModel { get; set; } = new();
+
+    private IList<IntDropDownField> CategoryFields { get; set; } = new List<IntDropDownField>();
+ 
+    protected override async Task OnInitializedAsync()
+    {
+        CategoryFields = await CategoryTypes;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // TODO: Call CreateProductCommand
+        var response = await CategoryService.CreateCategoryAsync(CategoryModel);
+
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            NavigationManager.NavigateTo("/error");
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message);
+        NavigationManager.NavigateTo("/products");
+    }
+}
