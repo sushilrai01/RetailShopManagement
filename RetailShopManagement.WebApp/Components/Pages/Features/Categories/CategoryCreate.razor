@@ -46,7 +46,6 @@
 
     private async Task HandleValidSubmit()
     {
-        // TODO: Call CreateProductCommand
         var response = await CategoryService.CreateCategoryAsync(CategoryModel);
 
         if (!response.IsSuccess)

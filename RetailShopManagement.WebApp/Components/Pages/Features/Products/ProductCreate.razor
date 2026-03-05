@@ -86,7 +86,8 @@
 
     private async Task HandleValidSubmit()
     {
-        // TODO: Call CreateProductCommand
+        if (!IsValidSave()) return;
+
         var response = await ProductService.CreateProductAsync(ProductModel);
 
         if (!response.IsSuccess)
@@ -98,5 +99,41 @@
 
         ToastService.ShowSuccess(response.Message);
         NavigationManager.NavigateTo("/products");
+    }
+
+    private bool IsValidSave()
+    {
+        if(ProductModel.CategoryId <1)
+        {
+            ToastService.ShowWarning("Please Select category.");
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(ProductModel.Name))
+        {
+            ToastService.ShowWarning("Please enter product name.");
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(ProductModel.Description))
+        {
+            ToastService.ShowWarning("Please enter description.");
+            return false;
+        }
+        else if(ProductModel.Price < 1)
+        {
+            ToastService.ShowWarning("Please enter price");
+            return false;
+        }
+        else if(ProductModel.Quantity == 0)
+        {
+            ToastService.ShowWarning("Please enter quantity.");
+            return false;
+        }
+        else if(ProductModel.Unit != UnitsConst.None)
+        {
+            ToastService.ShowWarning("Please Select unit");
+            return false;
+        }
+
+        return true;
     }
 }
