@@ -16,12 +16,13 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
         public int CategoryId { get; set; }
     }
 
-    public class CreateProductCommandHandler(ApplicationDbContext context
-    /*, IDbContextFactory<ApplicationDbContext> contextFactory*/)
+    public class CreateProductCommandHandler( IDbContextFactory<ApplicationDbContext> contextFactory)
         : IRequestHandler<CreateProductCommand, Guid>
     {
         public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
+            await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
             var product = new Product()
             {
                 Id = Guid.NewGuid(),

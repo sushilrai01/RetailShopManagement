@@ -10,12 +10,13 @@ namespace RetailShopManagement.Application.CQRS.Categories.Command
         public string Name { get; set; }
     }
 
-    public class CreateCategoryCommandHandler(ApplicationDbContext context
-    /*, IDbContextFactory<ApplicationDbContext> contextFactory*/)
+    public class CreateCategoryCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
         : IRequestHandler<CreateCategoryCommand, Unit>
     {
         public async Task<Unit> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
+            await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+           
             var existingCategory = await context.Categories
                 .Where(x => x.Name.ToLower() == request.Name.ToLower()).
                 FirstOrDefaultAsync(cancellationToken);

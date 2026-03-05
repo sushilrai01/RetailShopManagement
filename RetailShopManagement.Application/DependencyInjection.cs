@@ -27,9 +27,13 @@ namespace RetailShopManagement.Application
 
         public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContextFactory<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), opt =>
+                {
+                    opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                    opt.CommandTimeout(600);
+                });
             });
 
             return services;
