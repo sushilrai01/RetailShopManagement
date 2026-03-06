@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using RetailShopManagement.Domain.Models.Common;
+using RetailShopManagement.WebApp.Services.AppServices;
 using RetailShopManagement.WebApp.Services.AppServices.Categories;
 using RetailShopManagement.WebApp.Services.AppServices.ToastService;
 
@@ -11,6 +12,7 @@ namespace RetailShopManagement.WebApp.Components
         [Inject] protected IJSRuntime Javascript { get; set; }
         [Inject] protected ICategoryService CategoryService { get; set; }
         [Inject] protected ToastService ToastService { get; set; }
+        [Inject] protected JsModalService JsModalService { get; set; }
         protected CancellationTokenSource CancellationTokenSource { get; set; }
         protected Task<IList<IntDropDownField>> CategoryTypes => GetCategoryTypes();
 
