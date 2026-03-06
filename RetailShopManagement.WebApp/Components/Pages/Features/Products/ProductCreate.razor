@@ -113,11 +113,6 @@
             ToastService.ShowWarning("Please enter product name.");
             return false;
         }
-        else if (string.IsNullOrWhiteSpace(ProductModel.Description))
-        {
-            ToastService.ShowWarning("Please enter description.");
-            return false;
-        }
         else if(ProductModel.Price < 1)
         {
             ToastService.ShowWarning("Please enter price");
@@ -133,7 +128,11 @@
             ToastService.ShowWarning("Please Select unit");
             return false;
         }
-
+        else if (string.IsNullOrWhiteSpace(ProductModel.Description))
+        {
+            ToastService.ShowWarning("Please enter description.");
+            return false;
+        }
         return true;
     }
 }

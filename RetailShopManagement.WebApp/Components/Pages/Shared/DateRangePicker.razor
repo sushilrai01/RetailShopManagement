@@ -59,6 +59,11 @@
             StartDate = DateTime.Now.Date.AddDays(-14);
             EndDate = DateTime.Now.Date;
         }
+        else if (EndDate < StartDate)
+        {
+            ToastService.ShowInfo("End date cannot be less than start date");
+            EndDate = StartDate.Value.Date.AddDays(1);
+        }
     }
 
     private async Task OnStartDateChanged(DateTime? value)
