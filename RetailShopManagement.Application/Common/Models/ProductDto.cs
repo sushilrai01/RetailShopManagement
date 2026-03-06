@@ -25,6 +25,7 @@ namespace RetailShopManagement.Application.Common.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public DateTime CreatedOn { get; set; }
         public IList<ProductDto> Products { get; set; } = new List<ProductDto>();
     }
 
