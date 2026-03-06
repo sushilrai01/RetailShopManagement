@@ -25,7 +25,9 @@ namespace RetailShopManagement.Application.CQRS.Categories.Query
                 {
                     Id = x.Id,
                     Name = x.Name,
+                    CreatedOn = x.CreatedOn
                 })
+                .OrderBy(x => x.Name)
                 .ToListAsync(cancellationToken);
 
             //return await productService.GetAllProductsAsync();
