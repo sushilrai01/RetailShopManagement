@@ -7,4 +7,11 @@
     <i class="fa fa-shop"></i>
 </h1>
 
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+}
+
 

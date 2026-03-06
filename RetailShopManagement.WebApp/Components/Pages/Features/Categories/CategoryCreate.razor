@@ -46,6 +46,12 @@
 
     private async Task HandleValidSubmit()
     {
+        if (string.IsNullOrWhiteSpace(CategoryModel.Name))
+        {
+            ToastService.ShowWarning("Category name is required.");
+            return;
+        }
+
         var response = await CategoryService.CreateCategoryAsync(CategoryModel);
 
         if (!response.IsSuccess)
