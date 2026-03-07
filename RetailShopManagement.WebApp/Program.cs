@@ -30,6 +30,9 @@ builder.Services.AddApplicationModule();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<JsModalService>();
 
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,6 +44,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
