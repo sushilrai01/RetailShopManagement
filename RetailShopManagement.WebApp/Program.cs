@@ -4,7 +4,10 @@ using RetailShopManagement.WebApp.Components;
 using RetailShopManagement.WebApp.Extensions;
 using RetailShopManagement.WebApp.Services.AppServices;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using RetailShopManagement.WebApp.Services.AppServices.ToastService;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +33,28 @@ builder.Services.AddApplicationModule();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<JsModalService>();
 
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = configuration["JwtConfig:Issuer"],
+            ValidAudience = configuration["JwtConfig:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtConfig:Key"]!))
+        };
+    });
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

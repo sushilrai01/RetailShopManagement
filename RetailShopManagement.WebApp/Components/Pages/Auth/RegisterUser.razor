@@ -1,0 +1,114 @@
+﻿@page "/register/user"
+@layout LoginLayout
+
+<PageTitle>Register</PageTitle>
+
+<div class="login-container">
+
+   @*  <div class="login-image">
+        <img src="favicon.png" height="430px" width="391px" alt="Register Illustration" />
+    </div>
+ *@
+    <div class="login-form">
+
+        <div class="login-card reg-width">
+
+            <h3>Retail Shop Management</h3>
+            <p class="subtitle">Create your account</p>
+
+            @if (!string.IsNullOrEmpty(registerErrorMessage))
+            {
+                <div class="login-error">
+                    <small>@registerErrorMessage</small>
+                </div>
+            }
+
+            <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label sn-required-field>Full Name</label>
+                        <InputText class="form-control"
+                                   @bind-Value="registerModel.FullName"
+                                   placeholder="Enter email" />
+                    </div>
+
+                    <div class="form-group col-6">
+                        <label sn-required-field>Mobile No</label>
+                        <InputText class="form-control"
+                                   @bind-Value="registerModel.MobileNo"
+                                   placeholder="Enter mobile number" />
+                    </div>
+                </div>
+                
+
+                <div class="form-group">
+                    <label sn-required-field>Address</label>
+                    <InputText class="form-control"
+                               @bind-Value="registerModel.Address"
+                               placeholder="Enter address" />
+                </div>
+
+                <div class="form-group">
+                    <label sn-required-field>Email</label>
+                    <InputText class="form-control"
+                               @bind-Value="registerModel.Email"
+                               placeholder="Enter email" />
+                </div>
+
+                <div class="form-group">
+                    <label sn-required-field>Password</label>
+
+                    <div class="password-wrapper">
+                        <InputText type="@(showPassword ? "text" : "password")"
+                                   class="form-control"
+                                   @bind-Value="registerModel.Password"
+                                   placeholder="Create password" />
+
+                        <button type="button" class="btn-eye"
+                                @onclick="() => showPassword = !showPassword">
+
+                            <i class="fa @(showPassword ? "fa-eye-slash" : "fa-eye")"
+                               style="font-weight: lighter;"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+                <button class="btn-login">Register</button>
+
+                <div class="register-link">
+                    Already have an account?
+                    <a href="/login">Login</a>
+                </div>
+
+            </EditForm>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    private RegisterModel registerModel = new();
+    private string registerErrorMessage;
+    private bool showPassword = false;
+
+    private async Task HandleRegister()
+    {
+        await JsModalService.ConsoleLogAsync("Register clicked");
+
+        if (string.IsNullOrWhiteSpace(registerModel.Email) ||
+            string.IsNullOrWhiteSpace(registerModel.Password))
+        {
+            registerErrorMessage = "Email and password are required.";
+            return;
+        }
+
+        // TODO: Save user to database
+
+        NavigationManager.NavigateTo("/login");
+    }
+
+}

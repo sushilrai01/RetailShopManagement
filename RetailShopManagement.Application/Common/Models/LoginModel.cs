@@ -1,4 +1,4 @@
-﻿namespace RetailShopManagement.WebApp.Components.Pages.Auth
+﻿namespace RetailShopManagement.Application.Common.Models
 {
     public class LoginModel
     {
