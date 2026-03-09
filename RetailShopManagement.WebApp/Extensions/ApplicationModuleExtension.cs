@@ -1,4 +1,5 @@
-﻿using RetailShopManagement.WebApp.Services.AppServices.Categories;
+﻿using RetailShopManagement.WebApp.Services.AppServices.AuthServices;
+using RetailShopManagement.WebApp.Services.AppServices.Categories;
 using RetailShopManagement.WebApp.Services.AppServices.Products;
 
 namespace RetailShopManagement.WebApp.Extensions
@@ -9,6 +10,7 @@ namespace RetailShopManagement.WebApp.Extensions
         {
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IAuthService, AuthService>();
 
         }
     }
