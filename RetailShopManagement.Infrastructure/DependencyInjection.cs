@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using RetailShopManagement.Application.Helpers;
 using RetailShopManagement.Application.Persistence;
+using RetailShopManagement.Infrastructure.Helpers;
 using RetailShopManagement.Infrastructure.Persistence;
-//using RetailShopManagement.Domain.RepositoryInterfaces;
-//using RetailShopManagement.Infrastructure.Repositories;
 
 namespace RetailShopManagement.Infrastructure
 {
@@ -24,7 +24,7 @@ namespace RetailShopManagement.Infrastructure
             //    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             //});
 
-            //services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
 
             return services;
         }

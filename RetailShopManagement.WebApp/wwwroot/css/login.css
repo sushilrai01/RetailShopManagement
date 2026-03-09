@@ -51,6 +51,13 @@
     text-align: center;
 }
 
+.register-error {
+    color: #d9534f;
+    font-weight: 600;
+    margin: 15px 0;
+    text-align: left;
+}
+
 .password-wrapper {
     position: relative;
 }
@@ -81,6 +88,7 @@
     margin-top: 15px;
     font-size: 14px;
 }
+
 .subtitle {
     color: #777;
     margin-bottom: 20px;

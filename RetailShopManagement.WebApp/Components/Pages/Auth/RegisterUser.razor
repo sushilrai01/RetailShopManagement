@@ -5,7 +5,7 @@
 
 <div class="login-container">
 
-   @*  <div class="login-image">
+    @*  <div class="login-image">
         <img src="favicon.png" height="430px" width="391px" alt="Register Illustration" />
     </div>
  *@
@@ -18,8 +18,8 @@
 
             @if (!string.IsNullOrEmpty(registerErrorMessage))
             {
-                <div class="login-error">
-                    <small>@registerErrorMessage</small>
+                <div class="register-error">
+                    <i class="fa-solid fa-circle fa-2xs"></i> <small>@registerErrorMessage</small>
                 </div>
             }
 
@@ -29,7 +29,7 @@
                         <label sn-required-field>Full Name</label>
                         <InputText class="form-control"
                                    @bind-Value="registerModel.FullName"
-                                   placeholder="Enter email" />
+                                   placeholder="Enter full name" />
                     </div>
 
                     <div class="form-group col-6">
@@ -39,7 +39,7 @@
                                    placeholder="Enter mobile number" />
                     </div>
                 </div>
-                
+
 
                 <div class="form-group">
                     <label sn-required-field>Address</label>
@@ -47,12 +47,20 @@
                                @bind-Value="registerModel.Address"
                                placeholder="Enter address" />
                 </div>
+                <div class="row">
+                    <div class="form-group col-6">
+                        <label sn-required-field>Email</label>
+                        <InputText class="form-control"
+                                   @bind-Value="registerModel.Email"
+                                   placeholder="Enter email" />
+                    </div>
 
-                <div class="form-group">
-                    <label sn-required-field>Email</label>
-                    <InputText class="form-control"
-                               @bind-Value="registerModel.Email"
-                               placeholder="Enter email" />
+                    <div class="form-group col-6">
+                        <label sn-required-field>Username</label>
+                        <InputText class="form-control"
+                                   @bind-Value="registerModel.Username"
+                                   placeholder="Enter username" />
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -63,6 +71,24 @@
                                    class="form-control"
                                    @bind-Value="registerModel.Password"
                                    placeholder="Create password" />
+
+                        <button type="button" class="btn-eye"
+                                @onclick="() => showPassword = !showPassword">
+
+                            <i class="fa @(showPassword ? "fa-eye-slash" : "fa-eye")"
+                               style="font-weight: lighter;"></i>
+                        </button>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label sn-required-field>Confirm Password</label>
+
+                    <div class="password-wrapper">
+                        <InputText type="@(showPassword ? "text" : "password")"
+                                   class="form-control"
+                                   @bind-Value="registerModel.ConfirmPassword"
+                                   placeholder="Confirm password" />
 
                         <button type="button" class="btn-eye"
                                 @onclick="() => showPassword = !showPassword">
@@ -94,21 +120,64 @@
     private RegisterModel registerModel = new();
     private string registerErrorMessage;
     private bool showPassword = false;
+    [Inject] private IAuthService AuthService { get; set; }
 
     private async Task HandleRegister()
     {
         await JsModalService.ConsoleLogAsync("Register clicked");
 
-        if (string.IsNullOrWhiteSpace(registerModel.Email) ||
-            string.IsNullOrWhiteSpace(registerModel.Password))
+        if (!IsValidSubmit()) return;
+
+        var response = await AuthService.RegisterUserAsync(registerModel);
+
+        if (!response.IsSuccess)
         {
-            registerErrorMessage = "Email and password are required.";
+            ToastService.ShowError(response.Message);
             return;
         }
 
-        // TODO: Save user to database
+        ToastService.ShowSuccess(response.Message);
 
-        NavigationManager.NavigateTo("/login");
+        await Task.Delay(3000);
+
+        NavigationManager.NavigateTo("/login", true);
+    }
+
+    private bool IsValidSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(registerModel.FullName))
+        {
+            registerErrorMessage = "Fullname is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(registerModel.MobileNo))
+        {
+            registerErrorMessage = "Mobile No. is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(registerModel.Email))
+        {
+            registerErrorMessage = "Email is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(registerModel.Password))
+        {
+            registerErrorMessage = "Password is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(registerModel.ConfirmPassword) ||
+                 registerModel.Password != registerModel.ConfirmPassword)
+        {
+            registerErrorMessage = "Passwords don't match!";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+
+        return true;
     }
 
 }
