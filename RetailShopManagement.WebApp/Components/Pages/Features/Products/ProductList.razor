@@ -4,7 +4,7 @@
 @inject IProductService ProductService
 
 @attribute [StreamRendering]
-
+  
 <PageTitle>Products</PageTitle>
 
 <div class="card shadow-sm mb-3">
@@ -130,6 +130,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if(!IsAdmin()) 
+        {
+            NavigationManager.NavigateTo("/access-denied");
+            return;
+        }
+
         categoryTypes = await CategoryTypes;
         await LoadProducts();
         StateHasChanged();

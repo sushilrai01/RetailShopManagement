@@ -1,5 +1,7 @@
 ﻿@page "/category/create"
 
+@* @attribute [Authorize(Roles = "User")] *@
+
 <h3>Create Category</h3>
 
 <EditForm Model="CategoryModel" OnValidSubmit="HandleValidSubmit">

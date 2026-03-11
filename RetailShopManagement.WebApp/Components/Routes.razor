@@ -1,9 +1,9 @@
 ﻿<CascadingAuthenticationState>
     <Router AppAssembly="typeof(Program).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
                 <NotAuthorized>
-                    <NotAuthorized />
+                    <NotAuthorizedComponent />
                 </NotAuthorized>
                 <Authorizing>
                     <div class="flex flex-col items-center justify-center mt-10 text-neutral-700">
@@ -17,7 +17,7 @@
         <NotFound>
             <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <NotFound/>
+                <NotFound />
             </LayoutView>
         </NotFound>
     </Router>

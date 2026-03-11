@@ -1,4 +1,4 @@
-﻿@page "/login"
+﻿@page "/loginOld"
 @layout LoginLayout
 
 <PageTitle>Login</PageTitle>
@@ -24,11 +24,13 @@
                 </div>
             }
 
-            <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+            <form method="post" action="/loginhandler">
+                <AntiforgeryToken />
+                <input type="hidden" name="ReturnUrl" value="/products" />
 
                 <div class="form-group">
                     <label>Email</label>
-                    <InputText class="form-control" @bind-Value="loginModel.Email" placeholder="Email or username" />
+                    <InputText class="form-control" @bind-Value="LoginModel.Email" placeholder="Email or username" />
                 </div>
 
                 <div class="form-group">
@@ -36,7 +38,7 @@
                     <div class="password-wrapper">
                         <InputText type="@(showPassword ? "text" : "password")"
                                    class="form-control"
-                                   @bind-Value="loginModel.Password"
+                                   @bind-Value="LoginModel.Password"
                                    placeholder="Password" />
                         <button type="button" class="btn-eye" @onclick="() => showPassword = !showPassword">
                             <i class="fa @(showPassword ? "fa-eye-slash" : "fa-eye")" style="font-weight: lighter;"></i>
@@ -48,13 +50,13 @@
                     <a href="/forgot-password">Forgot Password?</a>
                 </div>
 
-                <button class="btn-login">Login</button>
+                <button type="submit" class="btn-login">Login</button>
 
                 <div class="register-link">
                     Don't have an account?
                     <a href="/register/user">Register</a>
                 </div>
-            </EditForm>
+            </form>
 
         </div>
 
@@ -63,29 +65,42 @@
 </div>
 
 @code {
+    // [CascadingParameter]
+    // public HttpContext? HttpContext { get; set; }
 
-    private LoginModel loginModel = new();
+    [SupplyParameterFromForm] public LoginModel LoginModel { get; set; } = new();
+
     private string loginErrorMessage;
     private bool showPassword = false;
+
+    [Inject] private IAuthService AuthService { get; set; }
 
     private async Task HandleLogin()
     {
         await JsModalService.ConsoleLogAsync("Login clicked");
 
-        if (string.IsNullOrWhiteSpace(loginModel.Email) && string.IsNullOrWhiteSpace(loginModel.Password))
+        if (string.IsNullOrWhiteSpace(LoginModel.Email) ||
+            string.IsNullOrWhiteSpace(LoginModel.Password))
         {
             loginErrorMessage = "Please enter email or password!";
             return;
         }
-        if (loginModel.Email == "admin" && loginModel.Password == "admin")
+
+        var response = await AuthService.LoginAsync(LoginModel.Email, LoginModel.Password);
+
+        if (!response.IsSuccess)
         {
-            NavigationManager.NavigateTo("/products");
+            loginErrorMessage = response.Message;
+            ToastService.ShowError(response.Message);
+            return;
         }
-        else
-        {
-            loginErrorMessage = "The email or password you’ve entered is incorrect";
-            StateHasChanged();
-        }
+
+        // Navigate to dashboard
+        NavigationManager.NavigateTo("/products", forceLoad: true);
+        // }
+
     }
 
-} 
+}
+
+}
