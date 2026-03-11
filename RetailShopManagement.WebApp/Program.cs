@@ -1,13 +1,17 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
+using Microsoft.IdentityModel.Tokens;
 using RetailShopManagement.Application;
 using RetailShopManagement.Infrastructure;
 using RetailShopManagement.WebApp.Components;
 using RetailShopManagement.WebApp.Extensions;
+using RetailShopManagement.WebApp.Middlewares;
 using RetailShopManagement.WebApp.Services.AppServices;
-using System.Reflection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using RetailShopManagement.WebApp.Services.AppServices.ToastService;
+using System.Reflection;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,15 +27,19 @@ var configuration = builder.Configuration;
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddRazorPages();
 
 builder.Services.AddApplication(configuration);
-builder.Services.AddPersistence(configuration); 
+builder.Services.AddPersistence(configuration);
 builder.Services.AddInfrastructure(configuration);
 
 builder.Services.AddApplicationModule();
 
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<JsModalService>();
+
+// Add controllers so ApiController endpoints are available
+builder.Services.AddControllers();
 
 //builder.Services.AddAuthentication(options =>
 //    {
@@ -54,9 +62,33 @@ builder.Services.AddScoped<JsModalService>();
 //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtConfig:Key"]!))
 //        };
 //    });
+builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "custom_auth_token";
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
+        options.AccessDeniedPath = "/access-denied";
+
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.MaxAge = TimeSpan.FromMinutes(30);
+
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    });
+
+builder.Services.AddAuthorization(); 
+
+
+//builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingAuthenticationStateProvider>();
+builder.Services.AddCascadingAuthenticationState();
+
+//builder.Services.AddScoped<AuthenticationStateProvider,
+//    ServerAuthenticationStateProvider>();
 
 var app = builder.Build();
 
@@ -69,15 +101,21 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseAuthentication();
+
+app.UseCustomAwareMiddleware();
+
 app.UseAuthorization();
 
-app.UseStaticFiles();
 app.UseAntiforgery();
+
+app.MapControllers(); 
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+app.MapRazorPages();
 
 try
 {
