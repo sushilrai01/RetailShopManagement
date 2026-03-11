@@ -10,11 +10,21 @@
         <div class="top-row px-4">
             <AuthorizeView>
                 <Authorized>
-                    <a href="/profile">Profile</a>
-                    <a href="/logout">Logout</a>
+                    <form method="post" action="/logout">
+                        <AntiforgeryToken />
+                        <button type="submit" class="btn btn-secondary">
+                            Logout
+                            <i class="fa-solid fa-arrow-right-from-bracket fa-sm"></i>
+                        </button>
+                    </form>
                 </Authorized>
                 <NotAuthorized>
-                    <a href="/login">Login</a>
+                    <a href="/login">
+                        <button class="btn btn-success">
+                            Login
+                            <i class="fa-solid fa-arrow-right-to-bracket fa-sm"></i>
+                        </button>
+                    </a>
                 </NotAuthorized>
             </AuthorizeView>
         </div>
