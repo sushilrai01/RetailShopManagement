@@ -12,7 +12,7 @@ namespace RetailShopManagement.WebApp.Pages;
 [AllowAnonymous]
 public class LoginHandlerModel(IMediator mediator) : PageModel
 {
-    [BindProperty] public string Email     { get; set; } = string.Empty;
+    [BindProperty] public string Username     { get; set; } = string.Empty;
     [BindProperty] public string Password  { get; set; } = string.Empty;
     [BindProperty] public string ReturnUrl { get; set; } = "/";
 
@@ -27,12 +27,12 @@ public class LoginHandlerModel(IMediator mediator) : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
+        if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             return Redirect("/login?error=Please+enter+email+and+password");
 
         var response = await mediator.Send(new LoginUserCommand
         {
-            Email    = Email,
+            Username    = Username,
             Password = Password
         });
 

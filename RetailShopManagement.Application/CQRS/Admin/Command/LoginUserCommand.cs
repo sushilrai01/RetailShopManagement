@@ -8,7 +8,7 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
 {
     public class LoginUserCommand : IRequest<LoginResponseModel>
     {
-        public string Email { get; set; } = null!;
+        public string Username { get; set; } = null!;
         public string Password { get; set; } = null!;
     }
 
@@ -22,7 +22,8 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
             await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
             var user = await context.Users
-                .FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
+                .FirstOrDefaultAsync(x => (x.Email == request.Username ||
+                                           x.Username == request.Username), cancellationToken);
 
             if (user == null || !hasher.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {

@@ -23,7 +23,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
                 // 1. Send command through MediatR
                 var response = await Mediator.Send(new LoginUserCommand
                 {
-                    Email = email,
+                    Username = email,
                     Password = password
                 });
 

@@ -20,7 +20,7 @@ public class AuthController(IAuthService authService, IMediator mediator) : Cont
     {
         var response = await mediator.Send(new LoginUserCommand()
         {
-            Email = model.Email,
+            Username = model.Username,
             Password = model.Password
         });
 
