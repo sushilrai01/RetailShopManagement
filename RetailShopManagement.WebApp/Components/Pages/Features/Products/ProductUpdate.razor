@@ -1,4 +1,4 @@
-﻿@page "/product/create"
+﻿@page "/product/edit/{Id:guid}"
 
 @using RetailShopManagement.Domain.Constants
 
@@ -73,6 +73,7 @@
 </EditForm>
 
 @code {
+    [Parameter] public Guid Id { get; set; }
 
     private ProductDto ProductModel { get; set; } = new();
 
@@ -82,13 +83,29 @@
     protected override async Task OnInitializedAsync()
     {
         CategoryFields = await CategoryTypes;
+        await GetProductById();
+    }
+
+    private async Task GetProductById()
+    {
+        var response = await ProductService.GetProductByIdAsync(Id);
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message);
+        
+        ProductModel = response.Data;
+        StateHasChanged();
     }
 
     private async Task HandleValidSubmit()
     {
         if (!IsValidSave()) return;
 
-        var response = await ProductService.CreateProductAsync(ProductModel);
+        var response = await ProductService.UpdateProductAsync(ProductModel);
 
         if (!response.IsSuccess)
         {
@@ -102,7 +119,7 @@
 
     private bool IsValidSave()
     {
-        if(ProductModel.CategoryId <1)
+        if (ProductModel.CategoryId < 1)
         {
             ToastService.ShowWarning("Please Select category.");
             return false;
@@ -112,17 +129,17 @@
             ToastService.ShowWarning("Please enter product name.");
             return false;
         }
-        else if(ProductModel.Price < 1)
+        else if (ProductModel.Price < 1)
         {
             ToastService.ShowWarning("Please enter price");
             return false;
         }
-        else if(ProductModel.Quantity == 0)
+        else if (ProductModel.Quantity == 0)
         {
             ToastService.ShowWarning("Please enter quantity.");
             return false;
         }
-        else if(ProductModel.Unit == UnitsConst.None)
+        else if (ProductModel.Unit == UnitsConst.None)
         {
             ToastService.ShowWarning("Please Select unit");
             return false;

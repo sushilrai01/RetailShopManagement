@@ -4,7 +4,7 @@
 @inject IProductService ProductService
 
 @attribute [StreamRendering]
-  
+
 <PageTitle>Products</PageTitle>
 
 <div class="card shadow-sm mb-3">
@@ -106,7 +106,7 @@
                                 Edit
                             </button>
 
-                            <button class="btn btn-danger m-1" @onclick="() => ShowProductDetails(item)"
+                            <button class="btn btn-danger m-1" @onclick="() => Delete(item)"
                                     @onclick:stopPropagation="true">
                                 <i class="fa-solid fa-trash-can"></i>
                                 Delete
@@ -130,7 +130,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if(!IsAdmin()) 
+        if (!IsAdmin())
         {
             NavigationManager.NavigateTo("/access-denied");
             return;
@@ -234,5 +234,24 @@
         EndDate = dateRange.EndDate;
         await LoadProducts();
     }
+
+    private async Task Delete(ProductDto item)
+    {
+        var isConfirm = await JsModalService.ConfirmAsync("Are you sure you want to delete?");
+
+        if (!isConfirm) return;
+
+        var response = await ProductService.DeleteProductAsync(item.Id);
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message);
+        await LoadProducts();
+    }
+
+
 
 }
