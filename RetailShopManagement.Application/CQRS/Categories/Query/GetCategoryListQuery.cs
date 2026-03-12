@@ -25,12 +25,14 @@ namespace RetailShopManagement.Application.CQRS.Categories.Query
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    CreatedOn = x.CreatedOn
+                    CreatedOn = x.CreatedOn,
+                    CreatedBy = x.CreatedBy,
+                    LastModifiedOn = x.LastModifiedOn,
+                    LastModifiedBy = x.LastModifiedBy,
                 })
-                .OrderBy(x => x.Name)
+                .OrderByDescending(x => x.CreatedOn)
                 .ToListAsync(cancellationToken);
 
-            //return await productService.GetAllProductsAsync();
         }
     }
 }

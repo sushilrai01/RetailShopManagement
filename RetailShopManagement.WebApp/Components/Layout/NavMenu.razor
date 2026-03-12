@@ -8,14 +8,14 @@
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
 
         <AuthorizeView>
             <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                    </NavLink>
+                </div>
 
                 <!-- Accordion Menu for User Management -->
                 <div class="nav-item px-3">
@@ -60,7 +60,7 @@
                         <i class="fa-solid fa-chevron-down fa-sm chevron-icon" style="color: rgb(223, 220, 220);"></i>
                     </label>
                     <div class="submenu">
-                        <NavLink class="nav-link submenu-item" href="category/create">
+                        <NavLink class="nav-link submenu-item" href="categories">
                             <span class="nav-icon-margin-right">
                                 <i class="fa-solid fa-table-cells-large" style="color: rgb(223, 220, 220);"></i>
                             </span>

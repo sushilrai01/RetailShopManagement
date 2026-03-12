@@ -3,13 +3,44 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>
-    Welcome to Retail Shop Management app
-    <i class="fa fa-shop"></i>
-</h1>
 
+<div class="container text-center mt-5">
+    <div class="card shadow p-4" style="background-color: rgba(255, 255, 255, 0.8);">
+        <div class="card-body">
+            @* <h1 class="floating-text" style="color: #1e3a8a;"> *@
+            <h1 class="floating-text gradient-text">
+                Welcome to Retail Shop Management App
+                <i class="fa fa-shop"></i>
+            </h1>
+            <AuthorizeView>
+                <NotAuthorized>
+                    <div class="mt-4">
+                        <a class="btn btn-success btn-lg" href="/login">
+                            Go to Login
+                            <i class="fa-solid fa-arrow-right-to-bracket fa-sm"></i>
+                        </a>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</div>
 @code {
-    
+
 }
+<style>
+    .floating-text {
+        animation: floating 3s ease-in-out infinite;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2), 4px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+</style>
 
 

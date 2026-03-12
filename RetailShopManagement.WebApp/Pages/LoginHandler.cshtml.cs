@@ -14,7 +14,7 @@ public class LoginHandlerModel(IMediator mediator) : PageModel
 {
     [BindProperty] public string Email     { get; set; } = string.Empty;
     [BindProperty] public string Password  { get; set; } = string.Empty;
-    [BindProperty] public string ReturnUrl { get; set; } = "/products";
+    [BindProperty] public string ReturnUrl { get; set; } = "/";
 
     public IActionResult OnGet()
     {
@@ -61,6 +61,6 @@ public class LoginHandlerModel(IMediator mediator) : PageModel
                 ExpiresUtc   = DateTimeOffset.UtcNow.AddMinutes(30)
             });
 
-        return Redirect(ReturnUrl ?? "/products");
+        return Redirect(ReturnUrl ?? "/");
     }
 }

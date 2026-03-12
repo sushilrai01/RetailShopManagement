@@ -42,11 +42,13 @@ namespace RetailShopManagement.WebApp.Components
                     new IntDropDownField() { Value = 0}
                 };
 
-                categoryTypes.AddRange(response.Data.Select(c => new IntDropDownField
-                {
-                    Value = c.Id,
-                    Text = c.Name
-                }).ToList());
+                categoryTypes.AddRange(response.Data
+                    .OrderBy(x => x.Name)
+                    .Select(c => new IntDropDownField
+                    {
+                        Value = c.Id,
+                        Text = c.Name
+                    }).ToList());
 
                 return categoryTypes;
             }
