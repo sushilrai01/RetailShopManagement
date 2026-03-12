@@ -81,7 +81,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     });
 
-builder.Services.AddAuthorization(); 
+builder.Services.AddAuthorization();
 
 
 //builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingAuthenticationStateProvider>();
@@ -111,11 +111,18 @@ app.UseAuthorization();
 
 app.UseAntiforgery();
 
-app.MapControllers(); 
+app.MapControllers();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 app.MapRazorPages();
+
+app.MapFallback(context =>
+{
+    var requestedPath = context.Request.Path.Value?.TrimStart('/') ?? "unknown";
+    context.Response.Redirect($"/not-found/{requestedPath}");
+    return Task.CompletedTask;
+});
 
 try
 {

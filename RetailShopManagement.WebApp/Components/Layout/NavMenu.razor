@@ -5,9 +5,7 @@
         </a>
     </div>
 </div>
-
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
@@ -16,22 +14,138 @@
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="category/create">
-                <span class="nav-icon-margin-right">
-                    <i class="fa-solid fa-table-cells-large fa-lg" style="color: rgb(223, 220, 220);"></i>
-                    </span>
-                Categories Create
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="products">
-                <span class="nav-icon-margin-right">
-                    <i class="fa-solid fa-cubes fa-lg" style="color: rgb(223, 220, 220);"></i>
-                </span>
-                Products
-            </NavLink>
-        </div>
+        <AuthorizeView>
+            <Authorized>
+
+                <!-- Accordion Menu for User Management -->
+                <div class="nav-item px-3">
+                    <input type="checkbox" id="usermanagement-toggle" class="submenu-toggle" />
+                    <label for="usermanagement-toggle" class="nav-link submenu-header">
+                        <span class="nav-icon-margin-right">
+                            <i class="fa-solid fa-users fa-lg" style="color: rgb(223, 220, 220);"></i>
+                        </span>
+                        User Management
+                        <i class="fa-solid fa-chevron-down fa-sm chevron-icon" style="color: rgb(223, 220, 220);"></i>
+                    </label>
+                    <div class="submenu">
+                        <NavLink class="nav-link submenu-item" href="users">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-user" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Users
+                        </NavLink>
+                        <NavLink class="nav-link submenu-item" href="roles">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-user-tag" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Roles
+                        </NavLink>
+                        <NavLink class="nav-link submenu-item" href="permissions">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-shield-halved" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Permissions
+                        </NavLink>
+                    </div>
+                </div>
+
+                <!-- Accordion Menu for Inventory -->
+                <div class="nav-item px-3">
+                    <input type="checkbox" id="inventory-toggle" class="submenu-toggle" />
+                    <label for="inventory-toggle" class="nav-link submenu-header">
+                        <span class="nav-icon-margin-right">
+                            <i class="fa-solid fa-warehouse fa-lg" style="color: rgb(223, 220, 220);"></i>
+                        </span>
+                        Inventory
+                        <i class="fa-solid fa-chevron-down fa-sm chevron-icon" style="color: rgb(223, 220, 220);"></i>
+                    </label>
+                    <div class="submenu">
+                        <NavLink class="nav-link submenu-item" href="category/create">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-table-cells-large" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Categories
+                        </NavLink>
+                        <NavLink class="nav-link submenu-item" href="products">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-cubes" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Products
+                        </NavLink>
+                    </div>
+                </div>
+
+                <!-- Accordion Menu for Sales -->
+                <div class="nav-item px-3">
+                    <input type="checkbox" id="sales-toggle" class="submenu-toggle" />
+                    <label for="sales-toggle" class="nav-link submenu-header">
+                        <span class="nav-icon-margin-right">
+                            <i class="fa-solid fa-cart-shopping fa-lg" style="color: rgb(223, 220, 220);"></i>
+                        </span>
+                        Sales
+                        <i class="fa-solid fa-chevron-down fa-sm chevron-icon" style="color: rgb(223, 220, 220);"></i>
+                    </label>
+                    <div class="submenu">
+                        <NavLink class="nav-link submenu-item" href="invoice">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-file-invoice" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Invoice
+                        </NavLink>
+                        <NavLink class="nav-link submenu-item" href="bill-generate">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-receipt" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Bill Generate
+                        </NavLink>
+                        <NavLink class="nav-link submenu-item" href="report">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-chart-line" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Report
+                        </NavLink>
+                        <NavLink class="nav-link submenu-item" href="creditors">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-hand-holding-dollar" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Creditors
+                        </NavLink>
+                    </div>
+                </div>
+
+                <!-- Accordion Menu for Purchases -->
+                <div class="nav-item px-3">
+                    <input type="checkbox" id="purchases-toggle" class="submenu-toggle" />
+                    <label for="purchases-toggle" class="nav-link submenu-header">
+                        <span class="nav-icon-margin-right">
+                            <i class="fa-solid fa-truck fa-lg" style="color: rgb(223, 220, 220);"></i>
+                        </span>
+                        Purchases
+                        <i class="fa-solid fa-chevron-down fa-sm chevron-icon" style="color: rgb(223, 220, 220);"></i>
+                    </label>
+                    <div class="submenu">
+                        <NavLink class="nav-link submenu-item" href="purchase-orders">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-file-lines" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Purchase Orders
+                        </NavLink>
+                        <NavLink class="nav-link submenu-item" href="suppliers">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-boxes-packing" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Suppliers
+                        </NavLink>
+                        <NavLink class="nav-link submenu-item" href="purchase-history">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-clock-rotate-left" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Purchase History
+                        </NavLink>
+                    </div>
+                </div>
+
+            </Authorized>
+        </AuthorizeView>
     </nav>
 </div>
-

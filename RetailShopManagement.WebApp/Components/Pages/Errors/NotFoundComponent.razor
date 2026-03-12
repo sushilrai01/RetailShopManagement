@@ -1,0 +1,10 @@
+﻿@page "/not-found/{*RequestedPath}"
+
+<PageTitle>404 - Page Not Found</PageTitle>
+
+<NotFound RequestedPath="@RequestedPath" />
+
+@code {
+    [Parameter]
+    public string? RequestedPath { get; set; }
+}
