@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RetailShopManagement.Application.Persistence;
 using RetailShopManagement.Domain.Entities;
+using RetailShopManagement.Domain.Shared;
 
 namespace RetailShopManagement.Application.CQRS.Categories.Command
 {
@@ -10,13 +11,14 @@ namespace RetailShopManagement.Application.CQRS.Categories.Command
         public string Name { get; set; }
     }
 
-    public class CreateCategoryCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public class CreateCategoryCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory,
+        IUserServiceProvider userServiceProvider)
         : IRequestHandler<CreateCategoryCommand, Unit>
     {
         public async Task<Unit> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
             await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
-           
+
             var existingCategory = await context.Categories
                 .Where(x => x.Name.ToLower() == request.Name.ToLower()).
                 FirstOrDefaultAsync(cancellationToken);
@@ -29,7 +31,7 @@ namespace RetailShopManagement.Application.CQRS.Categories.Command
             var category = new Category()
             {
                 Name = request.Name,
-                CreatedBy = "Sushil Rai",
+                CreatedBy = userServiceProvider.UserName ?? "Sushil Rai",
                 CreatedOn = DateTime.UtcNow
             };
             await context.Categories.AddAsync(category, cancellationToken);

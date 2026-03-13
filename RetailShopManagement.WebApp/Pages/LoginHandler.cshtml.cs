@@ -6,14 +6,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RetailShopManagement.Application.CQRS.Admin.Command;
+using RetailShopManagement.Domain.Constants;
 
 namespace RetailShopManagement.WebApp.Pages;
 
 [AllowAnonymous]
 public class LoginHandlerModel(IMediator mediator) : PageModel
 {
-    [BindProperty] public string Username     { get; set; } = string.Empty;
-    [BindProperty] public string Password  { get; set; } = string.Empty;
+    [BindProperty] public string Username { get; set; } = string.Empty;
+    [BindProperty] public string Password { get; set; } = string.Empty;
     [BindProperty] public string ReturnUrl { get; set; } = "/";
 
     public IActionResult OnGet()
@@ -32,7 +33,7 @@ public class LoginHandlerModel(IMediator mediator) : PageModel
 
         var response = await mediator.Send(new LoginUserCommand
         {
-            Username    = Username,
+            Username = Username,
             Password = Password
         });
 
@@ -41,13 +42,17 @@ public class LoginHandlerModel(IMediator mediator) : PageModel
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name,  response.Username),
+            new(ClaimTypesConst.UserId,        response.Id.ToString()),
+            new(ClaimTypesConst.FullName,  response.FullName),
+            new(ClaimTypesConst.UserName,  response.Username),
             new(ClaimTypes.Email, response.Email),
+            new(ClaimTypes.StreetAddress, response.Address),
+            new(ClaimTypesConst.IsActive, response.IsActive.ToString()),
+            new(ClaimTypes.MobilePhone, response.MobileNo),
             new(ClaimTypes.Role,  response.Role),
-            new("UserId",         response.Id.ToString()),
         };
 
-        var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
 
         // ✅ This runs during a real HTTP request — headers are NOT yet sent
@@ -58,7 +63,7 @@ public class LoginHandlerModel(IMediator mediator) : PageModel
             new AuthenticationProperties
             {
                 IsPersistent = true,
-                ExpiresUtc   = DateTimeOffset.UtcNow.AddMinutes(30)
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
             });
 
         return Redirect(ReturnUrl ?? "/");

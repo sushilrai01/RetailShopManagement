@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
+using RetailShopManagement.Domain.Constants;
 using RetailShopManagement.Domain.Entities;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace RetailShopManagement.WebApp.Middlewares
 {
@@ -15,7 +16,13 @@ namespace RetailShopManagement.WebApp.Middlewares
 
             if (user.Identity is { IsAuthenticated: true })
             {
-                context.Items["UserName"] = user.Identity.Name;
+                context.Items["UserId"] = user.FindFirst(ClaimTypesConst.UserId)?.Value;
+                context.Items["FullName"] = user.FindFirst(ClaimTypesConst.FullName)?.Value;
+                context.Items["UserName"] = user.FindFirst(ClaimTypesConst.UserName)?.Value;
+                context.Items["Email"] = user.FindFirst(ClaimTypes.Email)?.Value;
+                context.Items["Address"] = user.FindFirst(ClaimTypes.StreetAddress)?.Value;
+                context.Items["IsActive"] = user.FindFirst(ClaimTypesConst.IsActive)?.Value;
+                context.Items["MobileNo"] = user.FindFirst(ClaimTypes.MobilePhone)?.Value;
                 context.Items["Role"] = user.FindFirst(ClaimTypes.Role)?.Value;
             }
             //context.Items["UserName"] = userName;

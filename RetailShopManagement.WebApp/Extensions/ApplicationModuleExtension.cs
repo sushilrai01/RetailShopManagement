@@ -1,4 +1,6 @@
-﻿using RetailShopManagement.WebApp.Services.AppServices.AuthServices;
+﻿using RetailShopManagement.Domain.Shared;
+using RetailShopManagement.WebApp.Services;
+using RetailShopManagement.WebApp.Services.AppServices.AuthServices;
 using RetailShopManagement.WebApp.Services.AppServices.Categories;
 using RetailShopManagement.WebApp.Services.AppServices.Products;
 
@@ -11,6 +13,7 @@ namespace RetailShopManagement.WebApp.Extensions
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddSingleton<IUserServiceProvider, UserServiceProvider>();
 
         }
     }
