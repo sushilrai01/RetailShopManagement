@@ -4,6 +4,7 @@ using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.Helpers;
 using RetailShopManagement.Application.Persistence;
 using RetailShopManagement.Domain.Entities;
+using RetailShopManagement.Domain.Shared;
 
 namespace RetailShopManagement.Application.CQRS.Admin.Command
 {
@@ -23,6 +24,7 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
 
     public class UserRegisterCommandHandler(
         IDbContextFactory<ApplicationDbContext> contextFactory,
+        IUserServiceProvider userServiceProvider,
         IPasswordHasher hasher)
         : IRequestHandler<UserRegisterCommand, Guid>
     {
@@ -32,12 +34,11 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
 
             var existingUser = await context.Users
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower()
-                                          || u.Username.ToLower() == request.Username.ToLower()
-                                          || u.MobileNo.ToLower() == request.MobileNo.ToLower(), cancellationToken);
+                                          || u.Username.ToLower() == request.Username.ToLower(), cancellationToken);
 
             if (existingUser is not null)
             {
-                throw new Exception("User with the same email or username or mobile no. already exists.");
+                throw new Exception("User with the same email or username already exists.");
             }
             
             //Password Hashing
@@ -57,7 +58,7 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt,
 
-                CreatedBy = string.IsNullOrWhiteSpace(request.CreatedBy) ? "Sushil Rai(Admin)" : request.CreatedBy,
+                CreatedBy = string.IsNullOrWhiteSpace(userServiceProvider.UserName) ? "Self-Register" : userServiceProvider.UserName,
                 CreatedOn = DateTime.UtcNow
             };
             await context.Users.AddAsync(user, cancellationToken);

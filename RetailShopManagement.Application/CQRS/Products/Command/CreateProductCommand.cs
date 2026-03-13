@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.Persistence;
 using RetailShopManagement.Domain.Entities;
+using RetailShopManagement.Domain.Shared;
 
 namespace RetailShopManagement.Application.CQRS.Products.Command
 {
@@ -16,7 +17,8 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
         public int CategoryId { get; set; }
     }
 
-    public class CreateProductCommandHandler( IDbContextFactory<ApplicationDbContext> contextFactory)
+    public class CreateProductCommandHandler( IDbContextFactory<ApplicationDbContext> contextFactory,
+        IUserServiceProvider userServiceProvider)
         : IRequestHandler<CreateProductCommand, Guid>
     {
         public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -32,7 +34,7 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
                 Quantity = request.Quantity,
                 Unit = request.Unit,
                 CategoryId = request.CategoryId,
-                CreatedBy = "Sushil Rai",
+                CreatedBy = userServiceProvider.UserName ?? "Sushil Rai",
                 CreatedOn = DateTime.UtcNow
             };
             await context.Products.AddAsync(product, cancellationToken);

@@ -41,6 +41,7 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
                 Id = user.Id,
                 FullName = user.FullName,
                 Email = user.Email,
+                Address = user.Address,
                 MobileNo = user.MobileNo,
                 Username = user.Username,
                 Role = user.Role
