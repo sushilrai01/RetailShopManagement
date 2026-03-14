@@ -7,6 +7,6 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
     public interface IAuthService
     {
         Task<ApiResponse> LoginAsync(string email, string password);
-        Task<ApiResponse<Guid>> RegisterUserAsync(RegisterModel registerModel);
+        Task<ApiResponse<UserRegisterResponseModel>> RegisterUserAsync(RegisterModel registerModel);
     }
 }

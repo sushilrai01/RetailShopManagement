@@ -73,7 +73,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
 
         }
 
-        public async Task<ApiResponse<Guid>> RegisterUserAsync(RegisterModel registerModel)
+        public async Task<ApiResponse<UserRegisterResponseModel>> RegisterUserAsync(RegisterModel registerModel)
         {
             var method = "Register user";
             var apiAction = ApiAction.Create;
@@ -93,9 +93,9 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
                     Role = registerModel.Role
                 });
 
-                return new ApiResponse<Guid>()
+                return new ApiResponse<UserRegisterResponseModel>()
                 {
-                    Message = ReturnMessage.Success(method, apiAction),
+                    Message = result.Message,
                     IsSuccess = true,
                     Title = $"{method} Success",
                     Data = result
@@ -103,7 +103,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
             }
             catch (Exception ex)
             {
-                return new ApiResponse<Guid>()
+                return new ApiResponse<UserRegisterResponseModel>()
                 {
                     Message = ex.InnerException?.Message ?? ex.Message,
                     IsSuccess = false,

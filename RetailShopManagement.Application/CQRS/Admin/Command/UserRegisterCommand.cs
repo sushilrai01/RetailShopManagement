@@ -8,7 +8,7 @@ using RetailShopManagement.Domain.Shared;
 
 namespace RetailShopManagement.Application.CQRS.Admin.Command
 {
-    public class UserRegisterCommand : IRequest<Guid>
+    public class UserRegisterCommand : IRequest<UserRegisterResponseModel>
     {
         public string FullName { get; set; } = null!;
         public string Email { get; set; } = null!;
@@ -17,18 +17,18 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
 
         public string Address { get; set; } = null!;
         public bool IsActive { get; set; }
-        public string Password { get; set; } = null!;
+        public string Password { get; set; } = string.Empty;
         public string Role { get; set; } = "User";
-        public string CreatedBy { get; set; } = "Sushil Rai(Admin)";
+        public string CreatedBy { get; set; } = "Admin";
     }
 
     public class UserRegisterCommandHandler(
         IDbContextFactory<ApplicationDbContext> contextFactory,
         IUserServiceProvider userServiceProvider,
         IPasswordHasher hasher)
-        : IRequestHandler<UserRegisterCommand, Guid>
+        : IRequestHandler<UserRegisterCommand, UserRegisterResponseModel>
     {
-        public async Task<Guid> Handle(UserRegisterCommand request, CancellationToken cancellationToken)
+        public async Task<UserRegisterResponseModel> Handle(UserRegisterCommand request, CancellationToken cancellationToken)
         {
             await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -40,7 +40,13 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
             {
                 throw new Exception("User with the same email or username already exists.");
             }
-            
+
+            // Generate random password if not provided
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                request.Password = hasher.GeneratePassword(length: 8);
+            }
+
             //Password Hashing
             hasher.CreatePasswordHash(request.Password, out string passwordHash, out string passwordSalt);
 
@@ -64,7 +70,12 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
             await context.Users.AddAsync(user, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
 
-            return user.Id;
+            return new UserRegisterResponseModel()
+            {
+                Id = user.Id,
+                IsSuccess = true,
+                Message = $"User registered successfully. Your username is {user.Username} and password is {request.Password}"
+            };
         }
     }
 }
