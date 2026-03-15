@@ -1,11 +1,12 @@
-﻿using System.Security.Claims;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.CQRS.Admin.Command;
 using RetailShopManagement.Domain.Models.Common;
 using RetailShopManagement.Domain.Shared.Messages;
+using System.Security.Claims;
+using RetailShopManagement.Application.CQRS.Admin.Query;
 
 namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
 {
@@ -110,6 +111,72 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
                     Title = $"{method} Failed",
                 };
             }
+        }
+
+        public async Task<ApiResponse<IList<UsersDto>>> GetUsersAsync(DateTime? fromDate = null, DateTime? toDate = null)
+        {
+
+            var method = "Get Users";
+            var apiAction = ApiAction.Fetch;
+
+            try
+            {
+                var result = await Mediator.Send(new GetUsersListQuery()
+                {
+                    FromDate = fromDate,
+                    ToDate = toDate
+                });
+
+                return new ApiResponse<IList<UsersDto>>()
+                {
+                    Message = ReturnMessage.Success(method, apiAction),
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                    Data = result
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IList<UsersDto>>()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Failed",
+                };
+                //throw new Exception($"An error occurred while retrieving products: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<ApiResponse<UsersDto>> GetUserByIdAsync(Guid id)
+        {
+            throw new NotImplementedException();
+            //var method = "Get User By Id";
+            //var apiAction = ApiAction.Fetch;
+
+            //try
+            //{
+            //    var result = await Mediator.Send(new GetUserByIdQuery()
+            //    {
+            //        Id = id
+            //    });
+
+            //    return new ApiResponse<UsersDto>()
+            //    {
+            //        Message = ReturnMessage.Success(method, apiAction),
+            //        IsSuccess = true,
+            //        Title = $"{method} Success",
+            //        Data = result
+            //    };
+            //}
+            //catch (Exception ex)
+            //{
+            //    return new ApiResponse<UsersDto>()
+            //    {
+            //        Message = ex.InnerException?.Message ?? ex.Message,
+            //        IsSuccess = false,
+            //        Title = $"{method} Failed",
+            //    };
+            //}
         }
     }
 }
