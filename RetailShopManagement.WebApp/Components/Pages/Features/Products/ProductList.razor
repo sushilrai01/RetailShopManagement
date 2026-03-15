@@ -29,7 +29,6 @@
                     </div>
                     <div class="col-md-6">
 
-                        <!-- Make DateRangePicker Component -->
                         <DateRangePicker StartDate="StartDate"
                                          EndDate="EndDate"
                                          OnDateRangeChanged="OnDateRangeChangeEventHandler" />
@@ -130,11 +129,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (!IsAdmin())
-        {
-            NavigationManager.NavigateTo("/access-denied");
-            return;
-        }
+        // if (!IsAdmin())
+        // {
+        //     NavigationManager.NavigateTo("/access-denied");
+        //     return;
+        // }
 
         categoryTypes = await CategoryTypes;
         await LoadProducts();
