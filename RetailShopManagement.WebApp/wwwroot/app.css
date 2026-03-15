@@ -68,7 +68,7 @@ h1:focus {
 
 .table-overflow-y {
     /* 100vh - top-row(3.5rem) - filter(80px) - padding/margins */
-    max-height: calc(100vh - 3.5rem - 80px - 5rem);
+    max-height: calc(100vh - 3.5rem - 80px - 7rem);
     overflow-y: auto;
 }
 

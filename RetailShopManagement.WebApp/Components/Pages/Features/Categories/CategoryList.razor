@@ -32,51 +32,61 @@
     {
         <table class="table table-borderless table-striped table-hover">
             <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>CreatedBy</th>
-                    <th>CreatedOn</th>
-                    <th>LastModifiedOn</th>
-                    <th>LastModifiedBy</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th>Name</th>
+                <th>CreatedBy</th>
+                <th>CreatedOn</th>
+                <th>LastModifiedOn</th>
+                <th>LastModifiedBy</th>
+                <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var item in categoryList)
-                {
-                    <tr @onclick="() => SelectProduct(item)">
-                        @* <tr> *@
-                        <td>@item.Name</td>
-                        <td>@item.CreatedBy</td>
-                        <td>@item.CreatedOn</td>
-                        <td>@item.LastModifiedOn</td>
-                        <td>@item.LastModifiedOn</td>
-                        <td>
-                            <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
-                                    @onclick:stopPropagation="true">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                Edit
-                            </button>
+            @foreach (var item in categoryList)
+            {
+                <tr @onclick="() => SelectProduct(item)">
+                    @* <tr> *@
+                    <td>@item.Name</td>
+                    <td>@item.CreatedBy</td>
+                    <td>@item.CreatedOn</td>
+                    <td>@item.LastModifiedOn</td>
+                    <td>@item.LastModifiedOn</td>
+                    <td>
+                        <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
+                                @onclick:stopPropagation="true">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            Edit
+                        </button>
 
-                            <button class="btn btn-danger m-1" @onclick="() => ShowCategoryDetails(item)"
-                                    @onclick:stopPropagation="true">
-                                <i class="fa-solid fa-trash-can"></i>
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                }
+                        <button class="btn btn-danger m-1" @onclick="() => ShowCategoryDetails(item)"
+                                @onclick:stopPropagation="true">
+                            <i class="fa-solid fa-trash-can"></i>
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
     }
 
 
 </div>
+
+<p class=" my-1">
+    <em>
+        <small>
+            Total Records = @TotalRecords
+        </small>
+    </em>
+</p>
+
 @code {
     private List<CategoryDto> categoryList = new List<CategoryDto>();
     private CategoryDto? SelectedCategory { get; set; }
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
     private DateTime? EndDate { get; set; } = DateTime.Now;
+    private int TotalRecords { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,6 +112,7 @@
 
         ToastService.ShowSuccess(response.Message);
         categoryList = response.Data.ToList();
+        TotalRecords = categoryList.Count();
 
         StateHasChanged();
     }

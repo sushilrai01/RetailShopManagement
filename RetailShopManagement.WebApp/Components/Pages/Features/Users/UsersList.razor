@@ -41,19 +41,19 @@
 
         </div>
     </div>
-</div> 
+</div>
 
 <div class="table-responsive table-overflow-y">
-        @if (!usersList.Any())
-        {
-            <p>
-                <em>No item found...</em>
-            </p>
-        }
-        else
-        {
-            <table class="table table-borderless table-striped table-hover">
-                <thead>
+    @if (!usersList.Any())
+    {
+        <p>
+            <em>No item found...</em>
+        </p>
+    }
+    else
+    {
+        <table class="table table-borderless table-striped table-hover">
+            <thead>
                 <tr>
                     <th>Full Name</th>
                     <th>Username</th>
@@ -63,29 +63,36 @@
 
                     <th>CreatedBy</th>
                     <th>CreatedOn</th>
+                    <th colspan="2" style="width: 100px;">Actions</th>
                     <th>LastModifiedOn</th>
-                    <th>LastModifiedBy</th>
-                    <th>Actions</th>
                 </tr>
-                </thead>
-                <tbody>
+            </thead>
+            <tbody>
                 @foreach (var item in usersList)
                 {
-                    <tr @onclick="() => SelectProduct(item)">
+                    <tr @onclick="() => SelectUser(item)">
                         <td>@item.FullName</td>
                         <td>@item.Username</td>
                         <td>@item.Email</td>
                         <td>@item.MobileNo</td>
-                        <td>@item.IsActive</td>
-
-                        <td>@item.CreatedBy</td>
-                        <td>@item.CreatedOn</td>
-                        <td>@item.LastModifiedOn</td>
-                        <td>@item.LastModifiedOn</td>
                         <td>
                             @if (item.IsActive)
                             {
-                                <button class="btn btn-success m-1">
+                                <span>✅</span>
+                            }
+                            else
+                            {
+                                <span>❌</span>
+
+                            }
+                        </td>
+
+                        <td>@item.CreatedBy</td>
+                        <td>@item.CreatedOn</td>
+                        <td colspan="2">
+                            @if (item.IsActive)
+                            {
+                                <button class="btn btn-success m-1" disabled style="opacity: 1;">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                     Verified
                                 </button>
@@ -94,28 +101,39 @@
                             {
                                 <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
                                         @onclick:stopPropagation="true">
-                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <i class="fa-regular fa-circle-check fa-sm"></i>
                                     Verify
                                 </button>
                             }
 
-                            <button class="btn btn-danger m-1" @onclick="() => ShowCategoryDetails(item)"
+                            <button class="btn btn-danger m-1" @onclick="() => ShowUserDetails(item)"
                                     @onclick:stopPropagation="true">
-                                <i class="fa-solid fa-trash-can"></i>
+                                <i class="fa-solid fa-trash-can fa-sm"></i>
                                 Delete
                             </button>
                         </td>
+
+                        <td>@item.LastModifiedOn</td>
                     </tr>
                 }
-                </tbody>
-            </table>
-        }
+            </tbody>
+        </table>
+    }
 
-    </div>
+</div>
+
+<p class=" my-1">
+    <em>
+        <small>
+            Total Records = @TotalRecords
+        </small>
+    </em>
+</p>
 
 @code {
     private List<UsersDto> usersList = new List<UsersDto>();
     private UsersDto? SelectedUser { get; set; }
+    private int TotalRecords { get; set; }
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
     private DateTime? EndDate { get; set; } = DateTime.Now;
     [Inject] private IAuthService AuthService { get; set; }
@@ -140,11 +158,12 @@
 
         ToastService.ShowSuccess(response.Message);
         usersList = response.Data.ToList();
+        TotalRecords = usersList.Count();
 
         StateHasChanged();
     }
 
-    private void SelectProduct(UsersDto? selectedUser)
+    private void SelectUser(UsersDto? selectedUser)
     {
         // Console.WriteLine("row selected!");
         if (selectedUser is null) return;
@@ -152,7 +171,7 @@
         StateHasChanged();
     }
 
-    private async Task ShowCategoryDetails(UsersDto? selectedUser)
+    private async Task ShowUserDetails(UsersDto? selectedUser)
     {
         SelectedUser = selectedUser;
 
@@ -178,9 +197,9 @@
 
     }
 
-    private void CreateNewCategory()
+    private void CreateNewUser()
     {
-        NavigationManager.NavigateTo("/category/create");
+        NavigationManager.NavigateTo("/user/create");
     }
 
     private void Edit(UsersDto? selectedUser)

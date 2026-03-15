@@ -9,7 +9,8 @@
             {
                 Title = "Retail Shop Success",
                 Content = message,
-                Type = "success"
+                Type = "success",
+                Icon = "fa-solid fa-circle-check fa-lg"
             });
 
 
@@ -18,7 +19,8 @@
             {
                 Title = "Retail Shop Error",
                 Content = message,
-                Type = "danger"
+                Type = "danger",
+                Icon = "fa-solid fa-triangle-exclamation fa-lg"
             });
 
         public void ShowInfo(string message)
@@ -26,7 +28,8 @@
             {
                 Title = "Retail Shop Info",
                 Content = message,
-                Type = "info"
+                Type = "info",
+                Icon = "fa-solid fa-circle-info fa-lg"
             });
 
         public void ShowWarning(string message)
@@ -34,7 +37,8 @@
             {
                 Title = "Retail Shop Warning",
                 Content = message,
-                Type = "warning"
+                Type = "warning",
+                Icon = "fa-solid fa-circle-exclamation fa-xl"
             });
     }
     public class ToastOption
@@ -42,6 +46,7 @@
         public string Title { get; set; } = "Toast Info";
         public string Content { get; set; }
         public string Type { get; set; }
+        public string Icon { get; set; } = "fa-solid fa-info";
         public int ToastTimeOut { get; set; } = 5000;
         public Guid Id { get; set; }
     }

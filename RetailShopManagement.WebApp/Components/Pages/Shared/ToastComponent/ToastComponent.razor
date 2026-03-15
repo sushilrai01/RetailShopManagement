@@ -7,7 +7,9 @@
             <div class="toast show shadow-lg border border-2 rounded">
                 <!-- TITLE HEADER -->
                 <div class="toast-header text-white bg-toast-@toastOption.Type">
-                    <strong class="me-auto">@toastOption.Title</strong>
+                    <strong class="me-auto">
+                        <i class="@toastOption.Icon"></i> @toastOption.Title
+                    </strong>
                     <button class="btn-close btn-close-white"
                             @onclick="() => Hide(toastOption.Id)"></button>
                 </div>
