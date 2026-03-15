@@ -2,6 +2,17 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
 a, .btn-link {
     color: #006bb7;
 }
@@ -53,6 +64,29 @@ h1:focus {
 .sn-required-field::after {
     content: '*';
     color: rgb(225, 12, 12);
+}
+
+.table-overflow-y {
+    /* 100vh - top-row(3.5rem) - filter(80px) - padding/margins */
+    max-height: calc(100vh - 3.5rem - 80px - 5rem);
+    overflow-y: auto;
+}
+
+.table-responsive table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #255987;
+    /*background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);*/
+    z-index: 10;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+    color: #f2f2f2;
+    border-color: #ffffff;
+    border-style: solid;
+    border-width: 0.5px;
+}
+
+tr > th {
+    background-color: rgb(86, 75, 100);
 }
 
 @keyframes floating {
