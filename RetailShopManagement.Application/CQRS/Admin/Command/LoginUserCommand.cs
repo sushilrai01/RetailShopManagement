@@ -22,7 +22,8 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
             await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
             var user = await context.Users
-                .FirstOrDefaultAsync(x => (x.Email == request.Username ||
+                .FirstOrDefaultAsync(x => x.IsActive &&
+                                          (x.Email == request.Username ||
                                            x.Username == request.Username), cancellationToken);
 
             if (user == null || !hasher.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))

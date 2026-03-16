@@ -55,8 +55,15 @@
 @code {
 
     private RegisterModel registerModel = new();
+
     private string registerErrorMessage;
+
     [Inject] private IAuthService AuthService { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (!IsAdmin()) NavigationManager.NavigateTo("/access-denied");
+    }
 
     private async Task Save()
     {

@@ -150,7 +150,35 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
                 };
             }
         }
+        public async Task<ApiResponse> DeleteUserAsync(Guid id)
+        {
+            var method = "Delete User";
+            var apiAction = ApiAction.Delete;
 
+            try
+            {
+                await Mediator.Send(new DeleteUserCommand()
+                {
+                    Id = id,
+                });
+
+                return new ApiResponse()
+                {
+                    Message = ReturnMessage.Success(method, apiAction),
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Failed",
+                };
+            }
+        }
         public async Task<ApiResponse<IList<UsersDto>>> GetUsersAsync(DateTime? fromDate = null, DateTime? toDate = null)
         {
 

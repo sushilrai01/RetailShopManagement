@@ -120,7 +120,7 @@
                                 </button>
                             }
 
-                            <button class="btn btn-danger m-1" @onclick="() => ShowUserDetails(item)"
+                            <button class="btn btn-danger m-1" @onclick="() => Delete(item)"
                                     @onclick:stopPropagation="true">
                                 <i class="fa-solid fa-trash-can fa-sm"></i>
                                 Delete
@@ -155,16 +155,17 @@
     private DateTime? EndDate { get; set; } = DateTime.Now;
     [Inject] private IAuthService AuthService { get; set; }
     public EditVerifyUser refEditUser;
+   
     protected override async Task OnInitializedAsync()
     {
         if (!IsAdmin()) NavigationManager.NavigateTo("/access-denied");
 
-        await LoadUsers();
+        await LoadData();
         StateHasChanged();
     }
 
 
-    private async Task LoadUsers()
+    private async Task LoadData()
     {
 
         var response = await AuthService.GetUsersAsync(fromDate: StartDate, toDate: EndDate);
@@ -219,9 +220,25 @@
             alertMsg);
     }
 
+    private async Task Delete(UsersDto item)
+    {
+        var isConfirm = await JsModalService.ConfirmAsync("Are you sure you want to delete?");
+
+        if (!isConfirm) return;
+
+        var response = await AuthService.DeleteUserAsync(item.Id);
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message);
+        await LoadData();
+    }
     private async Task Filter()
     {
-        await LoadUsers();
+        await LoadData();
 
     }
 
@@ -243,14 +260,14 @@
     {
         StartDate = dateRange.StartDate;
         EndDate = dateRange.EndDate;
-        await LoadUsers();
+        await LoadData();
     }
 
     private async Task SubmitCallbackHandler(bool isActionSubmit)
     {
         if (isActionSubmit)
         {
-            await LoadUsers();
+            await LoadData();
         }
 
     }
