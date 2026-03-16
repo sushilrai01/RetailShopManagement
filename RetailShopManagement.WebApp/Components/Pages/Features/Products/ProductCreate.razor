@@ -1,8 +1,9 @@
 ﻿@page "/product/create"
 
 @using RetailShopManagement.Domain.Constants
+<PageTitle>New Product</PageTitle>
 
-<h3>Create Product</h3>
+<h3 class="subtitle">Create Product</h3>
 
 <EditForm Model="ProductModel" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />

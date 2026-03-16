@@ -4,13 +4,14 @@
     {
         public event Action<ToastOption>? OnShow;
 
-        public void ShowSuccess(string message)
+        public void ShowSuccess(string message, int toastTimeOut = 3000)
             => OnShow?.Invoke(new ToastOption()
             {
                 Title = "Retail Shop Success",
                 Content = message,
                 Type = "success",
-                Icon = "fa-solid fa-circle-check fa-lg"
+                Icon = "fa-solid fa-circle-check fa-lg",
+                ToastTimeOut = toastTimeOut
             });
 
 

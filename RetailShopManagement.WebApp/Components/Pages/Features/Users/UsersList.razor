@@ -1,6 +1,4 @@
 ﻿@page "/users" 
-@using System.Diagnostics
-@using RetailShopManagement.WebApp.Components.Pages.Auth
 
 @attribute [StreamRendering]
 
@@ -36,7 +34,7 @@
                 <label class="form-label"></label>
                 <button class="btn btn-success"
                         @onclick="CreateNewUser">
-                    <i class="fa-solid fa-plus me-2"></i>
+                    <i class="fa-solid fa-user-plus"></i>
                     Create New
                 </button>
             </div>
@@ -76,13 +74,16 @@
                         <i class="fa-solid fa-sort fa-sm"></i>
                     </th>
                     <th colspan="2" style="width: 100px;">Actions</th>
-                    <th>LastModifiedOn</th>
+                    <th @onclick="@(() => OrderRecords("LastModifiedOn"))" style="cursor: pointer;">
+                        LastModifiedOn
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in usersList)
                 {
-                    <tr @onclick="() => SelectUser(item)">
+                    <tr @onclick="() => SelectUser(item)" style="@CssAdmin(item.Role)">
                         <td>@item.FullName</td>
                         <td>@item.Username</td>
                         <td>@item.Email</td>
@@ -187,6 +188,16 @@
         SelectedUser = selectedUser;
         StateHasChanged();
     }
+    private string CssAdmin(string role)
+    {
+        string rowBgStyle = "";
+        if (role == "Admin")
+        {
+            rowBgStyle = "background: #7cd07c;";
+        }
+
+        return rowBgStyle;
+    }
 
     private async Task ShowUserDetails(UsersDto? selectedUser)
     {
@@ -257,6 +268,9 @@
             "CreatedOn" => IsAscending
                 ? usersList.OrderBy(x => x.CreatedOn).ToList()
                 : usersList.OrderByDescending(x => x.CreatedOn).ToList(),
+            "LastModifiedOn" => IsAscending
+                ? usersList.OrderBy(x => x.LastModifiedOn).ToList()
+                : usersList.OrderByDescending(x => x.LastModifiedOn).ToList(),
             _ => usersList
         };
 
