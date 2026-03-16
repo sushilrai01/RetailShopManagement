@@ -1,4 +1,5 @@
 ﻿@page "/users" 
+@using RetailShopManagement.Domain.Extensions
 
 @attribute [StreamRendering]
 
@@ -30,7 +31,15 @@
 
             <!-- RIGHT HALF (Create) -->
 
-            <div class="col-md-4 text-end">
+            <div class="col-2 text-end">
+                <label class="form-label"></label>
+                <button class="btn btn-warning"
+                        @onclick="ResetPassword">
+                    <i class="fa-solid fa-key"></i>
+                    Reset Password
+                </button>
+            </div>
+            <div class="col-2 text-start">
                 <label class="form-label"></label>
                 <button class="btn btn-success"
                         @onclick="CreateNewUser">
@@ -83,7 +92,11 @@
             <tbody>
                 @foreach (var item in usersList)
                 {
-                    <tr @onclick="() => SelectUser(item)" style="@CssAdmin(item.Role)">
+                    @* <tr @onclick="() => SelectUser(item)" style="@CssAdmin(item.Role)"> *@
+                    <tr class="@(SelectedUserId == item.Id ? "selected-row" : "")"
+                        @onclick="@(() => SelectedUserId = item.Id)"
+                        style="@CssAdmin(item.Role)">
+
                         <td>@item.FullName</td>
                         <td>@item.Username</td>
                         <td>@item.Email</td>
@@ -151,11 +164,13 @@
     private UsersDto? SelectedUser { get; set; }
     private int TotalRecords { get; set; }
     private bool IsAscending { get; set; } = true;
+    private Guid? SelectedUserId { get; set; }
+
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
     private DateTime? EndDate { get; set; } = DateTime.Now;
     [Inject] private IAuthService AuthService { get; set; }
     public EditVerifyUser refEditUser;
-   
+
     protected override async Task OnInitializedAsync()
     {
         if (!IsAdmin()) NavigationManager.NavigateTo("/access-denied");
@@ -182,13 +197,14 @@
         StateHasChanged();
     }
 
-    private void SelectUser(UsersDto? selectedUser)
-    {
-        // Console.WriteLine("row selected!");
-        if (selectedUser is null) return;
-        SelectedUser = selectedUser;
-        StateHasChanged();
-    }
+    // private void SelectUser(UsersDto? selectedUser)
+    // {
+    //     // Console.WriteLine("row selected!");
+    //     if (selectedUser is null) return;
+    //     SelectedUser = selectedUser;
+    //     StateHasChanged();
+    // }
+
     private string CssAdmin(string role)
     {
         string rowBgStyle = "";
@@ -236,6 +252,34 @@
         ToastService.ShowSuccess(response.Message);
         await LoadData();
     }
+
+    private async Task ResetPassword()
+    {
+        if (SelectedUserId.Empty())
+        {
+            ToastService.ShowInfo("Please select user first by clicking row.");
+            return;
+        }
+
+        var isConfirm = await JsModalService.ConfirmAsync($"Are you sure you want to reset password?");
+
+        if (!isConfirm) return;
+
+        var response = await AuthService.ResetPasswordAsync(SelectedUserId!.Value);
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        SelectedUser = null;
+        SelectedUserId = null;
+
+        ToastService.ShowSuccess(response.Message, 15000);
+
+        await LoadData();
+    }
+
     private async Task Filter()
     {
         await LoadData();

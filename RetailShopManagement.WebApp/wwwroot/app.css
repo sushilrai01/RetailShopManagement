@@ -89,6 +89,14 @@ tr > th {
     background-color: rgb(86, 75, 100);
 }
 
+.selected-row {
+    background-color: #d1e7fd !important; /* Light blue */
+}
+
+.selected-row:hover {
+    background-color: #b8daff !important; /* Slightly darker on hover */
+}
+
 @keyframes floating {
     0%, 100% {
         transform: translateY(0px);

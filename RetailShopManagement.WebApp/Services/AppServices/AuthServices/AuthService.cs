@@ -179,6 +179,35 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
                 };
             }
         }
+        public async Task<ApiResponse> ResetPasswordAsync(Guid id)
+        {
+            var method = "Reset password";
+            var apiAction = ApiAction.Generate;
+
+            try
+            {
+                var result = await Mediator.Send(new ResetPasswordCommand()
+                {
+                    Id = id,
+                });
+
+                return new ApiResponse()
+                {
+                    Message = result.Message,
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Failed",
+                };
+            }
+        }
         public async Task<ApiResponse<IList<UsersDto>>> GetUsersAsync(DateTime? fromDate = null, DateTime? toDate = null)
         {
 
