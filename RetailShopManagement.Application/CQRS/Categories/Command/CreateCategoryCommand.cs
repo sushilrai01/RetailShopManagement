@@ -32,7 +32,7 @@ namespace RetailShopManagement.Application.CQRS.Categories.Command
             {
                 Name = request.Name,
                 CreatedBy = userServiceProvider.UserName ?? "Sushil Rai",
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = DateTime.Now
             };
             await context.Categories.AddAsync(category, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);

@@ -38,7 +38,7 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
             existingProduct.Unit = request.Unit;
             existingProduct.CategoryId = request.CategoryId;
             existingProduct.LastModifiedBy = "Sushil Rai";
-            existingProduct.LastModifiedOn = DateTime.UtcNow;
+            existingProduct.LastModifiedOn = DateTime.Now;
 
             await context.SaveChangesAsync(cancellationToken);
 

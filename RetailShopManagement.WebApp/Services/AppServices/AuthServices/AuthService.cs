@@ -113,6 +113,44 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
             }
         }
 
+        public async Task<ApiResponse> UpdateUserAsync(UsersDto userUpdateModel)
+        {
+
+            var method = "Update user";
+            var apiAction = ApiAction.Update;
+
+            try
+            {
+                await Mediator.Send(new UserUpdateCommand()
+                {
+                    Id = userUpdateModel.Id,
+                    Username = userUpdateModel.Username,
+                    Email = userUpdateModel.Email,
+                    FullName = userUpdateModel.FullName,
+                    Address = userUpdateModel.Address,
+                    IsActive = userUpdateModel.IsActive,
+                    MobileNo = userUpdateModel.MobileNo,
+                    Role = userUpdateModel.Role
+                });
+
+                return new ApiResponse()
+                {
+                    Message = ReturnMessage.Success(method, apiAction),
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Failed",
+                };
+            }
+        }
+
         public async Task<ApiResponse<IList<UsersDto>>> GetUsersAsync(DateTime? fromDate = null, DateTime? toDate = null)
         {
 
@@ -143,40 +181,38 @@ namespace RetailShopManagement.WebApp.Services.AppServices.AuthServices
                     IsSuccess = false,
                     Title = $"{method} Failed",
                 };
-                //throw new Exception($"An error occurred while retrieving products: {ex.Message}", ex);
             }
         }
 
         public async Task<ApiResponse<UsersDto>> GetUserByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
-            //var method = "Get User By Id";
-            //var apiAction = ApiAction.Fetch;
+            var method = "Get User By Id";
+            var apiAction = ApiAction.Fetch;
 
-            //try
-            //{
-            //    var result = await Mediator.Send(new GetUserByIdQuery()
-            //    {
-            //        Id = id
-            //    });
+            try
+            {
+                var result = await Mediator.Send(new GetUserByIdQuery()
+                {
+                    Id = id
+                });
 
-            //    return new ApiResponse<UsersDto>()
-            //    {
-            //        Message = ReturnMessage.Success(method, apiAction),
-            //        IsSuccess = true,
-            //        Title = $"{method} Success",
-            //        Data = result
-            //    };
-            //}
-            //catch (Exception ex)
-            //{
-            //    return new ApiResponse<UsersDto>()
-            //    {
-            //        Message = ex.InnerException?.Message ?? ex.Message,
-            //        IsSuccess = false,
-            //        Title = $"{method} Failed",
-            //    };
-            //}
+                return new ApiResponse<UsersDto>()
+                {
+                    Message = ReturnMessage.Success(method, apiAction),
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                    Data = result
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<UsersDto>()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Failed",
+                };
+            }
         }
     }
 }

@@ -35,7 +35,7 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
                 Unit = request.Unit,
                 CategoryId = request.CategoryId,
                 CreatedBy = userServiceProvider.UserName ?? "Sushil Rai",
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = DateTime.Now
             };
             await context.Products.AddAsync(product, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);

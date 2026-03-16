@@ -126,20 +126,20 @@
 
     private async Task HandleEdit()
     {
-        await JsModalService.ConsoleLogAsync("User verified test success");
+        // await JsModalService.ConsoleLogAsync("User verified test success");
 
         if (!IsValidSubmit()) return;
 
-        // var response = await AuthService.RegisterUserAsync(new RegisterModel());
+        var response = await AuthService.UpdateUserAsync(EditUserModel);
 
-        // if (!response.IsSuccess)
-        // {
-        //     ToastService.ShowError(response.Message);
-        //     return;
-        // }
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
 
-        // ToastService.ShowSuccess(response.Message);
-        ToastService.ShowSuccess("User verified test success");
+        ToastService.ShowSuccess(response.Message);
+
         HandleDialogClosed(isOpen: false);
 
         await OnSubmitCallback.InvokeAsync(true);
@@ -162,6 +162,12 @@
         else if (string.IsNullOrWhiteSpace(EditUserModel.Email))
         {
             registerErrorMessage = "Email is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(EditUserModel.Role))
+        {
+            registerErrorMessage = "Role is required.";
             ToastService.ShowWarning(registerErrorMessage);
             return false;
         }

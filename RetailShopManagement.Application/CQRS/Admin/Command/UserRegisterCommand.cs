@@ -65,7 +65,7 @@ namespace RetailShopManagement.Application.CQRS.Admin.Command
                 PasswordSalt = passwordSalt,
 
                 CreatedBy = string.IsNullOrWhiteSpace(userServiceProvider.UserName) ? "Self-Register" : userServiceProvider.UserName,
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = DateTime.Now
             };
             await context.Users.AddAsync(user, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
