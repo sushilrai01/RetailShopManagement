@@ -47,7 +47,7 @@
         public string Content { get; set; }
         public string Type { get; set; }
         public string Icon { get; set; } = "fa-solid fa-info";
-        public int ToastTimeOut { get; set; } = 5000;
+        public int ToastTimeOut { get; set; } = 3000;
         public Guid Id { get; set; }
     }
 

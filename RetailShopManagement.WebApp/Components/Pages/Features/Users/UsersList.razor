@@ -143,6 +143,7 @@
     public EditVerifyUser refEditUser;
     protected override async Task OnInitializedAsync()
     {
+        if(!IsAdmin()) NavigationManager.NavigateTo("/access-denied");
 
         await LoadUsers();
         StateHasChanged();

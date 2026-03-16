@@ -27,7 +27,7 @@ namespace RetailShopManagement.WebApp.Components
 
         protected bool IsAdmin()
         {
-            var check = CurrentUser?.FindFirst(x => x.Type == ClaimTypes.Role)?.Value == "User";
+            var check = CurrentUser?.FindFirst(x => x.Type == ClaimTypes.Role)?.Value == "Admin";
             return check;
 
         }
