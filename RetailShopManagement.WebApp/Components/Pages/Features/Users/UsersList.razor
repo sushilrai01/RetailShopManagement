@@ -1,4 +1,5 @@
 ﻿@page "/users" 
+@using RetailShopManagement.WebApp.Components.Pages.Auth
  
 @attribute [StreamRendering]
 
@@ -92,9 +93,9 @@
                         <td colspan="2">
                             @if (item.IsActive)
                             {
-                                <button class="btn btn-success m-1" disabled style="opacity: 1;">
+                                <button class="btn btn-success m-1" @onclick="() => Edit(item)">
                                     <i class="fa-solid fa-pen-to-square"></i>
-                                    Verified
+                                    Update
                                 </button>
                             }
                             else
@@ -130,6 +131,8 @@
     </em>
 </p>
 
+<EditVerifyUser @ref="refEditUser" EditUserModel="@SelectedUser" OnSubmitCallback="SubmitCallbackHandler"/>
+
 @code {
     private List<UsersDto> usersList = new List<UsersDto>();
     private UsersDto? SelectedUser { get; set; }
@@ -137,7 +140,7 @@
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
     private DateTime? EndDate { get; set; } = DateTime.Now;
     [Inject] private IAuthService AuthService { get; set; }
-
+    public EditVerifyUser refEditUser;
     protected override async Task OnInitializedAsync()
     {
 
@@ -205,7 +208,10 @@
     private void Edit(UsersDto? selectedUser)
     {
         if (selectedUser is null) return;
-        NavigationManager.NavigateTo($"/category/edit/{selectedUser.Id}");
+        SelectedUser = selectedUser;
+        refEditUser.ShowForm();
+
+        // NavigationManager.NavigateTo($"/category/edit/{selectedUser.Id}");
     }
 
     private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)
@@ -214,4 +220,14 @@
         EndDate = dateRange.EndDate;
         await LoadUsers();
     }
+
+    private async Task SubmitCallbackHandler(bool isActionSubmit)
+    {
+        if (isActionSubmit)
+        {
+            await LoadUsers();
+        }
+
+    }
+
 }

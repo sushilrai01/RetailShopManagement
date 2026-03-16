@@ -1,0 +1,51 @@
+@if (IsOpen)
+{
+    <div class="dialog-overlay" @onclick="HandleOverlayClick">
+        <div class="dialog-container" @onclick:stopPropagation="true" style="max-width: @CssContainerMaxWidth !important">
+            <div class="dialog-header">
+                <h5 class="dialog-title">@Title</h5>
+                @if (ShowCloseButton)
+                {
+                    <button type="button" class="dialog-close" @onclick="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                }
+            </div>
+            <div class="dialog-body">
+                @ChildContent
+            </div>
+            @if (ShowFooter)
+            {
+                <div class="dialog-footer">
+                    @FooterContent
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string CssContainerMaxWidth { get; set; } = "500px";
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+    [Parameter] public string Title { get; set; } = "Dialog";
+    [Parameter] public bool ShowCloseButton { get; set; } = true;
+    [Parameter] public bool CloseOnOverlayClick { get; set; } = true;
+    [Parameter] public bool ShowFooter { get; set; } = true;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? FooterContent { get; set; }
+
+    private async Task Close()
+    {
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+    }
+
+    private async Task HandleOverlayClick()
+    {
+        if (CloseOnOverlayClick)
+        {
+            await Close();
+        }
+    }
+}

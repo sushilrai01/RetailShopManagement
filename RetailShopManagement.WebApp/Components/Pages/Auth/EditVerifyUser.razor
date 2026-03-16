@@ -1,0 +1,172 @@
+﻿@using RetailShopManagement.Domain.Constants
+<!-- Dialog Component -->
+<Dialog IsOpen="IsVisible"
+        IsOpenChanged="HandleDialogClosed"
+        Title="Edit/ Verify New User"
+        ShowCloseButton="true"
+        CloseOnOverlayClick="true"
+        CssContainerMaxWidth="900px">
+    <ChildContent>
+
+        <div class="row">
+            <div class="form-group col-6">
+                <label class="sn-required-field">Full Name</label>
+                <InputText class="form-control"
+                           @bind-Value="EditUserModel.FullName"
+                           placeholder="Enter full name" />
+            </div>
+
+            <div class="form-group col-6">
+                <label class="sn-required-field">Mobile No</label>
+                <InputText class="form-control"
+                           @bind-Value="EditUserModel.MobileNo"
+                           placeholder="Enter mobile number" />
+            </div>
+
+
+            <div class="form-group col-6">
+                <label class="sn-required-field">Email</label>
+                <InputText class="form-control"
+                           @bind-Value="EditUserModel.Email"
+                           placeholder="Enter email" />
+            </div>
+
+            <div class="form-group col-6">
+                <label>Address</label>
+                <InputText class="form-control"
+                           @bind-Value="EditUserModel.Address"
+                           placeholder="Enter address" />
+            </div>
+
+            <div class="form-group col-6">
+                <label class="sn-required-field">Username</label>
+                <InputText class="form-control"
+                           @bind-Value="EditUserModel.Username"
+                           placeholder="Enter username" disabled />
+            </div>
+
+            <!-- Roles -->
+            <div class="col-6">
+                <label class="sn-required-field">User Role</label>
+                <InputSelect class="form-control" @bind-Value="EditUserModel.Role">
+
+                    @foreach (var role in UserRoles)
+                    {
+                        <option value="@role.Value">
+                            @role.Text
+                        </option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group col-6">
+                <label>Is Verified?</label>
+                <br />
+                <InputCheckbox @bind-Value="EditUserModel.IsActive" style="height: 39px; width: 35px;" />
+            </div>
+        </div>
+
+    </ChildContent>
+    <FooterContent>
+        <button class="btn btn-secondary" @onclick="CancelVerification">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+        <button class="btn btn-success" @onclick="HandleEdit">
+
+            <i class="fas fa-check"></i> Save
+        </button>
+
+    </FooterContent>
+</Dialog>
+
+@code {
+
+    private string registerErrorMessage;
+    private bool IsVisible { get; set; }
+    [Parameter] public UsersDto EditUserModel { get; set; } = new UsersDto();
+    [Parameter] public EventCallback<bool> OnSubmitCallback { get; set; } //bool: button is submitted or cancelled
+
+    [Inject] private IAuthService AuthService { get; set; }
+    private IList<DropDownField> UserRoles { get; set; } = UserRolesConst.RolesFields;
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsVisible = false;
+        ResetForm();
+    }
+
+    #region Dialog Action Handle
+
+    public void ShowForm()
+    {
+        IsVisible = true;
+        StateHasChanged();
+    }
+
+    private void HandleDialogClosed(bool isOpen)
+    {
+        IsVisible = isOpen;
+        if (!isOpen)
+        {
+            ResetForm();
+        }
+    }
+    private void ResetForm()
+    {
+        EditUserModel = new UsersDto();
+        StateHasChanged();
+    }
+
+    private void CancelVerification()
+    {
+        HandleDialogClosed(isOpen: false);
+    }
+
+    #endregion
+
+    private async Task HandleEdit()
+    {
+        await JsModalService.ConsoleLogAsync("User verified test success");
+
+        if (!IsValidSubmit()) return;
+
+        // var response = await AuthService.RegisterUserAsync(new RegisterModel());
+
+        // if (!response.IsSuccess)
+        // {
+        //     ToastService.ShowError(response.Message);
+        //     return;
+        // }
+
+        // ToastService.ShowSuccess(response.Message);
+        ToastService.ShowSuccess("User verified test success");
+        HandleDialogClosed(isOpen: false);
+
+        await OnSubmitCallback.InvokeAsync(true);
+    }
+
+    private bool IsValidSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(EditUserModel.FullName))
+        {
+            registerErrorMessage = "Fullname is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(EditUserModel.MobileNo))
+        {
+            registerErrorMessage = "Mobile No. is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(EditUserModel.Email))
+        {
+            registerErrorMessage = "Email is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+
+        return true;
+    }
+
+}
