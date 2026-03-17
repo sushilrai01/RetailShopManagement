@@ -9,6 +9,11 @@ namespace RetailShopManagement.Application.Persistence
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
         //public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
-        
+        public DbSet<Creditor> Creditors { get; set; } = null!;
+        public DbSet<PaySlip> PaySlips { get; set; } = null!;
+        public DbSet<Invoice> Invoices { get; set; } = null!;
+        public DbSet<ProductSale> ProductSales { get; set; } = null!;
+
+
     }
 }
