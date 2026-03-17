@@ -32,6 +32,7 @@ namespace RetailShopManagement.Domain.Entities
 
         //List of payment made to this creditor
         public ICollection<PaySlip> PaySlips { get; set; } = new HashSet<PaySlip>();
+        public ICollection<Invoice> Invoices { get; set; } = new HashSet<Invoice>();
 
     }
 }
