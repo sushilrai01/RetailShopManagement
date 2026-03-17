@@ -1,5 +1,4 @@
 ﻿@page "/Creditors" 
-@using RetailShopManagement.Domain.Constants
 
 @attribute [StreamRendering]
 
@@ -13,8 +12,7 @@
                 <label class="form-label"></label>
                 <button class="btn btn-success"
                         @onclick="CreateNewCreditor">
-                    <i class="fa-solid fa-plus me-2"></i>
-                    Create New
+                    <i class="fa-solid fa-plus me-2"></i>Create New
                 </button>
             </div>
 
@@ -82,7 +80,7 @@
                                 <i class="fa-solid fa-file-invoice-dollar"></i>
                                 Invoices
                             </a>
-                          @*   <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
+                            @*   <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
                                     @onclick:stopPropagation="true">
                                 <i class="fa-solid fa-file-invoice-dollar"></i>
                                 Invoices
@@ -129,6 +127,10 @@
                                             }
                                         </div>
                                     }
+                                    else
+                                    {
+                                        <p>No payslips available.</p>
+                                    }
 
                                 </div>
                             </td>
@@ -144,7 +146,7 @@
 
 <p class=" my-1">
     <em>
-        <small>
+        <small class="fw-bold">
             Total Records = @TotalRecords
         </small>
     </em>
@@ -158,94 +160,98 @@
     private int TotalRecords { get; set; }
     private HashSet<Guid> expandedRows = new HashSet<Guid>();
 
+    [Inject] private ICreditorService CreditorService { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        creditorLists = new List<CreditorDto>()
-        {
-            new CreditorDto()
-            {
-                Id = Guid.NewGuid(),
-                FullName = "sushil rai",
-                Email = "sushil@ai",
-                Address = "sushil rai",
-                MobileNo = "9858885555",
-                DueAmount = 1000,
-                PaidAmount = 1000,
-                TotalAmount = 2000,
-                Status = PaymentStatus.Pending,
-                CreatedBy = "sushil rai",
-                CreatedOn = DateTime.Now,
-                PaySlips = new List<PaySlipDto>()
-                {
-                    new PaySlipDto()
-                    {
-                        Id = Guid.NewGuid(),
-                        PaymentDate = DateTime.Now,
-                        AmountPaid = 500,
-                        Remarks = "paid partial 1"
-                    } ,
-                    new PaySlipDto()
-                    {
-                        Id = Guid.NewGuid(),
-                        PaymentDate = DateTime.Now,
-                        AmountPaid = 500,
-                        Remarks = "paid partial 2"
-                    } ,
-                }
+        #region Sample Data
+        // creditorLists = new List<CreditorDto>()
+        // {
+        //     new CreditorDto()
+        //     {
+        //         Id = Guid.NewGuid(),
+        //         FullName = "sushil rai",
+        //         Email = "sushil@ai",
+        //         Address = "sushil rai",
+        //         MobileNo = "9858885555",
+        //         DueAmount = 1000,
+        //         PaidAmount = 1000,
+        //         TotalAmount = 2000,
+        //         Status = PaymentStatus.Pending,
+        //         CreatedBy = "sushil rai",
+        //         CreatedOn = DateTime.Now,
+        //         PaySlips = new List<PaySlipDto>()
+        //         {
+        //             new PaySlipDto()
+        //             {
+        //                 Id = Guid.NewGuid(),
+        //                 PaymentDate = DateTime.Now,
+        //                 AmountPaid = 500,
+        //                 Remarks = "paid partial 1"
+        //             } ,
+        //             new PaySlipDto()
+        //             {
+        //                 Id = Guid.NewGuid(),
+        //                 PaymentDate = DateTime.Now,
+        //                 AmountPaid = 500,
+        //                 Remarks = "paid partial 2"
+        //             } ,
+        //         }
 
-            },
-            new CreditorDto()
-            {
-                Id = Guid.NewGuid(),
-                FullName = "sushil rai",
-                Email = "sushil@ai",
-                Address = "sushil rai",
-                MobileNo = "9858885555",
-                DueAmount = 1000,
-                PaidAmount = 1000,
-                TotalAmount = 2000,
-                Status = PaymentStatus.Pending,
-                CreatedBy = "sushil rai",
-                CreatedOn = DateTime.Now,
-                PaySlips = new List<PaySlipDto>()
-                {
-                    new PaySlipDto()
-                    {
-                        Id = Guid.NewGuid(),
-                        PaymentDate = DateTime.Now,
-                        AmountPaid = 500,
-                        Remarks = "paid partial 1"
-                    } ,
-                    new PaySlipDto()
-                    {
-                        Id = Guid.NewGuid(),
-                        PaymentDate = DateTime.Now,
-                        AmountPaid = 500,
-                        Remarks = "paid partial 2"
-                    } ,
-                }
+        //     },
+        //     new CreditorDto()
+        //     {
+        //         Id = Guid.NewGuid(),
+        //         FullName = "sushil rai",
+        //         Email = "sushil@ai",
+        //         Address = "sushil rai",
+        //         MobileNo = "9858885555",
+        //         DueAmount = 1000,
+        //         PaidAmount = 1000,
+        //         TotalAmount = 2000,
+        //         Status = PaymentStatus.Pending,
+        //         CreatedBy = "sushil rai",
+        //         CreatedOn = DateTime.Now,
+        //         PaySlips = new List<PaySlipDto>()
+        //         {
+        //             new PaySlipDto()
+        //             {
+        //                 Id = Guid.NewGuid(),
+        //                 PaymentDate = DateTime.Now,
+        //                 AmountPaid = 500,
+        //                 Remarks = "paid partial 1"
+        //             } ,
+        //             new PaySlipDto()
+        //             {
+        //                 Id = Guid.NewGuid(),
+        //                 PaymentDate = DateTime.Now,
+        //                 AmountPaid = 500,
+        //                 Remarks = "paid partial 2"
+        //             } ,
+        //         }
 
-            },
-        };
+        //     },
+        // };
+        #endregion
 
-        await LoadCategories();
+        await LoadData();
         StateHasChanged();
     }
 
 
-    private async Task LoadCategories()
+    private async Task LoadData()
     {
 
-        // var response = await CategoryService.GetAllCategories();
-        // if (!response.IsSuccess)
-        // {
-        //     ToastService.ShowError(response.Message);
-        //     return;
-        // }
+        var response = await CreditorService.GetCreditorsAsync();
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
 
-        // ToastService.ShowSuccess(response.Message);
-        // creditorLists = response.Data.ToList();
-        // TotalRecords = creditorLists.Count();
+        ToastService.ShowSuccess(response.Message);
+        creditorLists = response.Data.ToList();
+        TotalRecords = creditorLists.Count();
 
         StateHasChanged();
     }
@@ -282,18 +288,18 @@
 
     private async Task Filter()
     {
-        await LoadCategories();
+        await LoadData();
 
     }
 
     private void CreateNewCreditor()
     {
-        NavigationManager.NavigateTo("/category/create");
+        NavigationManager.NavigateTo("/creditor/create");
     }
 
     private void Edit(CreditorDto? selectedCreditor)
     {
         if (selectedCreditor is null) return;
-        NavigationManager.NavigateTo($"/category/edit/{selectedCreditor.Id}");
+        NavigationManager.NavigateTo($"/creditor/edit/{selectedCreditor.Id}");
     }
 }

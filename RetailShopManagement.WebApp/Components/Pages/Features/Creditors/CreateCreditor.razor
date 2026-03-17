@@ -1,0 +1,103 @@
+﻿@page "/creditor/create"
+
+<PageTitle>New Creditor</PageTitle>
+
+<h3 class="subtitle">Create New Creditor</h3>
+
+<EditForm Model="creditorModel" OnValidSubmit="Save">
+    <div class="row">
+        <div class="form-group col-6">
+            <label class="sn-required-field">Full Name</label>
+            <InputText class="form-control"
+                       @bind-Value="creditorModel.FullName"
+                       placeholder="Enter full name" />
+        </div>
+
+        <div class="form-group col-6">
+            <label class="sn-required-field">Mobile No</label>
+            <InputText class="form-control"
+                       @bind-Value="creditorModel.MobileNo"
+                       placeholder="Enter mobile number" />
+        </div>
+
+
+        <div class="form-group col-6">
+            <label class="sn-required-field">Address</label>
+            <InputText class="form-control"
+                       @bind-Value="creditorModel.Address"
+                       placeholder="Enter address" />
+        </div>
+        <div class="form-group col-6">
+            <label class="">Email</label>
+            <InputText class="form-control"
+                       @bind-Value="creditorModel.Email"
+                       placeholder="Enter email" />
+        </div>
+
+    </div>
+
+    <button class="btn btn-success">
+        <i class="fas fa-check"></i>
+        Create
+    </button>
+    <button type="button" class="btn btn-secondary" @onclick="@(() => NavigationManager.NavigateTo("/creditors"))">
+        <i class="fas fa-times"></i> Cancel
+    </button>
+
+</EditForm>
+
+@code {
+
+    private CreditorDto creditorModel = new();
+
+    private string registerErrorMessage;
+
+    [Inject] private ICreditorService CreditorService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    private async Task Save()
+    {
+        if (!IsValidSubmit()) return;
+
+        var response = await CreditorService.CreateCreditorAsync(creditorModel);
+
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message, 15000);
+
+        NavigationManager.NavigateTo("/creditors");
+    }
+
+    private bool IsValidSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(creditorModel.FullName))
+        {
+            registerErrorMessage = "Fullname is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(creditorModel.MobileNo))
+        {
+            registerErrorMessage = "Mobile No. is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(creditorModel.Address))
+        {
+            registerErrorMessage = "Address is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+
+        return true;
+    }
+
+}
