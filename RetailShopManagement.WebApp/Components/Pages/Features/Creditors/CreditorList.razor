@@ -1,0 +1,299 @@
+﻿@page "/Creditors" 
+@using RetailShopManagement.Domain.Constants
+
+@attribute [StreamRendering]
+
+<PageTitle>Creditors</PageTitle>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row align-items-end">
+
+            <div class="col-md-12">
+                <label class="form-label"></label>
+                <button class="btn btn-success"
+                        @onclick="CreateNewCreditor">
+                    <i class="fa-solid fa-plus me-2"></i>
+                    Create New
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive table-overflow-y">
+    @if (!creditorLists.Any())
+    {
+        <p>
+            <em>No item found...</em>
+        </p>
+    }
+    else
+    {
+        <table class="table table-borderless table-striped table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>MobileNo</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>TotalAmount</th>
+                    <th>PaidAmount</th>
+                    <th>DueAmount</th>
+                    <th>Status</th>
+
+                    <th>CreatedOn</th>
+                    <th>Actions</th>
+                    <th>LastModifiedOn</th>
+                    @* <th>LastModifiedBy</th> *@
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in creditorLists)
+                {
+                    <tr @onclick="() => SelectProduct(item)">
+                        <td>
+                            <i class="fa-solid @(expandedRows.Contains(item.Id) ? "fa-minus" : "fa-plus") fa-lg"
+                               title="Show Pay Slip"
+                               @onclick="() => TogglePaySlip(item.Id)"
+                               @onclick:stopPropagation="true"
+                               style="cursor:pointer;">
+                            </i>
+                        </td>
+
+                        <td>@item.FullName</td>
+                        <td>@item.MobileNo</td>
+                        <td>@item.Email</td>
+                        <td>@item.Address</td>
+                        <td>@item.TotalAmount</td>
+                        <td>@item.PaidAmount</td>
+                        <td>@item.DueAmount</td>
+                        <td>@item.Status</td>
+
+                        <td>@item.CreatedOn</td>
+                        <td>
+                            <a class="btn btn-primary"
+                               href="/invoices/creditor/@item.Id"
+                               target="_blank"
+                               @onclick:stopPropagation="true">
+
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                                Invoices
+                            </a>
+                          @*   <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
+                                    @onclick:stopPropagation="true">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                                Invoices
+                            </button> *@
+
+                            <button class="btn btn-danger my-1" @onclick="() => ShowCategoryDetails(item)"
+                                    @onclick:stopPropagation="true">
+                                <i class="fa-solid fa-trash-can"></i>
+                                Delete
+                            </button>
+                        </td>
+
+                        <td>@item.LastModifiedOn</td>
+                        @* <td>@item.LastModifiedBy</td> *@
+                    </tr>
+
+                    @if (expandedRows.Contains(item.Id))
+                    {
+                        <tr class=" ">
+                            <td colspan="13">
+                                <!-- Payslip Details -->
+                                <div class="toggle-div p-3">
+                                    <em> <strong>Pay Slip History:</strong></em>
+
+                                    @if (item.PaySlips.Any())
+                                    {
+                                        <div class="p-2">
+
+                                            <!-- Header -->
+                                            <div class="row  border-bottom pb-2 mb-2 bg-warning">
+                                                <div class="col-4">Payment Date</div>
+                                                <div class="col-4">Amount Paid</div>
+                                                <div class="col-4">Remarks</div>
+                                            </div>
+
+                                            <!-- Data -->
+                                            @foreach (var ps in item.PaySlips)
+                                            {
+                                                <div class="row border-bottom py-1">
+                                                    <div class="col-4">@ps.PaymentDate</div>
+                                                    <div class="col-4">@ps.AmountPaid</div>
+                                                    <div class="col-4">@ps.Remarks</div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+
+
+</div>
+
+<p class=" my-1">
+    <em>
+        <small>
+            Total Records = @TotalRecords
+        </small>
+    </em>
+</p>
+
+@code {
+    private List<CreditorDto> creditorLists = new();
+    private CreditorDto? SelectedCreditor { get; set; }
+    private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
+    private DateTime? EndDate { get; set; } = DateTime.Now;
+    private int TotalRecords { get; set; }
+    private HashSet<Guid> expandedRows = new HashSet<Guid>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        creditorLists = new List<CreditorDto>()
+        {
+            new CreditorDto()
+            {
+                Id = Guid.NewGuid(),
+                FullName = "sushil rai",
+                Email = "sushil@ai",
+                Address = "sushil rai",
+                MobileNo = "9858885555",
+                DueAmount = 1000,
+                PaidAmount = 1000,
+                TotalAmount = 2000,
+                Status = PaymentStatus.Pending,
+                CreatedBy = "sushil rai",
+                CreatedOn = DateTime.Now,
+                PaySlips = new List<PaySlipDto>()
+                {
+                    new PaySlipDto()
+                    {
+                        Id = Guid.NewGuid(),
+                        PaymentDate = DateTime.Now,
+                        AmountPaid = 500,
+                        Remarks = "paid partial 1"
+                    } ,
+                    new PaySlipDto()
+                    {
+                        Id = Guid.NewGuid(),
+                        PaymentDate = DateTime.Now,
+                        AmountPaid = 500,
+                        Remarks = "paid partial 2"
+                    } ,
+                }
+
+            },
+            new CreditorDto()
+            {
+                Id = Guid.NewGuid(),
+                FullName = "sushil rai",
+                Email = "sushil@ai",
+                Address = "sushil rai",
+                MobileNo = "9858885555",
+                DueAmount = 1000,
+                PaidAmount = 1000,
+                TotalAmount = 2000,
+                Status = PaymentStatus.Pending,
+                CreatedBy = "sushil rai",
+                CreatedOn = DateTime.Now,
+                PaySlips = new List<PaySlipDto>()
+                {
+                    new PaySlipDto()
+                    {
+                        Id = Guid.NewGuid(),
+                        PaymentDate = DateTime.Now,
+                        AmountPaid = 500,
+                        Remarks = "paid partial 1"
+                    } ,
+                    new PaySlipDto()
+                    {
+                        Id = Guid.NewGuid(),
+                        PaymentDate = DateTime.Now,
+                        AmountPaid = 500,
+                        Remarks = "paid partial 2"
+                    } ,
+                }
+
+            },
+        };
+
+        await LoadCategories();
+        StateHasChanged();
+    }
+
+
+    private async Task LoadCategories()
+    {
+
+        // var response = await CategoryService.GetAllCategories();
+        // if (!response.IsSuccess)
+        // {
+        //     ToastService.ShowError(response.Message);
+        //     return;
+        // }
+
+        // ToastService.ShowSuccess(response.Message);
+        // creditorLists = response.Data.ToList();
+        // TotalRecords = creditorLists.Count();
+
+        StateHasChanged();
+    }
+
+    private void SelectProduct(CreditorDto? selectedCreditor)
+    {
+        // Console.WriteLine("row selected!");
+        if (selectedCreditor is null) return;
+        SelectedCreditor = selectedCreditor;
+        StateHasChanged();
+    }
+
+    private void TogglePaySlip(Guid id)
+    {
+        if (!expandedRows.Add(id))
+            expandedRows.Remove(id);
+    }
+
+    private async Task ShowCategoryDetails(CreditorDto? selectedCreditor)
+    {
+        SelectedCreditor = selectedCreditor;
+
+        if (SelectedCreditor is null)
+        {
+            await JsModalService.AlertAsync("Please select item.");
+            return;
+        }
+
+        var alertMsg = $"CreditorDto: {SelectedCreditor.FullName} - ${SelectedCreditor.CreatedOn} - {SelectedCreditor.CreatedBy}";
+
+        await JsModalService.AlertAsync(alertMsg);
+
+    }
+
+    private async Task Filter()
+    {
+        await LoadCategories();
+
+    }
+
+    private void CreateNewCreditor()
+    {
+        NavigationManager.NavigateTo("/category/create");
+    }
+
+    private void Edit(CreditorDto? selectedCreditor)
+    {
+        if (selectedCreditor is null) return;
+        NavigationManager.NavigateTo($"/category/edit/{selectedCreditor.Id}");
+    }
+}
