@@ -18,10 +18,11 @@ public class InvoicesDto
     public Guid? CreditorId { get; set; }
 
     public decimal SubTotal { get; set; }
-     
-    public decimal TaxRate { get; set; }
+
+    public decimal TaxRate { get; set; } = 13.00m; // Default tax rate (e.g., 13.00 for 13%)
     public decimal TaxAmount { get; set; }
-     
+    public decimal DiscountPercent { get; set; }
+
     public decimal DiscountAmount { get; set; }
 
     public decimal TotalAmount { get; set; }
@@ -43,7 +44,6 @@ public class InvoicesDto
 
     //List of Invoice Items
     public IList<ProductSalesDto> InvoiceItems { get; set; } = new List<ProductSalesDto>();
-
 }
 public class ProductSalesDto 
 {

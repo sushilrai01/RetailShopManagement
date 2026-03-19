@@ -27,7 +27,8 @@ namespace RetailShopManagement.Application.Validators
 
             RuleFor(x => x.Unit)
                 .NotEmpty().WithMessage("Unit is required.")
-                .MaximumLength(50).WithMessage("Unit cannot exceed 50 characters.");
+                .MaximumLength(50).WithMessage("Unit cannot exceed 50 characters.")
+                .NotEqual("None").WithMessage("Unit cannot be 'None'.");
 
             //RuleFor(x => x.InvoiceId)
             //    .NotEmpty().WithMessage("Invoice ID is required.");

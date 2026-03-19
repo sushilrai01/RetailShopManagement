@@ -1,0 +1,11 @@
+﻿
+.form-group-x {
+    margin-bottom: 10px;
+}
+
+.form-control-x {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
