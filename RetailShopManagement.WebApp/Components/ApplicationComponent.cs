@@ -8,6 +8,7 @@ using RetailShopManagement.WebApp.Services.AppServices.Categories;
 using RetailShopManagement.WebApp.Services.AppServices.ToastService;
 using System.Security.Claims;
 using System.Security.Principal;
+using RetailShopManagement.WebApp.Services.AppServices.Creditors;
 
 namespace RetailShopManagement.WebApp.Components
 {
@@ -20,10 +21,12 @@ namespace RetailShopManagement.WebApp.Components
 
         [Inject] protected IJSRuntime Javascript { get; set; }
         [Inject] protected ICategoryService CategoryService { get; set; }
+        [Inject] protected ICreditorService CreditorService { get; set; }
         [Inject] protected ToastService ToastService { get; set; }
         [Inject] protected JsModalService JsModalService { get; set; }
         protected CancellationTokenSource CancellationTokenSource { get; set; }
         protected Task<IList<IntDropDownField>> CategoryTypes => GetCategoryTypes();
+        protected Task<IList<NullableGuidDropDownField>> CreditorsFieldList => GetCreditorsFieldList();
 
         protected bool IsAdmin()
         {
@@ -31,6 +34,32 @@ namespace RetailShopManagement.WebApp.Components
             return check;
 
         }
+
+        private async Task<IList<NullableGuidDropDownField>> GetCreditorsFieldList()
+        {
+            var response = await CreditorService.GetCreditorsAsync();
+
+            if (response.IsSuccess)
+            {
+                var categoryTypes = new List<NullableGuidDropDownField>()
+                {
+                    new NullableGuidDropDownField() { Value = null, Text = "--Select Creditor--"}
+                };
+
+                categoryTypes.AddRange(response.Data
+                    .OrderBy(x => x.FullName)
+                    .Select(c => new NullableGuidDropDownField
+                    {
+                        Value = c.Id,
+                        Text = c.FullName
+                    }).ToList());
+
+                return categoryTypes;
+            }
+
+            return new List<NullableGuidDropDownField>();
+        }
+
         private async Task<IList<IntDropDownField>> GetCategoryTypes()
         {
             var response = await CategoryService.GetAllCategories();
