@@ -14,13 +14,13 @@ namespace RetailShopManagement.Domain.Constants
         // WEIGHT
         public static string Gram => "Gram (g)";
         public static string Kilogram => "Kilogram (Kg)";
-        
+
         // VOLUME
         public static string Milliliter => "Milliliter (mL)";
         public static string Liter => "Liter (L)";
         public static string CubicMeter => "Cubic Meter (m³)";
         public static string Gallon => "Gallon";
-        
+
         // LENGTH
         public static string Millimeter => "Millimeter (mm)";
         public static string Centimeter => "Centimeter (cm)";
@@ -33,9 +33,9 @@ namespace RetailShopManagement.Domain.Constants
         // AREA
         public static string SquareMeter => "Square Meter (m²)";
         public static string SquareFoot => "Square Foot (ft²)";
-        
+
         // COUNT / PIECE
-        public static string Piece => "Piece (Pc)";
+        public static string Piece => "Piece (Pcs)";
         public static string Unit => "Unit";
         public static string Pair => "Pair";
         public static string Dozen => "Dozen (12)";
@@ -51,8 +51,32 @@ namespace RetailShopManagement.Domain.Constants
         public static string Sack => "Sack";
         public static string Bag => "Bag";
         public static string Strip => "Strip";
- 
+
         // DROPDOWN LIST
+        public static IList<DropDownField> BasicUnitsFields =>
+            new List<DropDownField>
+            {
+            new() { Value = None, Text = None },
+
+            // Weight
+            new() { Value = Gram, Text = Gram },
+            new() { Value = Kilogram, Text = Kilogram },
+
+            // Volume
+            new() { Value = Milliliter, Text = Milliliter },
+            new() { Value = Liter, Text = Liter },
+
+            // Length
+            new() { Value = Millimeter, Text = Millimeter },
+            new() { Value = Centimeter, Text = Centimeter },
+            new() { Value = Meter, Text = Meter },
+
+            // Count
+            new() { Value = Piece, Text = Piece },
+            new() { Value = Dozen, Text = Dozen },
+
+            };
+
         public static IList<DropDownField> UnitsFields =>
             new List<DropDownField>
             {

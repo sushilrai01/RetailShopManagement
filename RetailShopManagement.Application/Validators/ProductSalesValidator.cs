@@ -12,6 +12,9 @@ namespace RetailShopManagement.Application.Validators
     {
         public ProductSalesValidator()
         {
+            //RuleFor(x => x.Id)
+            //    .NotEmpty().WithMessage("ProductSale Id is required.");
+
             RuleFor(x => x.ProductId)
                 .NotEmpty().WithMessage("Product ID is required.");
 
@@ -28,6 +31,12 @@ namespace RetailShopManagement.Application.Validators
 
             //RuleFor(x => x.InvoiceId)
             //    .NotEmpty().WithMessage("Invoice ID is required.");
+
+            RuleFor(x => x.UnitPrice)
+                .GreaterThan(0).WithMessage("Unit Price must be greater than zero.");
+            
+            RuleFor(x => x.Subtotal)
+                .GreaterThan(0).WithMessage("SubTotal must be greater than zero.");
         }
     }
 }

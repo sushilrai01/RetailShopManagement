@@ -21,4 +21,9 @@ namespace RetailShopManagement.Domain.Models.Common
         public Guid Value { get; set; }
         public string Text { get; set; } = "--Select--";
     }
+    public class NullableGuidDropDownField
+    {
+        public Guid? Value { get; set; }
+        public string Text { get; set; } = "--Select--";
+    }
 }

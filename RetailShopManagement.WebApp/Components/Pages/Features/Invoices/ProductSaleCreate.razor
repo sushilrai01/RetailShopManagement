@@ -1,8 +1,174 @@
-﻿@page "/bill-generate"
+﻿@page "/product/sale-create"
+@using RetailShopManagement.Domain.Constants
 
-<h3>Retail Shop Invoice</h3>
-  @code{
+<PageTitle>Product Sale</PageTitle>
 
+<div class="p-3">
 
+    <div class="row">
 
-  }
+        <div class="form-group col-6">
+            <label class="sn-required-field">Creditor</label>
+            <InputSelect class="form-control" @bind-Value="invoiceForm.CreditorId">
+
+                @foreach (var creditor in CreditorDropDownFields)
+                {
+                    <option value="@creditor.Value">
+                        @creditor.Text
+                    </option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group col-6">
+            <label class="sn-required-field">Invoice Date</label>
+            <InputDate class="form-control"
+                       @bind-Value="invoiceForm.InvoiceDate" />
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- Columns Header -->
+    <div class="row fw-bold">
+        <div class="form-group col-5">
+            <label class="sn-required-field">Description</label>
+        </div>
+        <div class="form-group col-2">
+            <label class="sn-required-field">Qty</label>
+        </div>
+        <div class="form-group col-2">
+            <label class="sn-required-field">Rate</label>
+        </div>
+        <div class="form-group col-2">
+            <label class="sn-required-field">Amount</label>
+        </div>
+        <div class="form-group col-1">
+        </div>
+    </div>
+    
+    <!-- Rows Invoice Items -->
+    <div class="row">
+        @for (int i = 0; i < 10; i++)
+        {
+            var localCounter = i;
+
+            <div class="form-group col-5">
+                <div class="row">
+                    <div class="form-group col-6">
+                        <InputText class="form-control"
+                                   @bind-Value="invoiceForm.InvoiceItems[localCounter].ProductName"
+                                   placeholder="Enter Product Name" />
+
+                    </div>
+                    <div class="form-group col-6">
+                        <InputSelect class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].Unit">
+                            @foreach (var unit in UnitsFields)
+                            {
+                                <option value="@unit.Value">@unit.Text</option>
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group col-2">
+                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].Quantity" />
+            </div>
+
+            <div class="form-group col-2">
+                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].UnitPrice" />
+            </div>
+
+            <div class="form-group col-2">
+                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].Subtotal" />
+            </div>
+            <div class="form-group col-1">
+                @if (localCounter == 10)
+                {
+                    <button type="button" class="btn btn-warning" @onclick="@(() => NavigationManager.NavigateTo("/creditors"))">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-warning" @onclick="@(() => NavigationManager.NavigateTo("/creditors"))">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="row justify-content-end">
+        <div class="col-auto">
+            <button class="btn btn-success me-2" @onclick="Save">
+                <i class="fas fa-check"></i>
+                Generate Invoice
+            </button>
+            <button type="button" class="btn btn-dark" @onclick="@(() => NavigationManager.NavigateTo("/creditors"))">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CreditorDto creditorModel = new();
+    private InvoicesDto invoiceForm = new();
+    private IList<NullableGuidDropDownField> CreditorDropDownFields { get; set; } = new List<NullableGuidDropDownField>()
+    {
+        new NullableGuidDropDownField { Value = null, Text = "--Select Creditor--" },
+        new NullableGuidDropDownField { Value = Guid.Parse("11111111-1111-1111-1111-111111111111"), Text = "John Doe" },
+    };
+    private IList<DropDownField> UnitsFields { get; set; } = UnitsConst.UnitsFields;
+
+    [Inject] private ICreditorService CreditorService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Initialize();
+        StateHasChanged();
+    }
+
+    private void Initialize()
+    {
+        invoiceForm.InvoiceItems = new List<ProductSalesDto>()
+        {
+            new(),
+            new(),
+            new(),
+            new(),
+            new(),
+            new(),
+            new(),
+            new(),
+            new(),
+            new(),
+        };
+
+    }
+
+    private async Task Save()
+    {
+        if (!IsValidSubmit()) return;
+
+        var response = await CreditorService.CreateCreditorAsync(creditorModel);
+
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message, 15000);
+
+        NavigationManager.NavigateTo("/creditors");
+    }
+
+    private bool IsValidSubmit()
+    {
+        throw new NotImplementedException();
+    }
+
+}
