@@ -33,7 +33,7 @@ public class InvoicesDto
      
     public decimal BalanceAmount { get; set; }
 
-    [Required] public string Status { get; set; } = PaymentStatus.Pending;
+    public string Status { get; set; } = PaymentStatus.Pending;
 
     public string? Remarks { get; set; }
 
@@ -54,7 +54,7 @@ public class ProductSalesDto
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
 
-    public string? ProductCode { get; set; }
+    //public string? ProductCode { get; set; }
 
     public decimal Quantity { get; set; }
 
@@ -72,4 +72,10 @@ public class ProductSalesDto
      
     public decimal TotalAmount { get; set; } // Subtotal + Tax - Discount
     public string? Notes { get; set; }
+}
+public class InvoiceResponseModel 
+{
+    public Guid Id { get; set; }
+    public string InvoiceNumber { get; set; } = string.Empty;
+
 }

@@ -2,6 +2,7 @@
 @using RetailShopManagement.Application.Validators
 @using RetailShopManagement.Domain.Constants
 @using RetailShopManagement.Domain.Extensions
+@using RetailShopManagement.WebApp.Services.AppServices.Invoices
 
 <PageTitle>Product Sale</PageTitle>
 
@@ -273,7 +274,7 @@
     private int Count;
 
 
-    [Inject] private ICreditorService CreditorService { get; set; }
+    [Inject] private IInvoiceService InvoiceService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -301,7 +302,7 @@
     {
         if (!ValidateFormOnSave()) return;
 
-        var response = await CreditorService.CreateCreditorAsync(new CreditorDto());
+        var response = await InvoiceService.CreateInvoiceAsync(invoiceForm);
 
         if (!response.IsSuccess)
         {
@@ -309,9 +310,13 @@
             return;
         }
 
-        ToastService.ShowSuccess(response.Message, 15000);
+        ToastService.ShowSuccess(response.Message, 3000);
 
-        NavigationManager.NavigateTo("/creditors");
+        var invoiceData = response.Data;
+        invoiceForm.Id = invoiceData.Id;
+        invoiceForm.InvoiceNumber = invoiceData.InvoiceNumber;
+
+        NavigationManager.NavigateTo($"/invoice/save-pdf/{invoiceData.Id}");
     }
 
     #region Row management
