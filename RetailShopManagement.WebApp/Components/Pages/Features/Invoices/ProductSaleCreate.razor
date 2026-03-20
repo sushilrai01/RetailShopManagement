@@ -1,10 +1,13 @@
-﻿@page "/product/sale-create"
+﻿@page "/bill-generate"
 @using RetailShopManagement.Application.Validators
 @using RetailShopManagement.Domain.Constants
+@using RetailShopManagement.Domain.Extensions
 
 <PageTitle>Product Sale</PageTitle>
 
-<div class="p-3">
+<h3 class="subtitle">Sell Product: Generate Invoice</h3>
+
+<div class="px-3 pb-3">
 
     <div class="row">
 
@@ -58,9 +61,15 @@
             <div class="form-group-x col-5">
                 <div class="row">
                     <div class="form-group-x col-6">
-                        <InputText class="form-control"
-                                   @bind-Value="invoiceForm.InvoiceItems[localCounter].ProductName"
-                                   placeholder="Enter Product Name" />
+                        <InputSelect class="form-control"
+                                     @bind-Value="invoiceForm.InvoiceItems[localCounter].ProductId"
+                                     @bind-Value:after="@(() => OnProductChange(localCounter))">
+
+                            @foreach (var unit in ProductListFields)
+                            {
+                                <option value="@unit.Value">@unit.Text</option>
+                            }
+                        </InputSelect>
 
                     </div>
                     <div class="form-group-x col-6">
@@ -75,26 +84,38 @@
             </div>
 
             <div class="form-group-x col-2">
-                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].Quantity" />
+                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].Quantity"
+                             @bind-Value:after="@(() => OnQuantityUnitPriceChanged(localCounter))" />
             </div>
 
             <div class="form-group-x col-2">
-                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].UnitPrice" />
+                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].UnitPrice"
+                             @bind-Value:after="@(() => OnQuantityUnitPriceChanged(localCounter))" />
             </div>
 
             <div class="form-group-x col-2">
-                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].Subtotal" />
+                <InputNumber class="form-control"
+                             @bind-Value="invoiceForm.InvoiceItems[localCounter].Subtotal"
+                             @bind-Value:after="OnSubTotalChange" />
             </div>
-            <div class="  col-1">
+
+            <div class="col-1">
                 @if (localCounter == Count - 1)
                 {
-                    <button type="button" class="btn btn-warning" @onclick="AddNewRow">
+                    @if (Count > 1)
+                    {
+                        <button type="button" class="btn btn-warning btn-sm mt-1" @onclick="() => RemoveRow(localCounter)">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    }
+
+                    <button type="button" class="btn btn-warning btn-sm mx-1 mt-1" @onclick="AddNewRow">
                         <i class="fas fa-plus"></i>
                     </button>
                 }
                 else
                 {
-                    <button type="button" class="btn btn-warning" @onclick="() => RemoveRow(localCounter)">
+                    <button type="button" class="btn btn-warning btn-sm m-1" @onclick="() => RemoveRow(localCounter)">
                         <i class="fas fa-minus"></i>
                     </button>
                 }
@@ -105,7 +126,7 @@
     <hr />
 
     <!-- Total Calculation -->
-
+    <!-- Invoice Sub-Total Calculation -->
     <div class="row">
         <div class="form-group-x col-3">
         </div>
@@ -114,52 +135,89 @@
         </div>
 
         <div class="form-group-x col-2">
-            <InputNumber class="form-control" @bind-Value="invoiceForm.SubTotal" />
+            <InputNumber class="form-control" @bind-Value="invoiceForm.SubTotal"
+                         @bind-Value:after="CalculateGrandTotalAmount" readonly />
         </div>
 
     </div>
 
+    <!-- Invoice Discount Calculation -->
     <div class="row">
         <div class="form-group-x col-3">
         </div>
-        <div class="form-group-x col-6">
+        <div class="form-group-x col-3">
+            <label class="sn-required-field">Discount</label>
+        </div>
+
+        <div class="form-group-x col-1 justify-content-end">
+            <span>Apply (%)?</span>  <br />
+            <InputCheckbox @bind-Value="invoiceForm.IsDiscountApplied"
+                           @bind-Value:after="CalculateDiscountAmount" style="height: 19px; width: 20px;" />
+        </div>
+        <div class="form-group-x col-2">
+            <InputNumber class="form-control" @bind-Value="invoiceForm.DiscountPercent"
+                         @bind-Value:after="CalculateDiscountAmount" disabled="@(!invoiceForm.IsDiscountApplied)" />
+        </div>
+
+        <div class="form-group-x col-2">
+            <InputNumber class="form-control" @bind-Value="invoiceForm.DiscountAmount"
+                         @bind-Value:after="CalculateDiscountAmount" readonly="@(invoiceForm.IsDiscountApplied)" />
+        </div>
+
+        <div class="form-group-x col-1">
+            <button type="button" class="btn btn-warning" @onclick="CalculateDiscountAmount">
+                <i class="fa-solid fa-calculator fa-2xs"></i> Calc
+            </button>
+        </div>
+    </div>
+
+    <!-- Invoice Tax Calculation -->
+    <div class="row">
+        <div class="form-group-x col-3">
+        </div>
+        <div class="form-group-x col-3">
             <label class="sn-required-field">Tax (13% VAT)</label>
         </div>
 
+        <div class="form-group-x col-3">
+            <span>Is Tax?</span> <br />
+            <InputCheckbox @bind-Value="invoiceForm.IsTaxApplicable"
+                           @bind-Value:after="CalculateTaxAmount" style="height: 19px; width: 20px;" />
+        </div>
+
         <div class="form-group-x col-2">
-            <InputNumber class="form-control" @bind-Value="invoiceForm.TaxAmount" />
+            <InputNumber class="form-control" @bind-Value="invoiceForm.TaxAmount"
+                         @bind-Value:after="CalculateTaxAmount" readonly />
+        </div>
+
+        <div class="form-group-x col-1">
+            <button type="button" class="btn btn-warning" @onclick="CalculateTaxAmount">
+                <i class="fa-solid fa-calculator fa-2xs"></i> Calc
+            </button>
         </div>
 
     </div>
 
-    <div class="row">
-        <div class="form-group-x col-3">
-        </div>
-        <div class="form-group-x col-3">
-            <label class="sn-required-field">Discount</label>
-        </div>
-        <div class="form-group-x col-3">
-            <InputNumber class="form-control" @bind-Value="invoiceForm.DiscountPercent" placeholder="" />
-        </div>
 
-        <div class="form-group-x col-2">
-            <InputNumber class="form-control" @bind-Value="invoiceForm.DiscountAmount" />
-        </div>
-
-    </div>
-
+    <!-- Invoice Total Amount Calculation -->
     <div class="row">
         <div class="form-group-x col-3">
         </div>
         <div class="form-group-x col-6">
-            <label class="sn-required-field">Discount</label>
+            <label class="sn-required-field">Total Amount</label>
         </div>
         <div class="form-group-x col-2">
-            <InputNumber class="form-control" @bind-Value="invoiceForm.TotalAmount" />
+            <InputNumber class="form-control" @bind-Value="invoiceForm.TotalAmount" @bind-Value:after="CalculateGrandTotalAmount" readonly />
         </div>
 
+        <div class="form-group-x col-1">
+            <button type="button" class="btn btn-warning" @onclick="CalculateGrandTotalAmount">
+                <i class="fa-solid fa-calculator fa-2xs"></i> Calc
+            </button>
+        </div>
     </div>
 
+    <!-- Invoice Paid Amount Calculation -->
     <div class="row">
         <div class="form-group-x col-3">
         </div>
@@ -167,23 +225,21 @@
             <label class="sn-required-field">Paid Amount</label>
         </div>
         <div class="form-group-x col-2">
-            <InputNumber class="form-control" @bind-Value="invoiceForm.PaidAmount" />
+            <InputNumber class="form-control" @bind-Value="invoiceForm.PaidAmount"
+                         @bind-Value:after="CalculateBalanceAmount" />
         </div>
 
     </div>
 
-    <div class="row">
+    <!-- Invoice BalanceAmount(Remaining) Calculation -->
+    <div class="row mb-3">
         <div class="form-group-x col-3">
         </div>
         <div class="form-group-x col-6">
             <label class="sn-required-field">Balance Amount</label>
         </div>
         <div class="form-group-x col-2">
-            @{
-                invoiceForm.BalanceAmount = invoiceForm.TotalAmount - invoiceForm.PaidAmount;
-            }
-
-
+            <InputNumber class="form-control" @bind-Value="invoiceForm.BalanceAmount" readonly />
         </div>
 
     </div>
@@ -207,7 +263,12 @@
     private InvoicesDto invoiceForm = new();
     private IList<NullableGuidDropDownField> CreditorDropDownFields { get; set; } = new List<NullableGuidDropDownField>();
 
-    private IList<DropDownField> UnitsFields { get; set; } = UnitsConst.UnitsFields;
+    private IList<DropDownField> UnitsFields { get; set; } = UnitsConst.BasicUnitsFields;
+
+    private IList<GuidDropDownField> ProductListFields { get; set; } = new List<GuidDropDownField>();
+    // private IList<ProductDto> Products { get; set; } = new List<ProductDto>();
+
+    private Dictionary<Guid, ProductDto> ProductsDictionary = new();
 
     private int Count;
 
@@ -224,6 +285,9 @@
     {
         CreditorDropDownFields = await CreditorsFieldList;
 
+        (ProductListFields, ProductsDictionary) = await GetProductsList();
+
+        // Initialize with one empty row
         invoiceForm.InvoiceItems = new List<ProductSalesDto>()
         {
             new(),
@@ -309,4 +373,91 @@
         return true;
     }
 
+
+    #region Price and Total Calculation
+
+    private void OnProductChange(int localCounter)
+    {
+        var productId = invoiceForm.InvoiceItems[localCounter].ProductId;
+
+        if (productId.Empty()) return;
+
+        var selectedProduct = ProductsDictionary[productId];
+
+        invoiceForm.InvoiceItems[localCounter].ProductName = selectedProduct.Name;
+        invoiceForm.InvoiceItems[localCounter].Unit = selectedProduct.Unit;
+        invoiceForm.InvoiceItems[localCounter].UnitPrice = selectedProduct.Price;
+
+        OnQuantityUnitPriceChanged(localCounter);
+
+        StateHasChanged();
+    }
+
+    private void OnQuantityUnitPriceChanged(int localCounter)
+    {
+        var currentItem = invoiceForm.InvoiceItems[localCounter];
+        invoiceForm.InvoiceItems[localCounter].Subtotal = currentItem.Quantity * currentItem.UnitPrice;
+
+        UpdateInvoiceSubTotal();
+
+        StateHasChanged();
+    }
+
+    private void OnSubTotalChange()
+    {
+        UpdateInvoiceSubTotal();
+    }
+
+    private void UpdateInvoiceSubTotal()
+    {
+        invoiceForm.SubTotal = invoiceForm.InvoiceItems.Sum(x => x.Subtotal);
+
+        CalculateDiscountAmount();
+        // CalculateTaxAmount();
+        // CalculateGrandTotalAmount();
+
+        StateHasChanged();
+    }
+
+    private void CalculateDiscountAmount()
+    {
+        if (!invoiceForm.IsDiscountApplied)
+        {
+            invoiceForm.DiscountPercent = 0;
+        }
+        else
+        {
+            invoiceForm.DiscountAmount = invoiceForm.SubTotal * invoiceForm.DiscountPercent / 100.00m;
+        }
+
+        CalculateTaxAmount();
+        StateHasChanged();
+    }
+
+    private void CalculateTaxAmount()
+    {
+        invoiceForm.TaxRate = invoiceForm.IsTaxApplicable ? 13.00m : 0; //13% VAT
+
+        invoiceForm.TaxAmount = (invoiceForm.SubTotal - invoiceForm.DiscountAmount) * invoiceForm.TaxRate / 100.00m;
+
+        CalculateGrandTotalAmount();
+        StateHasChanged();
+    }
+
+    private void CalculateGrandTotalAmount()
+    {
+        invoiceForm.TotalAmount = invoiceForm.SubTotal + invoiceForm.TaxAmount - invoiceForm.DiscountAmount;
+
+        CalculateBalanceAmount();
+
+        StateHasChanged();
+    }
+
+    private void CalculateBalanceAmount()
+    {
+        invoiceForm.BalanceAmount = invoiceForm.TotalAmount - invoiceForm.PaidAmount;
+        StateHasChanged();
+    }
+
+    #endregion
 }

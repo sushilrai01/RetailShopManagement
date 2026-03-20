@@ -74,6 +74,11 @@ namespace RetailShopManagement.Domain.Constants
             // Count
             new() { Value = Piece, Text = Piece },
             new() { Value = Dozen, Text = Dozen },
+            
+            // PACKAGING
+            new() { Value = Packet, Text = Packet },
+            new() { Value = Bottle, Text = Bottle },
+            new() { Value = Can, Text = Can },
 
             };
 
