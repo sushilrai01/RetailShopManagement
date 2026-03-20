@@ -29,10 +29,15 @@
             <InputText class="form-control" @bind-Value="ProductModel.Name" />
         </div>
 
-        <!-- Price -->
+        <!-- Unit -->
         <div class="col-md-4 mb-3">
-            <label class="form-label sn-required-field">Price</label>
-            <InputNumber class="form-control" @bind-Value="ProductModel.Price" />
+            <label class="form-label sn-required-field">Unit</label>
+            <InputSelect class="form-control" @bind-Value="ProductModel.Unit">
+                @foreach (var unit in UnitsFields)
+                {
+                    <option value="@unit.Value">@unit.Text</option>
+                }
+            </InputSelect>
         </div>
 
         <!-- Quantity -->
@@ -41,15 +46,10 @@
             <InputNumber class="form-control" @bind-Value="ProductModel.Quantity" />
         </div>
 
-        <!-- Unit -->
+        <!-- Price -->
         <div class="col-md-4 mb-3">
-            <label class="form-label sn-required-field">Unit</label>
-            <InputSelect class="form-select" @bind-Value="ProductModel.Unit">
-                @foreach (var unit in UnitsFields)
-                {
-                    <option value="@unit.Value">@unit.Text</option>
-                }
-            </InputSelect>
+            <label class="form-label sn-required-field">Price</label>
+            <InputNumber class="form-control" @bind-Value="ProductModel.Price" />
         </div>
 
         <!-- Description -->

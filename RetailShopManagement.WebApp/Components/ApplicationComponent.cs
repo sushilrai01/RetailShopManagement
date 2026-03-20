@@ -71,7 +71,7 @@ namespace RetailShopManagement.WebApp.Components
             {
                 var categoryTypes = new List<IntDropDownField>()
                 {
-                    new IntDropDownField() { Value = 0}
+                    new IntDropDownField() { Value = 0, Text = "All"}
                 };
 
                 categoryTypes.AddRange(response.Data

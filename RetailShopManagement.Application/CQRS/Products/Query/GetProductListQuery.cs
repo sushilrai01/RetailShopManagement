@@ -30,6 +30,26 @@ namespace RetailShopManagement.Application.CQRS.Products.Query
             var fromDate = request.FromDate ?? DateTime.Now.Date.AddDays(-14);
             var toDate = request.ToDate ?? DateTime.Now;
 
+            if (request.CategoryId == 0) //list all
+                return await context.Products
+                    .Include(x => x.Category)
+                    .Where(x => (x.CreatedOn >= fromDate && x.CreatedOn < toDate.Date.AddDays(1)))
+                    .AsNoTracking()
+                    .Select(x => new ProductDto()
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Description = x.Description,
+                        Price = x.Price,
+                        Quantity = x.Quantity,
+                        Unit = x.Unit,
+                        CreatedOn = x.CreatedOn,
+                        CategoryId = x.CategoryId,
+                        CategoryName = x.Category.Name
+                    })
+                    .OrderBy(x => x.CategoryId)
+                    .ToListAsync(cancellationToken);
+
             return await context.Products
                 .Include(x => x.Category)
                 .Where(x => x.Category.Id == request.CategoryId &&
