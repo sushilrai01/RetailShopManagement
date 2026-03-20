@@ -8,7 +8,9 @@ using RetailShopManagement.WebApp.Services.AppServices.Categories;
 using RetailShopManagement.WebApp.Services.AppServices.ToastService;
 using System.Security.Claims;
 using System.Security.Principal;
+using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.WebApp.Services.AppServices.Creditors;
+using RetailShopManagement.WebApp.Services.AppServices.Products;
 
 namespace RetailShopManagement.WebApp.Components
 {
@@ -22,6 +24,7 @@ namespace RetailShopManagement.WebApp.Components
         [Inject] protected IJSRuntime Javascript { get; set; }
         [Inject] protected ICategoryService CategoryService { get; set; }
         [Inject] protected ICreditorService CreditorService { get; set; }
+        [Inject] protected IProductService ProductService { get; set; }
         [Inject] protected ToastService ToastService { get; set; }
         [Inject] protected JsModalService JsModalService { get; set; }
         protected CancellationTokenSource CancellationTokenSource { get; set; }
@@ -83,6 +86,41 @@ namespace RetailShopManagement.WebApp.Components
             }
 
             return new List<IntDropDownField>();
+        }
+
+        protected async Task<(IList<GuidDropDownField>, Dictionary<Guid, ProductDto>)> GetProductsList(int? categoryId = null)
+        {
+
+            var response = await ProductService.GetAllProductsListAsync(categoryId);
+
+            var dropDownList = new List<GuidDropDownField>()  {
+                new GuidDropDownField() { Value = Guid.Empty, Text = "--Select--"}
+            };
+
+            //var productList = new List<ProductDto>();
+            var productListDictionary = new Dictionary<Guid, ProductDto>();
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return new ValueTuple<IList<GuidDropDownField>, Dictionary<Guid, ProductDto>>();
+            }
+
+            //productList = response.Data.OrderBy(x => x.Name).ToList();
+            
+            productListDictionary = response.Data
+                                    .OrderBy(x => x.Name)
+                                    .ToDictionary(x => x.Id, x => x);
+
+            dropDownList.AddRange(response.Data
+                .OrderBy(x => x.Name)
+                .Select(c => new GuidDropDownField
+                {
+                    Value = c.Id,
+                    Text = c.Name
+                }).ToList());
+
+            return (dropDownList, productListDictionary);
         }
 
         public virtual void Dispose()

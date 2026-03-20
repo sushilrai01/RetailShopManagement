@@ -46,6 +46,41 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Products
             }
 
         }
+
+        public async Task<ApiResponse<IList<ProductDto>>> GetAllProductsListAsync(int? categoryId = null)
+        {
+
+            var method = "Get All Products";
+            var apiAction = ApiAction.Fetch;
+
+            try
+            {
+                var result = await Mediator.Send(new GetAllProductsQuery()
+                {
+                    CategoryId = categoryId,
+                });
+
+                return new ApiResponse<IList<ProductDto>>()
+                {
+                    Message = ReturnMessage.Success(method, apiAction),
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                    Data = result
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IList<ProductDto>>()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Failed",
+                };
+                //throw new Exception($"An error occurred while retrieving products: {ex.Message}", ex);
+            }
+
+        }
+
         public async Task<ApiResponse<ProductDto>> GetProductByIdAsync(Guid id)
         {
 
