@@ -26,6 +26,12 @@ public class Invoice : BaseDerivedEntity<Guid>
     public decimal TaxAmount { get; set; }
 
     [Column(TypeName = "decimal(18,2)")]
+    public decimal TaxRate { get; set; }
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal DiscountPercent { get; set; }
+
+    [Column(TypeName = "decimal(18,2)")]
     public decimal DiscountAmount { get; set; }
 
     [Column(TypeName = "decimal(18,2)")]

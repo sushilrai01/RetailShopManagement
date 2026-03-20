@@ -150,12 +150,12 @@
 
     private async Task LoadProducts()
     {
-        if (selectedCategoryId == 0)
-        {
-            ToastService.ShowInfo("Please select product category.");
+        // if (selectedCategoryId == 0)
+        // {
+        //     ToastService.ShowInfo("Please select product category.");
 
-            return;
-        }
+        //     return;
+        // }
 
         var response = await ProductService.GetAllProductsAsync(selectedCategoryId, fromDate: StartDate, toDate: EndDate);
         if (!response.IsSuccess)

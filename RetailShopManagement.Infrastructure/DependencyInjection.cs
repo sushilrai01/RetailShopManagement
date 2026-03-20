@@ -25,6 +25,7 @@ namespace RetailShopManagement.Infrastructure
             //});
 
             services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<IUniqueCodeService, UniqueCodeService>();
 
             return services;
         }
