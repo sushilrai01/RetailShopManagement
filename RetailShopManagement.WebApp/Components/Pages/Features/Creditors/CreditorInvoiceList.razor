@@ -1,16 +1,25 @@
-﻿@page "/invoices"
+﻿@page "/invoices/creditor/{CreditorId:guid}"
 @using RetailShopManagement.Domain.Constants
 
 @attribute [StreamRendering]
 
-<PageTitle>Invoices</PageTitle>
+<PageTitle>Creditor Invoices</PageTitle>
 
+@if (invoicesList.Any())
+{
+    <h3 class="subtitle">
+        Invoices For
+        <span class="fw-bold" style="border-bottom: 1px dashed #000;">
+            @CreditorName
+        </span>
+    </h3>
+     
+}
 <div class="card shadow-sm mb-3">
     <div class="card-body">
         <div class="row align-items-end">
 
-
-            <!-- LEFT HALF (Category + Filter) -->
+            <!-- LEFT HALF (InvoiceStatus + Filter) -->
             <div class="col-md-8">
                 <div class="row align-items-end g-2">
 
@@ -25,12 +34,6 @@
                             }
                         </select>
                     </div>
-                    <div class="col-md-6">
-
-                        <DateRangePicker StartDate="StartDate"
-                                         EndDate="EndDate"
-                                         OnDateRangeChanged="OnDateRangeChangeEventHandler" />
-                    </div>
 
                     <div class="col-md-2">
                         <button class="btn btn-secondary w-100"
@@ -42,16 +45,7 @@
 
                 </div>
             </div>
-            <!-- RIGHT HALF (Create) -->
-
-            <div class="col-md-4 text-end">
-                <label class="form-label"></label>
-                <button class="btn btn-success"
-                        @onclick="CreateInvoice">
-                    <i class="fa-solid fa-plus me-2"></i>
-                    Create New Invoice
-                </button>
-            </div>
+             
 
         </div>
     </div>
@@ -109,9 +103,9 @@
                             else
                             {
                                 <a class="btn btn-warning btn-sm"
-                                   href="/invoice/save-pdf/@item.Id"
-                                   target="_blank" title="Generate Invoice Pdf"
-                                   @onclick:stopPropagation="true">
+                                       href="/invoice/save-pdf/@item.Id"
+                                       target="_blank" title="Generate Invoice Pdf"
+                                       @onclick:stopPropagation="true">
                                     <i class="fa-solid fa-file-circle-plus fa-lg"></i>
                                 </a>
                             }
@@ -138,6 +132,7 @@
 </p>
 
 @code {
+    [Parameter] public Guid CreditorId { get; set; }
     private List<InvoicesDto> invoicesList = new List<InvoicesDto>();
     private InvoicesDto? SelectedInvoice { get; set; }
     private string selectedStatus { get; set; }
@@ -145,6 +140,7 @@
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
     private DateTime? EndDate { get; set; } = DateTime.Now;
     private int TotalRecords { get; set; }
+    private string CreditorName { get; set; }
 
     [Inject] private IInvoiceService InvoiceService { get; set; }
 
@@ -156,7 +152,7 @@
 
     private async Task LoadData()
     {
-        var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, fromDate: StartDate, toDate: EndDate);
+        var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, creditorId: CreditorId);
         if (!response.IsSuccess)
         {
             ToastService.ShowError(response.Message);
@@ -165,11 +161,13 @@
 
         ToastService.ShowSuccess(response.Message);
         invoicesList = response.Data.ToList();
+        CreditorName = invoicesList.First().CreditorName;
+
         TotalRecords = invoicesList.Count();
 
         StateHasChanged();
     }
-     
+
     private void SelectInvoice(InvoicesDto? selectedInvoice)
     {
         // Console.WriteLine("row selected!");
@@ -184,22 +182,10 @@
 
     }
 
-    private void CreateInvoice()
-    {
-        NavigationManager.NavigateTo("/bill-generate");
-    }
-
     private void ShowPdf(InvoicesDto? selectedInvoice)
     {
         if (selectedInvoice is null) return;
         NavigationManager.NavigateTo($"/invoice/view-pdf/{selectedInvoice.Id}");
-    }
-
-    private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)
-    {
-        StartDate = dateRange.StartDate;
-        EndDate = dateRange.EndDate;
-        await LoadData();
     }
 
 }
