@@ -106,6 +106,9 @@ tr > th {
 .cell-no-wrap {
     white-space: nowrap;
 }
+.no-wrap-head > th {
+    white-space: nowrap;
+}
 .list-counter-margin {
     margin-top: -5px;
 }

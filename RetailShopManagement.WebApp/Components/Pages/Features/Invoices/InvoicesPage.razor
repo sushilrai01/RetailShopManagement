@@ -68,16 +68,16 @@
     {
         <table class="table table-borderless table-striped table-hover">
             <thead>
-                <tr>
-                    <th>InvoiceNo.</th>
-                    <th>InvoiceDate</th>
-                    <th>Creditor Name</th>
-                    <th>Tax Amount</th>
-                    <th>Discount Amount</th>
-                    <th>SubTotal Amount</th>
-                    <th>Total Amount</th>
-                    <th>Paid Amount</th>
-                    <th>Balance Amount</th>
+                <tr class="no-wrap-head">
+                    <th>Invoice No.</th>
+                    <th>Invoice Date</th>
+                    <th>CreditorName</th>
+                    <th>TaxAmount</th>
+                    <th>DiscountAmount</th>
+                    <th>SubTotal </th>
+                    <th>TotalAmount</th>
+                    <th>PaidAmount</th>
+                    <th>BalanceAmount</th>
                     <th>Status</th>
                     <th>Actions</th>
                     <th>Remarks</th>
@@ -97,22 +97,22 @@
                         <td>@item.PaidAmount</td>
                         <td>@item.BalanceAmount</td>
                         <td class="cell-no-wrap">@item.Status</td>
-                        <td>
+                        <td class="cell-no-wrap">
                             
                             @if (item.IsPdfGenerated)
                             {
                                 <button class="btn btn-danger btn-sm m-1" @onclick="() => ShowPdf(item)"
                                         @onclick:stopPropagation="true" title="Show Pdf">
-                                    <i class="fa-regular fa-file-pdf"></i>
+                                    <i class="fa-regular fa-file-pdf fa-lg"></i>
                                 </button>
                             }
                             else
                             {
-                                <a class="btn btn-warning"
-                                       href="/invoice/save-pdf/@item.Id"
-                                       target="_blank"
-                                       @onclick:stopPropagation="true" title="Generate Invoice Pdf">
-                                    <i class="fa-solid fa-file-circle-plus"></i>
+                                <a class="btn btn-warning btn-sm"
+                                   href="/invoice/save-pdf/@item.Id"
+                                   target="_blank" title="Generate Invoice Pdf"
+                                   @onclick:stopPropagation="true">
+                                    <i class="fa-solid fa-file-circle-plus fa-lg"></i>
                                 </a>
                             }
 

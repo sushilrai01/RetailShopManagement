@@ -71,11 +71,11 @@
                         <td>@item.Status</td>
 
                         <td>@item.CreatedOn</td>
-                        <td>
+                        <td class="cell-no-wrap">
                             <a class="btn btn-primary btn-sm"
                                href="/invoices/creditor/@item.Id"
                                target="_blank"
-                               @onclick:stopPropagation="true">
+                               @onclick:stopPropagation="true" title="Show Invoices">
 
                                 <i class="fa-solid fa-file-invoice-dollar"></i>
                                 Invoices

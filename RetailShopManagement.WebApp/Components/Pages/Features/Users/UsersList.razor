@@ -19,12 +19,14 @@
                                          OnDateRangeChanged="OnDateRangeChangeEventHandler" />
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <button class="btn btn-secondary w-100"
                                 @onclick="Filter">
                             <i class="fa-solid fa-magnifying-glass me-2"></i>
                             Filter
                         </button>
+                    </div>
+                    <div class="col-md-2">
                     </div>
                 </div>
             </div>
@@ -63,7 +65,7 @@
     {
         <table class="table table-borderless table-striped table-hover">
             <thead>
-                <tr>
+                <tr class="no-wrap-head">
                     <th>Full Name</th>
                     <th>Username</th>
                     <th>Email</th>
@@ -116,24 +118,24 @@
 
                         <td>@item.CreatedBy</td>
                         <td>@item.CreatedOn</td>
-                        <td colspan="2">
+                        <td class="cell-no-wrap" colspan="2">
                             @if (item.IsActive)
                             {
-                                <button class="btn btn-success m-1" @onclick="() => Edit(item)">
+                                <button class="btn btn-success btn-sm m-1" @onclick="() => Edit(item)">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                     Update
                                 </button>
                             }
                             else
                             {
-                                <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
+                                <button class="btn btn-primary btn-sm  m-1" @onclick="() => Edit(item)"
                                         @onclick:stopPropagation="true">
                                     <i class="fa-regular fa-circle-check fa-sm"></i>
                                     Verify
                                 </button>
                             }
 
-                            <button class="btn btn-danger m-1" @onclick="() => Delete(item)"
+                            <button class="btn btn-danger m-1 btn-sm " @onclick="() => Delete(item)"
                                     @onclick:stopPropagation="true">
                                 <i class="fa-solid fa-trash-can fa-sm"></i>
                                 Delete

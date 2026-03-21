@@ -37,7 +37,7 @@ public class InvoicesDto
 
     public string Status { get; set; } = PaymentStatus.Pending;
 
-    public string? Remarks { get; set; } = "string.Empty vegetable cauliflowere";
+    public string? Remarks { get; set; } = string.Empty;
 
     public Guid? SupplierId { get; set; }
 
