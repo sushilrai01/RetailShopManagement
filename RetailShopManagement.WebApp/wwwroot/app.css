@@ -103,6 +103,13 @@ tr > th {
     background-color: #b8daff !important; /* Slightly darker on hover */
 }
 
+.cell-no-wrap {
+    white-space: nowrap;
+}
+.list-counter-margin {
+    margin-top: -5px;
+}
+
 @keyframes floating {
     0%, 100% {
         transform: translateY(0px);

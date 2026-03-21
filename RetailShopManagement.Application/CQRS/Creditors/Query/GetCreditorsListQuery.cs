@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.Persistence;
+using RetailShopManagement.Domain.Constants;
 
 namespace RetailShopManagement.Application.CQRS.Creditors.Query
 {
@@ -22,26 +23,33 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Query
                 .Include(x => x.PaySlips)
                 .Include(x => x.Invoices)
                 .AsNoTracking()
-                .Select(x => new CreditorDto()
+                .Select(x => new
                 {
-                    Id = x.Id,
-                    FullName = x.FullName,
-                    MobileNo = x.MobileNo,
-                    Email = x.Email,
-                    Address = x.Address,
-                    Status = x.Status,
-
+                    x,
                     TotalAmount = x.Invoices.Sum(y => (decimal?)y.BalanceAmount) ?? 0,
                     PaidAmount = x.PaySlips.Sum(y => (decimal?)y.AmountPaid) ?? 0,
                     DueAmount = (x.Invoices.Sum(y => (decimal?)y.BalanceAmount) ?? 0)
                                 - (x.PaySlips.Sum(y => (decimal?)y.AmountPaid) ?? 0),
+                })
+                .Select(t => new CreditorDto()
+                {
+                    Id = t.x.Id,
+                    FullName = t.x.FullName,
+                    MobileNo = t.x.MobileNo,
+                    Email = t.x.Email,
+                    Address = t.x.Address,
+                    Status = PaymentStatus.GetPaymentStatus(t.PaidAmount, t.TotalAmount),
 
-                    CreatedOn = x.CreatedOn,
-                    CreatedBy = x.CreatedBy,
-                    LastModifiedOn = x.LastModifiedOn,
-                    LastModifiedBy = x.LastModifiedBy ?? string.Empty,
+                    TotalAmount = t.TotalAmount,
+                    PaidAmount = t.PaidAmount,
+                    DueAmount = t.DueAmount,
 
-                    PaySlips = x.PaySlips.Select(y => new PaySlipDto()
+                    CreatedOn = t.x.CreatedOn,
+                    CreatedBy = t.x.CreatedBy,
+                    LastModifiedOn = t.x.LastModifiedOn,
+                    LastModifiedBy = t.x.LastModifiedBy ?? string.Empty,
+
+                    PaySlips = t.x.PaySlips.Select(y => new PaySlipDto()
                     {
                         Id = y.Id,
                         AmountPaid = y.AmountPaid,
@@ -50,7 +58,7 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Query
                     }).ToList(),
 
                     //TODO: Incomplete mapping of InvoiceItems; separated query
-                    InvoiceLists = x.Invoices.Select(y => new InvoicesDto() 
+                    InvoiceLists = t.x.Invoices.Select(y => new InvoicesDto()
                     {
                         Id = y.Id,
                         InvoiceNumber = y.InvoiceNumber,

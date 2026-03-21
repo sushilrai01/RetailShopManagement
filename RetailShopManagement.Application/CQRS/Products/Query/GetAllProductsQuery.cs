@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.Persistence;
+using RetailShopManagement.Domain.Constants;
 
 namespace RetailShopManagement.Application.CQRS.Products.Query
 {

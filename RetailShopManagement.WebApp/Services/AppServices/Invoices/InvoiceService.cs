@@ -2,6 +2,8 @@
 using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.CQRS.Invoices.Command;
 using RetailShopManagement.Application.CQRS.Invoices.Query;
+using RetailShopManagement.Application.CQRS.Products.Query;
+using RetailShopManagement.Domain.Constants;
 using RetailShopManagement.Domain.Models.Common;
 using RetailShopManagement.Domain.Shared.Messages;
 
@@ -9,6 +11,42 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Invoices
 {
     public class InvoiceService(IMediator mediator) : BaseService(mediator), IInvoiceService
     {
+        public async Task<ApiResponse<IList<InvoicesDto>>> GetInvoicesListAsync(string status = PaymentStatus.All, Guid? creditorId = null, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+        {
+            var method = "Get Invoices";
+            var apiAction = ApiAction.Fetch;
+
+            try
+            {
+                var result = await Mediator.Send(new GetInvoicesQuery()
+                {
+                    Status = status,
+                    CreditorId = creditorId,
+                    FromDate = fromDate,
+                    ToDate = toDate
+                }, cancellationToken);
+
+                return new ApiResponse<IList<InvoicesDto>>()
+                {
+                    Message = ReturnMessage.Success(method, apiAction),
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                    Data = result
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IList<InvoicesDto>>()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Failed",
+                };
+                //throw new Exception($"An error occurred while retrieving products: {ex.Message}", ex);
+            }
+
+        }
+
         public async Task<ApiResponse<InvoicesDto>> GetInvoiceByIdAsync(Guid id)
         {
 

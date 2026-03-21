@@ -37,7 +37,7 @@ public class InvoicesDto
 
     public string Status { get; set; } = PaymentStatus.Pending;
 
-    public string? Remarks { get; set; }
+    public string? Remarks { get; set; } = "string.Empty vegetable cauliflowere";
 
     public Guid? SupplierId { get; set; }
 
@@ -45,6 +45,7 @@ public class InvoicesDto
     public string CreatedBy { get; set; } = string.Empty;
     public DateTime? LastModifiedOn { get; set; }
     public string LastModifiedBy { get; set; } = string.Empty;
+    public bool IsPdfGenerated { get; set; } = false;
 
     //List of Invoice Items
     public IList<ProductSalesDto> InvoiceItems { get; set; } = new List<ProductSalesDto>();

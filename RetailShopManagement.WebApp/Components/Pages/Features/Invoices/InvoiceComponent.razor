@@ -7,10 +7,10 @@
             ===============================================
         </div>
 
-        <p>
-            Invoice No: @InvoiceInfo.InvoiceNumber<br />
-            Date: @InvoiceInfo.InvoiceDate.ToString("dd MMMM yyyy")<br />
-            Creditor: @InvoiceInfo.CreditorName
+        <p class="invoice-info">
+            Invoice No: <span>@InvoiceInfo.InvoiceNumber</span><br />
+            Date: <span> @InvoiceInfo.InvoiceDate.ToString("dd MMMM yyyy")</span><br />
+            Creditor: <span>@InvoiceInfo.CreditorName</span>
         </p>
 
         <div class="line"></div>
@@ -85,9 +85,11 @@
             </tr>
         </table>
 
-        <div class="center-text">
-            ===============================================
-        </div>
+        <p class="pt-2">
+            Remarks: @InvoiceInfo.Remarks
+        </p>
+        <div class="line"></div>
+
     </div>
 }
 

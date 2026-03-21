@@ -51,13 +51,13 @@
             <tbody>
                 @foreach (var item in creditorLists)
                 {
-                    <tr @onclick="() => SelectProduct(item)">
+                    <tr @onclick="() => SelectCreditor(item)">
                         <td>
                             <i class="fa-solid @(expandedRows.Contains(item.Id) ? "fa-minus" : "fa-plus") fa-lg"
-                               title="Show Pay Slip"
-                               @onclick="() => TogglePaySlip(item.Id)"
-                               @onclick:stopPropagation="true"
-                               style="cursor:pointer;">
+                                   title="Show Pay Slip"
+                                   @onclick="() => TogglePaySlip(item.Id)"
+                                   @onclick:stopPropagation="true"
+                                   style="cursor:pointer;">
                             </i>
                         </td>
 
@@ -72,7 +72,7 @@
 
                         <td>@item.CreatedOn</td>
                         <td>
-                            <a class="btn btn-primary"
+                            <a class="btn btn-primary btn-sm"
                                href="/invoices/creditor/@item.Id"
                                target="_blank"
                                @onclick:stopPropagation="true">
@@ -80,17 +80,18 @@
                                 <i class="fa-solid fa-file-invoice-dollar"></i>
                                 Invoices
                             </a>
-                            @*   <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
-                                    @onclick:stopPropagation="true">
-                                <i class="fa-solid fa-file-invoice-dollar"></i>
-                                Invoices
-                            </button> *@
 
-                            <button class="btn btn-danger my-1" @onclick="() => ShowCategoryDetails(item)"
+                            <button class="btn btn-info btn-sm m-1" @onclick="() => Edit(item)"
+                                    @onclick:stopPropagation="true">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                                Edit
+                            </button>
+
+                            @*  <button class="btn btn-danger my-1" @onclick="() => ShowCategoryDetails(item)"
                                     @onclick:stopPropagation="true">
                                 <i class="fa-solid fa-trash-can"></i>
                                 Delete
-                            </button>
+                            </button> *@
                         </td>
 
                         <td>@item.LastModifiedOn</td>
@@ -144,7 +145,8 @@
 
 </div>
 
-<p class=" my-1">
+<hr />
+<p class="list-counter-margin">
     <em>
         <small class="fw-bold">
             Total Records = @TotalRecords
@@ -256,7 +258,7 @@
         StateHasChanged();
     }
 
-    private void SelectProduct(CreditorDto? selectedCreditor)
+    private void SelectCreditor(CreditorDto? selectedCreditor)
     {
         // Console.WriteLine("row selected!");
         if (selectedCreditor is null) return;

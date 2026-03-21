@@ -58,7 +58,7 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Command
                 InvoiceDate = request.InvoiceDate,
                 DueDate = request.DueDate,
                 CreditorId = request.CreditorId,
-                Status = request.Status,
+                Status = PaymentStatus.GetPaymentStatus(request.PaidAmount, request.TotalAmount),
                 SubTotal = request.SubTotal,
                 TaxAmount = request.TaxAmount,
                 TaxRate = request.TaxRate,
@@ -94,6 +94,6 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Command
                 Id = invoice.Id,
                 InvoiceNumber = invoice.InvoiceNumber
             };
-        }
+        } 
     }
 }
