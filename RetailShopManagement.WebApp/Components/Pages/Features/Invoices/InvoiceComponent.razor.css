@@ -9,6 +9,12 @@
     border: 1px solid #ccc;
 }
 
+.invoice-info span {
+    border-bottom: 1px dotted black;
+    padding-bottom: 2px;
+    margin-bottom: 3px;
+}
+
 .center-text {
     text-align: center;
     font-weight: bold;

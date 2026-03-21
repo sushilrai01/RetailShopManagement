@@ -1,0 +1,215 @@
+﻿@page "/invoices"
+@using RetailShopManagement.Domain.Constants
+
+@attribute [StreamRendering]
+
+<PageTitle>Invoices</PageTitle>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row align-items-end">
+
+
+            <!-- LEFT HALF (Category + Filter) -->
+            <div class="col-md-8">
+                <div class="row align-items-end g-2">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Payment Status</label>
+                        <select class="form-select" @bind="selectedStatus">
+                            @foreach (var category in invoiceStatusFields)
+                            {
+                                <option value="@category.Value">
+                                    @category.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+
+                        <DateRangePicker StartDate="StartDate"
+                                         EndDate="EndDate"
+                                         OnDateRangeChanged="OnDateRangeChangeEventHandler" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-secondary w-100"
+                                @onclick="Filter">
+                            <i class="fa-solid fa-magnifying-glass me-2"></i>
+                            Filter
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            <!-- RIGHT HALF (Create) -->
+
+            <div class="col-md-4 text-end">
+                <label class="form-label"></label>
+                <button class="btn btn-success"
+                        @onclick="CreateInvoice">
+                    <i class="fa-solid fa-plus me-2"></i>
+                    Create New Invoice
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive table-overflow-y">
+    @if (!invoicesList.Any())
+    {
+        <p>
+            <em>No item found...</em>
+        </p>
+    }
+    else
+    {
+        <table class="table table-borderless table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>InvoiceNo.</th>
+                    <th>InvoiceDate</th>
+                    <th>Creditor Name</th>
+                    <th>Tax Amount</th>
+                    <th>Discount Amount</th>
+                    <th>SubTotal Amount</th>
+                    <th>Total Amount</th>
+                    <th>Paid Amount</th>
+                    <th>Balance Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in invoicesList)
+                {
+                    <tr @onclick="() => SelectInvoice(item)">
+                        <td class="cell-no-wrap">@item.InvoiceNumber</td>
+                        <td>@item.InvoiceDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.CreditorName</td>
+                        <td>@item.TaxAmount</td>
+                        <td>@item.DiscountAmount</td>
+                        <td>@item.SubTotal</td>
+                        <td>@item.TotalAmount</td>
+                        <td>@item.PaidAmount</td>
+                        <td>@item.BalanceAmount</td>
+                        <td class="cell-no-wrap">@item.Status</td>
+                        <td>
+                            
+                            @if (item.IsPdfGenerated)
+                            {
+                                <button class="btn btn-danger btn-sm m-1" @onclick="() => ShowPdf(item)"
+                                        @onclick:stopPropagation="true" title="Show Pdf">
+                                    <i class="fa-regular fa-file-pdf"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <a class="btn btn-warning"
+                                       href="/invoice/save-pdf/@item.Id"
+                                       target="_blank"
+                                       @onclick:stopPropagation="true" title="Generate Invoice Pdf">
+                                    <i class="fa-solid fa-file-circle-plus"></i>
+                                </a>
+                            }
+
+                        </td>
+                        <td>@item.Remarks</td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+</div>
+
+<hr />
+<p class="list-counter-margin">
+    <em>
+        <small>
+            Total Records = @TotalRecords
+        </small>
+    </em>
+</p>
+
+@code {
+    private List<InvoicesDto> invoicesList = new List<InvoicesDto>();
+    private InvoicesDto? SelectedInvoice { get; set; }
+    private string selectedStatus { get; set; }
+    private IList<DropDownField> invoiceStatusFields { get; set; } = PaymentStatus.GetDropdown();
+    private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
+    private DateTime? EndDate { get; set; } = DateTime.Now;
+    private int TotalRecords { get; set; }
+
+    [Inject] private IInvoiceService InvoiceService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProducts();
+        StateHasChanged();
+    }
+
+    private async Task LoadProducts()
+    {
+        var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, fromDate: StartDate, toDate: EndDate);
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message);
+        invoicesList = response.Data.ToList();
+        TotalRecords = invoicesList.Count();
+
+        StateHasChanged();
+    }
+
+    private void FilterByDate()
+    {
+        if (StartDate.HasValue && EndDate.HasValue)
+        {
+            var filtered = invoicesList
+                .Where(x => x.CreatedOn >= StartDate.Value
+                            && x.CreatedOn <= EndDate.Value)
+                .ToList();
+        }
+    }
+    private void SelectInvoice(InvoicesDto? selectedInvoice)
+    {
+        // Console.WriteLine("row selected!");
+        if (selectedInvoice is null) return;
+        SelectedInvoice = selectedInvoice;
+        StateHasChanged();
+    }
+     
+    private async Task Filter()
+    {
+        await LoadProducts();
+
+    }
+
+    private void CreateInvoice()
+    {
+        NavigationManager.NavigateTo("/bill-generate");
+    }
+
+    private void ShowPdf(InvoicesDto? selectedInvoice)
+    {
+        if (selectedInvoice is null) return;
+        NavigationManager.NavigateTo($"/invoice/view-pdf/{selectedInvoice.Id}");
+    }
+
+    private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)
+    {
+        StartDate = dateRange.StartDate;
+        EndDate = dateRange.EndDate;
+        await LoadProducts();
+    }
+
+}

@@ -87,6 +87,7 @@ h1:focus {
 
 tr > th {
     background-color: rgb(86, 75, 100);
+    color: #c2d3d8;
 }
 
 .toggle-div {
@@ -100,6 +101,13 @@ tr > th {
 
 .selected-row:hover {
     background-color: #b8daff !important; /* Slightly darker on hover */
+}
+
+.cell-no-wrap {
+    white-space: nowrap;
+}
+.list-counter-margin {
+    margin-top: -5px;
 }
 
 @keyframes floating {

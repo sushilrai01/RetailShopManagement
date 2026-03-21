@@ -1,0 +1,38 @@
+﻿@page "/invoice/save-pdf/{InvoiceId:guid}"
+
+<PageTitle>Save Invoice Pdf</PageTitle>
+
+<h3 class="subtitle">Retail Shop Invoice</h3>
+
+<InvoiceComponent InvoiceInfo="InvoiceInfo" />
+
+@code {
+    [Parameter] public Guid InvoiceId { get; set; }
+
+    public InvoicesDto InvoiceInfo { get; set; }
+
+    [Inject] private IInvoiceService InvoiceService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+
+        var response = await InvoiceService.GetInvoiceByIdAsync(InvoiceId);
+
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message, 3000);
+
+        InvoiceInfo = response.Data;
+        StateHasChanged();
+    }
+
+}
