@@ -7,5 +7,6 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Creditors
     {
         Task<ApiResponse<IList<CreditorDto>>> GetCreditorsAsync(CancellationToken cancellationToken = default);
         Task<ApiResponse<Guid>> CreateCreditorAsync(CreditorDto creditorModel, CancellationToken cancellationToken = default);
+        Task<ApiResponse<Guid>> CreatePaySlipAsync(PaySlipDto paySlipDto, CancellationToken cancellationToken = default);
     }
 }

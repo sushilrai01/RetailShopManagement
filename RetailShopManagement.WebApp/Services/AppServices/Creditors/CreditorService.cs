@@ -78,5 +78,38 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Creditors
                 };
             }
         }
+
+        public async Task<ApiResponse<Guid>> CreatePaySlipAsync(PaySlipDto paySlipDto, CancellationToken cancellationToken = default)
+        {
+            var method = "Create PaySlip";
+            var apiAction = ApiAction.Pay;
+
+            try
+            {
+                var result = await Mediator.Send(new CreatePaySlipCommand()
+                {
+                    CreditorId = paySlipDto.CreditorId,
+                    AmountPaid = paySlipDto.AmountPaid,
+                    Remarks = paySlipDto.Remarks,
+                }, cancellationToken);
+
+                return new ApiResponse<Guid>()
+                {
+                    Message = ReturnMessage.Success(method, apiAction),
+                    IsSuccess = true,
+                    Title = $"{method} Success",
+                    Data = result
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<Guid>()
+                {
+                    Message = ex.InnerException?.Message ?? ex.Message,
+                    IsSuccess = false,
+                    Title = $"{method} Success",
+                };
+            }
+        }
     }
 }

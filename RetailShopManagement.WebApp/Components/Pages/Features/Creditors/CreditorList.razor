@@ -8,14 +8,22 @@
     <div class="card-body">
         <div class="row align-items-end">
 
-            <div class="col-md-12">
+            <div class="col-2">
                 <label class="form-label"></label>
-                <button class="btn btn-success"
+                <button class="btn btn-success w-100"
                         @onclick="CreateNewCreditor">
                     <i class="fa-solid fa-plus me-2"></i>Create New
                 </button>
             </div>
-
+            
+            <div class="col-2">
+                <label class="form-label"></label>
+                <button class="btn btn-warning"
+                        @onclick="ShowMakePayment">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    Make Payment
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -51,7 +59,8 @@
             <tbody>
                 @foreach (var item in creditorLists)
                 {
-                    <tr @onclick="() => SelectCreditor(item)">
+                    <tr class="@(SelectedCreditorId == item.Id ? "selected-row" : "")"
+                        @onclick="() => SelectCreditor(item)">
                         <td>
                             <i class="fa-solid @(expandedRows.Contains(item.Id) ? "fa-minus" : "fa-plus") fa-lg"
                                    title="Show Pay Slip"
@@ -73,9 +82,9 @@
                         <td>@item.CreatedOn</td>
                         <td class="cell-no-wrap">
                             <a class="btn btn-primary btn-sm"
-                               href="/invoices/creditor/@item.Id"
-                               target="_blank"
-                               @onclick:stopPropagation="true" title="Show Invoices">
+                                   href="/invoices/creditor/@item.Id"
+                                   target="_blank"
+                                   @onclick:stopPropagation="true" title="Show Invoices">
 
                                 <i class="fa-solid fa-file-invoice-dollar"></i>
                                 Invoices
@@ -154,6 +163,8 @@
     </em>
 </p>
 
+<CreatePaySlip @ref="refCreatePaySlip" OnSubmitCallback="SubmitCallbackHandler" />
+
 @code {
     private List<CreditorDto> creditorLists = new();
     private CreditorDto? SelectedCreditor { get; set; }
@@ -162,80 +173,13 @@
     private int TotalRecords { get; set; }
     private HashSet<Guid> expandedRows = new HashSet<Guid>();
 
+    private Guid? SelectedCreditorId { get; set; }
+    private CreatePaySlip refCreatePaySlip;
+
     [Inject] private ICreditorService CreditorService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        #region Sample Data
-        // creditorLists = new List<CreditorDto>()
-        // {
-        //     new CreditorDto()
-        //     {
-        //         Id = Guid.NewGuid(),
-        //         FullName = "sushil rai",
-        //         Email = "sushil@ai",
-        //         Address = "sushil rai",
-        //         MobileNo = "9858885555",
-        //         DueAmount = 1000,
-        //         PaidAmount = 1000,
-        //         TotalAmount = 2000,
-        //         Status = PaymentStatus.Pending,
-        //         CreatedBy = "sushil rai",
-        //         CreatedOn = DateTime.Now,
-        //         PaySlips = new List<PaySlipDto>()
-        //         {
-        //             new PaySlipDto()
-        //             {
-        //                 Id = Guid.NewGuid(),
-        //                 PaymentDate = DateTime.Now,
-        //                 AmountPaid = 500,
-        //                 Remarks = "paid partial 1"
-        //             } ,
-        //             new PaySlipDto()
-        //             {
-        //                 Id = Guid.NewGuid(),
-        //                 PaymentDate = DateTime.Now,
-        //                 AmountPaid = 500,
-        //                 Remarks = "paid partial 2"
-        //             } ,
-        //         }
-
-        //     },
-        //     new CreditorDto()
-        //     {
-        //         Id = Guid.NewGuid(),
-        //         FullName = "sushil rai",
-        //         Email = "sushil@ai",
-        //         Address = "sushil rai",
-        //         MobileNo = "9858885555",
-        //         DueAmount = 1000,
-        //         PaidAmount = 1000,
-        //         TotalAmount = 2000,
-        //         Status = PaymentStatus.Pending,
-        //         CreatedBy = "sushil rai",
-        //         CreatedOn = DateTime.Now,
-        //         PaySlips = new List<PaySlipDto>()
-        //         {
-        //             new PaySlipDto()
-        //             {
-        //                 Id = Guid.NewGuid(),
-        //                 PaymentDate = DateTime.Now,
-        //                 AmountPaid = 500,
-        //                 Remarks = "paid partial 1"
-        //             } ,
-        //             new PaySlipDto()
-        //             {
-        //                 Id = Guid.NewGuid(),
-        //                 PaymentDate = DateTime.Now,
-        //                 AmountPaid = 500,
-        //                 Remarks = "paid partial 2"
-        //             } ,
-        //         }
-
-        //     },
-        // };
-        #endregion
-
         await LoadData();
         StateHasChanged();
     }
@@ -254,15 +198,8 @@
         ToastService.ShowSuccess(response.Message);
         creditorLists = response.Data.ToList();
         TotalRecords = creditorLists.Count();
+        SelectedCreditor = null;
 
-        StateHasChanged();
-    }
-
-    private void SelectCreditor(CreditorDto? selectedCreditor)
-    {
-        // Console.WriteLine("row selected!");
-        if (selectedCreditor is null) return;
-        SelectedCreditor = selectedCreditor;
         StateHasChanged();
     }
 
@@ -270,22 +207,6 @@
     {
         if (!expandedRows.Add(id))
             expandedRows.Remove(id);
-    }
-
-    private async Task ShowCategoryDetails(CreditorDto? selectedCreditor)
-    {
-        SelectedCreditor = selectedCreditor;
-
-        if (SelectedCreditor is null)
-        {
-            await JsModalService.AlertAsync("Please select item.");
-            return;
-        }
-
-        var alertMsg = $"CreditorDto: {SelectedCreditor.FullName} - ${SelectedCreditor.CreatedOn} - {SelectedCreditor.CreatedBy}";
-
-        await JsModalService.AlertAsync(alertMsg);
-
     }
 
     private async Task Filter()
@@ -304,4 +225,43 @@
         if (selectedCreditor is null) return;
         NavigationManager.NavigateTo($"/creditor/edit/{selectedCreditor.Id}");
     }
+    
+    
+    private void SelectCreditor(CreditorDto? selectedCreditor)
+    {
+        if (selectedCreditor is null) return;
+        SelectedCreditor = selectedCreditor;
+        SelectedCreditorId = selectedCreditor.Id;
+
+        StateHasChanged();
+    }
+    
+    private void ShowMakePayment()
+    {
+        if (SelectedCreditorId.Empty())
+        {
+            ToastService.ShowInfo("Please select creditor first by clicking row.");
+            return;
+        }
+        if (SelectedCreditor is null) return;
+
+        var paySlipForm = new PaySlipDto()
+        {
+            CreditorId = SelectedCreditorId!.Value,
+            CreditorName = SelectedCreditor!.FullName,
+            DueAmount = SelectedCreditor.DueAmount
+        };
+
+        refCreatePaySlip.ShowForm(paySlipForm);
+
+    }
+    
+    private async Task SubmitCallbackHandler(bool isActionSubmit)
+    {
+        if (isActionSubmit)
+        {
+            await LoadData();
+        }
+    }
+
 }

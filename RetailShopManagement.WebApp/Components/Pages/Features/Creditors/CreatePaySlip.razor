@@ -1,0 +1,139 @@
+﻿
+<Dialog IsOpen="IsVisible"
+        IsOpenChanged="HandleDialogClosed"
+        Title="Make Payment"
+        ShowCloseButton="true"
+        CloseOnOverlayClick="true"
+        CssContainerMaxWidth="500px">
+    <ChildContent>
+
+        <div class="row">
+
+            <div class="form-group col-6 subtitle">
+                Creditor Name: <span class="border-bottom fw-bold"> @PaySlipDto.CreditorName </span>
+            </div>
+            
+            <div class="form-group col-6 subtitle">
+                Due Amount: <span class="border-bottom fw-bold">Rs. @PaySlipDto.DueAmount </span>
+            </div>
+           
+            <div class="form-group col-12">
+                <label class="sn-required-field">Amount Paid</label>
+                <InputNumber class="form-control"
+                             @bind-Value="PaySlipDto.AmountPaid"
+                             placeholder="Enter full name" />
+            </div>
+
+            <div class="form-group col-12">
+                <label class="sn-required-field">Remarks</label>
+                <InputTextArea class="form-control"
+                           @bind-Value="PaySlipDto.Remarks"
+                           placeholder="Enter remarks" />
+            </div>
+             
+        </div>
+
+    </ChildContent>
+    <FooterContent>
+        <button class="btn btn-secondary" @onclick="Cancel">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+        <button class="btn btn-success" @onclick="Save">
+
+            <i class="fas fa-check"></i> Save
+        </button>
+
+    </FooterContent>
+</Dialog>
+
+@code {
+
+    private string registerErrorMessage;
+    private bool IsVisible { get; set; }
+    public PaySlipDto PaySlipDto { get; set; } = new PaySlipDto();
+    [Parameter] public EventCallback<bool> OnSubmitCallback { get; set; } //bool: button is submitted or cancelled
+
+    [Inject] private ICreditorService CreditorService { get; set; }
+ 
+    protected override async Task OnInitializedAsync()
+    {
+        IsVisible = false;
+        ResetForm();
+    }
+
+    #region Dialog Action Handle
+
+    public void ShowForm(PaySlipDto paySlipDto)
+    {
+        IsVisible = true;
+        PaySlipDto = paySlipDto;
+
+        StateHasChanged();
+    }
+
+    private void HandleDialogClosed(bool isOpen)
+    {
+        IsVisible = isOpen;
+        if (!isOpen)
+        {
+            ResetForm();
+        }
+    }
+    private void ResetForm()
+    {
+        PaySlipDto = new PaySlipDto();
+        StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        HandleDialogClosed(isOpen: false);
+    }
+
+    #endregion
+
+    private async Task Save()
+    {
+        if (!IsValidSubmit()) return;
+
+        var response = await CreditorService.CreatePaySlipAsync(PaySlipDto);
+
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message);
+
+        HandleDialogClosed(isOpen: false);
+
+        await OnSubmitCallback.InvokeAsync(true);
+    }
+
+    private bool IsValidSubmit()
+    {
+        if (PaySlipDto.AmountPaid < 1)
+        {
+            registerErrorMessage = "Amount greater than 1 is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        if (string.IsNullOrWhiteSpace(PaySlipDto.Remarks))
+        {
+            registerErrorMessage = "Remarks is required.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+
+        else if (PaySlipDto.CreditorId.Empty())
+        {
+            registerErrorMessage = "Creditor Id is null.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+
+        return true;
+    }
+
+}
