@@ -1,17 +1,9 @@
 ﻿
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Application.Persistence;
-using RetailShopManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace RetailShopManagement.Application.CQRS.Products.Query
 {

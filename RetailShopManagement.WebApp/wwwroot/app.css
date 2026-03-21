@@ -87,6 +87,7 @@ h1:focus {
 
 tr > th {
     background-color: rgb(86, 75, 100);
+    color: #c2d3d8;
 }
 
 .toggle-div {
