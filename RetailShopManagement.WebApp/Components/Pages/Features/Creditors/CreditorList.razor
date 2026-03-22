@@ -195,20 +195,28 @@
 
     private async Task LoadData()
     {
-
-        var response = await CreditorService.GetCreditorsAsync();
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            var response = await CreditorService.GetCreditorsAsync();
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            creditorLists = response.Data.ToList();
+            TotalRecords = creditorLists.Count();
+            SelectedCreditor = null;
+
+            StateHasChanged();
         }
-
-        ToastService.ShowSuccess(response.Message);
-        creditorLists = response.Data.ToList();
-        TotalRecords = creditorLists.Count();
-        SelectedCreditor = null;
-
-        StateHasChanged();
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private void TogglePaySlip(Guid id)

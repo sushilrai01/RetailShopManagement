@@ -67,20 +67,29 @@
 
     private async Task Save()
     {
-        if (!IsValidSubmit()) return;
-
-        registerModel.IsActive = true;
-        var response = await AuthService.RegisterUserAsync(registerModel);
-
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            if (!IsValidSubmit()) return;
+
+            registerModel.IsActive = true;
+            var response = await AuthService.RegisterUserAsync(registerModel);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message, 15000);
+
+            NavigationManager.NavigateTo("/users");
         }
-
-        ToastService.ShowSuccess(response.Message, 15000);
-
-        NavigationManager.NavigateTo("/users");
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private bool IsValidSubmit()

@@ -27,19 +27,27 @@
 
     private async Task LoadData()
     {
-
-        var response = await InvoiceService.GetInvoiceByIdAsync(InvoiceId);
-
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            var response = await InvoiceService.GetInvoiceByIdAsync(InvoiceId);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message, 3000);
+
+            InvoiceInfo = response.Data;
+            StateHasChanged();
         }
-
-        ToastService.ShowSuccess(response.Message, 3000);
-
-        InvoiceInfo = response.Data;
-        StateHasChanged();
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
 }

@@ -103,19 +103,28 @@
 
     private async Task LoadCategories()
     {
-
-        var response = await CategoryService.GetAllCategories();
-        if (!response.IsSuccess)
+        
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            var response = await CategoryService.GetAllCategories();
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            categoryList = response.Data.ToList();
+            TotalRecords = categoryList.Count();
+
+            StateHasChanged();
         }
-
-        ToastService.ShowSuccess(response.Message);
-        categoryList = response.Data.ToList();
-        TotalRecords = categoryList.Count();
-
-        StateHasChanged();
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
      
     private void SelectProduct(CategoryDto? selectedCategory)

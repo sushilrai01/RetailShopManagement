@@ -90,18 +90,27 @@
 
     private async Task HandleValidSubmit()
     {
-        if (!IsValidSave()) return;
-
-        var response = await ProductService.CreateProductAsync(ProductModel);
-
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
-        }
+            LoadingService.Show();
+            
+            if (!IsValidSave()) return;
 
-        ToastService.ShowSuccess(response.Message);
-        NavigationManager.NavigateTo("/products");
+            var response = await ProductService.CreateProductAsync(ProductModel);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            NavigationManager.NavigateTo("/products");
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private bool IsValidSave()

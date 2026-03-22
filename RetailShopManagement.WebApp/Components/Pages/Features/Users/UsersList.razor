@@ -184,19 +184,27 @@
 
     private async Task LoadData()
     {
-
-        var response = await AuthService.GetUsersAsync(fromDate: StartDate, toDate: EndDate);
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            var response = await AuthService.GetUsersAsync(fromDate: StartDate, toDate: EndDate);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            usersList = response.Data.ToList();
+            TotalRecords = usersList.Count();
+
+            StateHasChanged();
         }
-
-        ToastService.ShowSuccess(response.Message);
-        usersList = response.Data.ToList();
-        TotalRecords = usersList.Count();
-
-        StateHasChanged();
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     // private void SelectUser(UsersDto? selectedUser)
@@ -243,43 +251,61 @@
         var isConfirm = await JsModalService.ConfirmAsync("Are you sure you want to delete?");
 
         if (!isConfirm) return;
-
-        var response = await AuthService.DeleteUserAsync(item.Id);
-        if (!response.IsSuccess)
+        
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
-        }
+            LoadingService.Show();
+            
+            var response = await AuthService.DeleteUserAsync(item.Id);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
 
-        ToastService.ShowSuccess(response.Message);
-        await LoadData();
+            ToastService.ShowSuccess(response.Message);
+            await LoadData();
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private async Task ResetPassword()
     {
-        if (SelectedUserId.Empty())
+        try
         {
-            ToastService.ShowInfo("Please select user first by clicking row.");
-            return;
+            LoadingService.Show();
+            
+            if (SelectedUserId.Empty())
+            {
+                ToastService.ShowInfo("Please select user first by clicking row.");
+                return;
+            }
+
+            var isConfirm = await JsModalService.ConfirmAsync($"Are you sure you want to reset password?");
+
+            if (!isConfirm) return;
+
+            var response = await AuthService.ResetPasswordAsync(SelectedUserId!.Value);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            SelectedUser = null;
+            SelectedUserId = null;
+
+            ToastService.ShowSuccess(response.Message, 15000);
+
+            await LoadData();
         }
-
-        var isConfirm = await JsModalService.ConfirmAsync($"Are you sure you want to reset password?");
-
-        if (!isConfirm) return;
-
-        var response = await AuthService.ResetPasswordAsync(SelectedUserId!.Value);
-        if (!response.IsSuccess)
+        finally
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Hide();
         }
-
-        SelectedUser = null;
-        SelectedUserId = null;
-
-        ToastService.ShowSuccess(response.Message, 15000);
-
-        await LoadData();
     }
 
     private async Task Filter()

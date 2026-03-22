@@ -90,33 +90,51 @@
 
     private async Task GetProductById()
     {
-        var response = await ProductService.GetProductByIdAsync(Id);
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
-        }
+            LoadingService.Show();
+            
+            var response = await ProductService.GetProductByIdAsync(Id);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
 
-        ToastService.ShowSuccess(response.Message);
+            ToastService.ShowSuccess(response.Message);
         
-        ProductModel = response.Data;
-        StateHasChanged();
+            ProductModel = response.Data;
+            StateHasChanged();
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private async Task HandleValidSubmit()
     {
-        if (!IsValidSave()) return;
-
-        var response = await ProductService.UpdateProductAsync(ProductModel);
-
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
-        }
+            LoadingService.Show();
+            
+            if (!IsValidSave()) return;
 
-        ToastService.ShowSuccess(response.Message);
-        NavigationManager.NavigateTo("/products");
+            var response = await ProductService.UpdateProductAsync(ProductModel);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            NavigationManager.NavigateTo("/products");
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private bool IsValidSave()

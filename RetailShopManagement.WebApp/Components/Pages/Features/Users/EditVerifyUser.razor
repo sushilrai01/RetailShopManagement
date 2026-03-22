@@ -127,22 +127,31 @@
     private async Task HandleEdit()
     {
         // await JsModalService.ConsoleLogAsync("User verified test success");
-
-        if (!IsValidSubmit()) return;
-
-        var response = await AuthService.UpdateUserAsync(EditUserModel);
-
-        if (!response.IsSuccess)
+        
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            if (!IsValidSubmit()) return;
+
+            var response = await AuthService.UpdateUserAsync(EditUserModel);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+
+            HandleDialogClosed(isOpen: false);
+
+            await OnSubmitCallback.InvokeAsync(true);
         }
-
-        ToastService.ShowSuccess(response.Message);
-
-        HandleDialogClosed(isOpen: false);
-
-        await OnSubmitCallback.InvokeAsync(true);
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private bool IsValidSubmit()

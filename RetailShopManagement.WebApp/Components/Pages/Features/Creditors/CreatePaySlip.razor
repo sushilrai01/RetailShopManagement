@@ -158,23 +158,32 @@
 
     private async Task Save()
     {
-        if (!IsValidSubmit()) return;
-
-        PaySlipDto.InvoiceId = selectedInvoiceId!.Value;
-
-        var response = await CreditorService.CreatePaySlipAsync(PaySlipDto);
-
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            if (!IsValidSubmit()) return;
+
+            PaySlipDto.InvoiceId = selectedInvoiceId!.Value;
+
+            var response = await CreditorService.CreatePaySlipAsync(PaySlipDto);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+
+            HandleDialogClosed(isOpen: false);
+
+            await OnSubmitCallback.InvokeAsync(true);
         }
-
-        ToastService.ShowSuccess(response.Message);
-
-        HandleDialogClosed(isOpen: false);
-
-        await OnSubmitCallback.InvokeAsync(true);
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private bool IsValidSubmit()

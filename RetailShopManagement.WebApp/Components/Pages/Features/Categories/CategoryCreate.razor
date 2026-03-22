@@ -15,7 +15,7 @@
             <label class="form-label sn-required-field">Category Name</label>
             <InputText class="form-control" @bind-Value="CategoryModel.Name" />
         </div>
-        @* 
+        @*
         <!-- Description -->
         <div class="col-md-12 mb-3">
             <label class="form-label sn-required-field">Description</label>
@@ -48,21 +48,30 @@
 
     private async Task HandleValidSubmit()
     {
-        if (string.IsNullOrWhiteSpace(CategoryModel.Name))
+        try
         {
-            ToastService.ShowWarning("Category name is required.");
-            return;
+            LoadingService.Show();
+            
+            if (string.IsNullOrWhiteSpace(CategoryModel.Name))
+            {
+                ToastService.ShowWarning("Category name is required.");
+                return;
+            }
+
+            var response = await CategoryService.CreateCategoryAsync(CategoryModel);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            NavigationManager.NavigateTo("/categories");
         }
-
-        var response = await CategoryService.CreateCategoryAsync(CategoryModel);
-
-        if (!response.IsSuccess)
+        finally
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Hide();
         }
-
-        ToastService.ShowSuccess(response.Message);
-        NavigationManager.NavigateTo("/categories");
     }
 }

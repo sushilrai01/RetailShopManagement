@@ -162,20 +162,29 @@
 
     private async Task LoadData()
     {
-        var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, creditorId: CreditorId);
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, creditorId: CreditorId);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            invoicesList = response.Data.ToList();
+            CreditorName = invoicesList.First().CreditorName;
+
+            TotalRecords = invoicesList.Count();
+
+            StateHasChanged();
         }
-
-        ToastService.ShowSuccess(response.Message);
-        invoicesList = response.Data.ToList();
-        CreditorName = invoicesList.First().CreditorName;
-
-        TotalRecords = invoicesList.Count();
-
-        StateHasChanged();
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private void SelectInvoice(InvoicesDto? selectedInvoice)

@@ -124,23 +124,32 @@
 
     private async Task HandleRegister()
     {
-        await JsModalService.ConsoleLogAsync("Register clicked");
-
-        if (!IsValidSubmit()) return;
-
-        var response = await AuthService.RegisterUserAsync(registerModel);
-
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            await JsModalService.ConsoleLogAsync("Register clicked");
+
+            if (!IsValidSubmit()) return;
+
+            var response = await AuthService.RegisterUserAsync(registerModel);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+
+            await Task.Delay(2000);
+
+            NavigationManager.NavigateTo("/login", true);
         }
-
-        ToastService.ShowSuccess(response.Message);
-
-        await Task.Delay(2000);
-
-        NavigationManager.NavigateTo("/login", true);
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     private bool IsValidSubmit()
