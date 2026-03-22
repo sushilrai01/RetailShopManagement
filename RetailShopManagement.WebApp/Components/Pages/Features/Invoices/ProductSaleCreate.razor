@@ -284,39 +284,57 @@
 
     private async Task Initialize()
     {
-        CreditorDropDownFields = await CreditorsFieldList;
-
-        (ProductListFields, ProductsDictionary) = await GetProductsList();
-
-        // Initialize with one empty row
-        invoiceForm.InvoiceItems = new List<ProductSalesDto>()
+        try
         {
-            new(),
-        };
+            LoadingService.Show();
 
-        Count++;
+            CreditorDropDownFields = await CreditorsFieldList;
+
+            (ProductListFields, ProductsDictionary) = await GetProductsList();
+
+            // Initialize with one empty row
+            invoiceForm.InvoiceItems = new List<ProductSalesDto>()
+            {
+                new(),
+            };
+
+            Count++;
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
 
     }
 
     private async Task Save()
     {
-        if (!ValidateFormOnSave()) return;
-
-        var response = await InvoiceService.CreateInvoiceAsync(invoiceForm);
-
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+            
+            if (!ValidateFormOnSave()) return;
+
+            var response = await InvoiceService.CreateInvoiceAsync(invoiceForm);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message, 3000);
+
+            var invoiceData = response.Data;
+            invoiceForm.Id = invoiceData.Id;
+            invoiceForm.InvoiceNumber = invoiceData.InvoiceNumber;
+
+            NavigationManager.NavigateTo($"/invoice/save-pdf/{invoiceData.Id}");
         }
-
-        ToastService.ShowSuccess(response.Message, 3000);
-
-        var invoiceData = response.Data;
-        invoiceForm.Id = invoiceData.Id;
-        invoiceForm.InvoiceNumber = invoiceData.InvoiceNumber;
-
-        NavigationManager.NavigateTo($"/invoice/save-pdf/{invoiceData.Id}");
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
     #region Row management
@@ -370,6 +388,11 @@
         if (invoiceForm.InvoiceDate == DateTime.MinValue)
         {
             ToastService.ShowInfo("Please enter Invoice Date.");
+            return false;
+        }
+        else if (invoiceForm.CreditorId.Empty() && invoiceForm.BalanceAmount != 0)
+        {
+            ToastService.ShowInfo("Please either select creditor or make full payment (Paid Amount cannot be 0).");
             return false;
         }
 
