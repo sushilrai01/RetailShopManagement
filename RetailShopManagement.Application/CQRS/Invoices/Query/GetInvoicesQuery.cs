@@ -38,7 +38,7 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                 query = query.Where(x => x.CreditorId == request.CreditorId);
             }
 
-            if (request.FromDate != null && request.ToDate != null)
+            if (request is { FromDate: not null, ToDate: not null })
             {
                 query = query.Where(x => x.InvoiceDate >= request.FromDate && x.InvoiceDate <= request.ToDate);
             }

@@ -108,12 +108,17 @@
                             }
                             else
                             {
+                                <button class="btn btn-warning btn-sm m-1" @onclick="() => ShowPdfDialog(item)"
+                                        @onclick:stopPropagation="true" title="Show Invoice">
+                                    <i class="fa-solid fa-file-circle-plus fa-lg"></i>
+                                </button>
+@* 
                                 <a class="btn btn-warning btn-sm"
                                        href="/invoice/save-pdf/@item.Id"
                                        target="_blank" title="Generate Invoice Pdf"
                                        @onclick:stopPropagation="true">
                                     <i class="fa-solid fa-file-circle-plus fa-lg"></i>
-                                </a>
+                                </a> *@
                             }
 
                         </td>
@@ -137,6 +142,8 @@
     </em>
 </p>
 
+<ShowInvoiceDialog @ref="refShowInvoice" OnSubmitCallback="SubmitCallbackHandler" />
+
 @code {
     private List<InvoicesDto> invoicesList = new List<InvoicesDto>();
     private InvoicesDto? SelectedInvoice { get; set; }
@@ -147,6 +154,7 @@
     private int TotalRecords { get; set; }
 
     [Inject] private IInvoiceService InvoiceService { get; set; }
+    private ShowInvoiceDialog refShowInvoice;
 
     protected override async Task OnInitializedAsync()
     {
@@ -203,12 +211,27 @@
         if (selectedInvoice is null) return;
         NavigationManager.NavigateTo($"/invoice/view-pdf/{selectedInvoice.Id}");
     }
-
+    
     private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)
     {
         StartDate = dateRange.StartDate;
         EndDate = dateRange.EndDate;
         await LoadData();
+    }
+
+    private void ShowPdfDialog(InvoicesDto? selectedInvoice)
+    {
+        if (selectedInvoice is null) return;
+        
+        refShowInvoice.ShowDialog(selectedInvoice);
+    }
+    
+    private async Task SubmitCallbackHandler(bool isActionSubmit)
+    {
+        if (isActionSubmit)
+        {
+            await LoadData();
+        }
     }
 
 }

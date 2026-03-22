@@ -6,16 +6,13 @@
 
 <PageTitle>Creditor Invoices</PageTitle>
 
-@if (invoicesList.Any())
-{
-    <h3 class="subtitle">
-        Invoices For
-        <span class="fw-bold" style="border-bottom: 1px dashed #000;">
-            @CreditorName
-        </span>
-    </h3>
+<h3 class="subtitle">
+    Invoices For
+    <span class="fw-bold" style="border-bottom: 1px dashed #000;">
+        @CreditorName
+    </span>
+</h3>
      
-}
 <div class="card shadow-sm mb-3">
     <div class="card-body">
         <div class="row align-items-end">
@@ -105,10 +102,10 @@
                             {
                                 
                                 <button class="btn btn-warning btn-sm m-1" @onclick="() => ShowPdfDialog(item)"
-                                        @onclick:stopPropagation="true" title="Show Pdf">
+                                        @onclick:stopPropagation="true" title="Show Invoice">
                                     <i class="fa-solid fa-file-circle-plus fa-lg"></i>
                                 </button>
-@* 
+                                @* 
                                 <a class="btn btn-warning btn-sm"
                                        href="/invoice/save-pdf/@item.Id"
                                        target="_blank" title="Generate Invoice Pdf"
@@ -149,7 +146,7 @@
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
     private DateTime? EndDate { get; set; } = DateTime.Now;
     private int TotalRecords { get; set; }
-    private string CreditorName { get; set; }
+    private string? CreditorName { get; set; }
     private ShowInvoiceDialog refShowInvoice;
 
     [Inject] private IInvoiceService InvoiceService { get; set; }
@@ -165,7 +162,7 @@
         try
         {
             LoadingService.Show();
-            
+
             var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, creditorId: CreditorId);
             if (!response.IsSuccess)
             {
@@ -175,8 +172,8 @@
 
             ToastService.ShowSuccess(response.Message);
             invoicesList = response.Data.ToList();
-            CreditorName = invoicesList.First().CreditorName;
-
+            CreditorName ??= invoicesList.FirstOrDefault()?.CreditorName;
+           
             TotalRecords = invoicesList.Count();
 
             StateHasChanged();
