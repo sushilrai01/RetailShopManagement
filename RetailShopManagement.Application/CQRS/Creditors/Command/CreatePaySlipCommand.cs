@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RetailShopManagement.Application.Persistence;
+using RetailShopManagement.Domain.Constants;
 using RetailShopManagement.Domain.Entities;
 using RetailShopManagement.Domain.Shared;
+using System.Net.NetworkInformation;
 
 namespace RetailShopManagement.Application.CQRS.Creditors.Command
 {
@@ -11,7 +13,7 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Command
         public Guid CreditorId { get; set; }
         public string Remarks { get; set; }
         public decimal AmountPaid { get; set; }
-
+        public Guid? InvoiceId { get; set; }
     }
 
     public class CreatePaySlipCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory,
@@ -31,9 +33,18 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Command
                 throw new Exception($"Creditor does not exist with Id: {request.CreditorId}.");
             }
 
+            var existingInvoice = await context.Invoices
+                .FindAsync([request.InvoiceId], cancellationToken);
+
+            if (existingInvoice == null)
+            {
+                throw new Exception($"Invoice does not exist with Id: {request.InvoiceId}.");
+            }
+
             var paySlip = new PaySlip()
             {
                 CreditorId = request.CreditorId,
+                InvoiceId = request.InvoiceId,
                 PaymentDate = DateTime.Now,
                 AmountPaid = request.AmountPaid,
                 Remarks = request.Remarks,
@@ -42,6 +53,12 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Command
                 CreatedOn = DateTime.Now
             };
 
+            existingInvoice.PaidAmount += request.AmountPaid;
+            existingInvoice.BalanceAmount -= request.AmountPaid;
+            existingInvoice.Status =
+                PaymentStatus.GetPaymentStatus(existingInvoice.PaidAmount, existingInvoice.TotalAmount);
+            existingInvoice.LastModifiedBy = userServiceProvider.UserName;
+            existingInvoice.LastModifiedOn = DateTime.Now;
 
             await context.PaySlips.AddAsync(paySlip, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);

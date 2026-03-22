@@ -37,6 +37,7 @@ public class PaySlipDto
 {
     public Guid Id { get; set; }
     public Guid CreditorId { get; set; }
+    public Guid InvoiceId { get; set; }
     public DateTime PaymentDate { get; set; } = DateTime.Now;
     public decimal DueAmount{ get; set; }
     public decimal AmountPaid { get; set; }

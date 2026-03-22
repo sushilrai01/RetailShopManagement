@@ -4,19 +4,54 @@
         Title="Make Payment"
         ShowCloseButton="true"
         CloseOnOverlayClick="true"
-        CssContainerMaxWidth="500px">
+        CssContainerMaxWidth="600px">
     <ChildContent>
 
         <div class="row">
 
-            <div class="form-group col-6 subtitle">
+            <div class="form-group col-12 subtitle">
                 Creditor Name: <span class="border-bottom fw-bold"> @PaySlipDto.CreditorName </span>
             </div>
-            
-            <div class="form-group col-6 subtitle">
-                Due Amount: <span class="border-bottom fw-bold">Rs. @PaySlipDto.DueAmount </span>
+
+            <div class="form-group-x col-6">
+                <InputSelect class="form-control"
+                             @bind-Value="selectedInvoiceId"
+                             @bind-Value:after="OnInvoiceChange">
+
+                    @foreach (var unit in CreditorInvoiceFields)
+                    {
+                        <option value="@unit.Value">@unit.Text</option>
+                    }
+                </InputSelect>
+
             </div>
-           
+
+            <div class="form-group table-responsive col-12 mt-3">
+                @if (selectedInvoice != null)
+                {
+                    <table class="table table-borderless table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Invoice No.</th>
+                                <th>Total Amount</th>
+                                <th>Paid Amount</th>
+                                <th>Balance Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="cell-no-wrap">@selectedInvoice.InvoiceNumber</td>
+                                <td>Rs. @selectedInvoice.TotalAmount</td>
+                                <td>Rs. @selectedInvoice.PaidAmount</td>
+                                <td>Rs. @selectedInvoice.BalanceAmount</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+            </div>
+            
+            <hr class="list-counter-margin" />
+
             <div class="form-group col-12">
                 <label class="sn-required-field">Amount Paid</label>
                 <InputNumber class="form-control"
@@ -27,8 +62,8 @@
             <div class="form-group col-12">
                 <label class="sn-required-field">Remarks</label>
                 <InputTextArea class="form-control"
-                           @bind-Value="PaySlipDto.Remarks"
-                           placeholder="Enter remarks" />
+                               @bind-Value="PaySlipDto.Remarks"
+                               placeholder="Enter remarks" />
             </div>
              
         </div>
@@ -51,10 +86,17 @@
     private string registerErrorMessage;
     private bool IsVisible { get; set; }
     public PaySlipDto PaySlipDto { get; set; } = new PaySlipDto();
+    public Guid? selectedInvoiceId { get; set; }
+    public InvoicesDto? selectedInvoice { get; set; }
+
+    private IList<InvoicesDto> CreditorInvoices = new List<InvoicesDto>();
+
+    private List<NullableGuidDropDownField> CreditorInvoiceFields { get; set; } = [new() { Value = Guid.Empty, Text = "--Select Invoice--" }];
+
     [Parameter] public EventCallback<bool> OnSubmitCallback { get; set; } //bool: button is submitted or cancelled
 
     [Inject] private ICreditorService CreditorService { get; set; }
- 
+
     protected override async Task OnInitializedAsync()
     {
         IsVisible = false;
@@ -63,10 +105,29 @@
 
     #region Dialog Action Handle
 
-    public void ShowForm(PaySlipDto paySlipDto)
+    public void ShowForm(PaySlipDto paySlipDto, IList<InvoicesDto>? invoicesList = null)
     {
         IsVisible = true;
         PaySlipDto = paySlipDto;
+        CreditorInvoices = invoicesList;
+
+        InitializeInvoiceData();
+
+        StateHasChanged();
+    }
+
+    private void InitializeInvoiceData()
+    {
+        if (CreditorInvoices == null) return;
+
+        CreditorInvoiceFields.AddRange(
+            CreditorInvoices
+            .Where(x => x.BalanceAmount != 0)
+            .Select(x => new NullableGuidDropDownField
+            {
+                Value = x.Id,
+                Text = x.InvoiceNumber
+            }).ToList());
 
         StateHasChanged();
     }
@@ -82,6 +143,9 @@
     private void ResetForm()
     {
         PaySlipDto = new PaySlipDto();
+        selectedInvoice = new InvoicesDto();
+        selectedInvoiceId = null;
+        CreditorInvoiceFields = [new() { Value = Guid.Empty, Text = "--Select Invoice--" }];
         StateHasChanged();
     }
 
@@ -95,6 +159,8 @@
     private async Task Save()
     {
         if (!IsValidSubmit()) return;
+
+        PaySlipDto.InvoiceId = selectedInvoiceId!.Value;
 
         var response = await CreditorService.CreatePaySlipAsync(PaySlipDto);
 
@@ -113,9 +179,27 @@
 
     private bool IsValidSubmit()
     {
-        if (PaySlipDto.AmountPaid < 1)
+        if (selectedInvoice is null)
         {
-            registerErrorMessage = "Amount greater than 1 is required.";
+            registerErrorMessage = "Please select an invoice to pay.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (selectedInvoiceId.Empty())
+        {
+            registerErrorMessage = "Select invoice to pay.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (!(PaySlipDto.AmountPaid > 0))
+        {
+            registerErrorMessage = "Amount should be greater than 0.";
+            ToastService.ShowWarning(registerErrorMessage);
+            return false;
+        }
+        else if (PaySlipDto.AmountPaid > selectedInvoice.BalanceAmount)
+        {
+            registerErrorMessage = "Amount paid cannot be greater than balance amount.";
             ToastService.ShowWarning(registerErrorMessage);
             return false;
         }
@@ -125,7 +209,6 @@
             ToastService.ShowWarning(registerErrorMessage);
             return false;
         }
-
         else if (PaySlipDto.CreditorId.Empty())
         {
             registerErrorMessage = "Creditor Id is null.";
@@ -134,6 +217,19 @@
         }
 
         return true;
+    }
+
+    private void OnInvoiceChange()
+    {
+        if (selectedInvoiceId.Empty())
+        {
+            selectedInvoice = new InvoicesDto();
+            return;
+        }
+
+        selectedInvoice = CreditorInvoices.FirstOrDefault(x => x.Id == selectedInvoiceId);
+
+        StateHasChanged();
     }
 
 }

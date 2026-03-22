@@ -72,7 +72,10 @@
         <div class="bold">PAYMENTS</div>
 
         <p>
-            Paid on @InvoiceInfo.InvoiceDate.ToString("dd/MM/yyyy")
+            @{
+                var latestPaidDate = InvoiceInfo.LastModifiedOn ?? InvoiceInfo.InvoiceDate;
+            }
+            Paid on @latestPaidDate.ToString("dd/MM/yyyy")
             <span class="right" style="float:right">@InvoiceInfo.PaidAmount.ToString("N2")</span>
         </p>
 

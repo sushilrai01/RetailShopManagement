@@ -89,6 +89,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Creditors
                 var result = await Mediator.Send(new CreatePaySlipCommand()
                 {
                     CreditorId = paySlipDto.CreditorId,
+                    InvoiceId = paySlipDto.InvoiceId,
                     AmountPaid = paySlipDto.AmountPaid,
                     Remarks = paySlipDto.Remarks,
                 }, cancellationToken);

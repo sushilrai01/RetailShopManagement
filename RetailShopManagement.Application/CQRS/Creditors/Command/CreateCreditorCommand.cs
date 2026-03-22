@@ -56,31 +56,11 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Command
                 Email = request.Email,
                 Address = request.Address,
 
-                DueAmount = request.DueAmount,
-                PaidAmount = request.PaidAmount,
-                BalanceAmount = request.TotalAmount,
                 Status = request.Status,
 
                 CreatedBy = userServiceProvider.UserName,
                 CreatedOn = DateTime.Now
             };
-
-            #region DummyData
-            //Dummy data for test
-
-            //creditor.PaySlips = new List<PaySlip>()
-            //{
-            //    new PaySlip()
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        PaymentDate = DateTime.Now,
-            //        AmountPaid = 250,
-            //        Remarks = "paid for vegetables",
-            //        CreatedBy = userServiceProvider.UserName,
-            //        CreatedOn = DateTime.Now
-            //    }
-            //};
-            #endregion
 
             await context.Creditors.AddAsync(creditor, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
