@@ -52,4 +52,6 @@ public class Invoice : BaseDerivedEntity<Guid>
 
     //List of InvoiceItems
     public ICollection<ProductSale> InvoiceItems { get; set; } = new HashSet<ProductSale>();
+    public ICollection<PaySlip> PaySlips { get; set; } = new HashSet<PaySlip>();
+
 }

@@ -18,14 +18,14 @@ namespace RetailShopManagement.Domain.Entities
         public string? Email { get; set; }
         public string Address { get; set; } = null!;
 
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal DueAmount { get; set; }
+        //[Column(TypeName = "decimal(18,2)")]
+        //public decimal DueAmount { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal PaidAmount { get; set; }
+        //[Column(TypeName = "decimal(18,2)")]
+        //public decimal PaidAmount { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal BalanceAmount { get; set; }
+        //[Column(TypeName = "decimal(18,2)")]
+        //public decimal BalanceAmount { get; set; }
 
         [Required]
         public string Status { get; set; } = PaymentStatus.Pending;
@@ -33,6 +33,16 @@ namespace RetailShopManagement.Domain.Entities
         //List of payment made to this creditor
         public ICollection<PaySlip> PaySlips { get; set; } = new HashSet<PaySlip>();
         public ICollection<Invoice> Invoices { get; set; } = new HashSet<Invoice>();
+
+        // Computed properties (not mapped to DB)
+        [NotMapped]
+        public decimal TotalAmount => Invoices.Sum(i => i.BalanceAmount);
+
+        [NotMapped]
+        public decimal TotalPaid => PaySlips.Sum(p => p.AmountPaid);
+
+        [NotMapped]
+        public decimal DueAmount => (TotalAmount - TotalPaid);
 
     }
 }
