@@ -1,16 +1,17 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using RetailShopManagement.Application.Common.Models;
 using RetailShopManagement.Domain.Models.Common;
 using RetailShopManagement.WebApp.Services;
 using RetailShopManagement.WebApp.Services.AppServices;
 using RetailShopManagement.WebApp.Services.AppServices.Categories;
+using RetailShopManagement.WebApp.Services.AppServices.Creditors;
+using RetailShopManagement.WebApp.Services.AppServices.LoadingService;
+using RetailShopManagement.WebApp.Services.AppServices.Products;
 using RetailShopManagement.WebApp.Services.AppServices.ToastService;
 using System.Security.Claims;
 using System.Security.Principal;
-using RetailShopManagement.Application.Common.Models;
-using RetailShopManagement.WebApp.Services.AppServices.Creditors;
-using RetailShopManagement.WebApp.Services.AppServices.Products;
 
 namespace RetailShopManagement.WebApp.Components
 {
@@ -26,6 +27,7 @@ namespace RetailShopManagement.WebApp.Components
         [Inject] protected ICreditorService CreditorService { get; set; }
         [Inject] protected IProductService ProductService { get; set; }
         [Inject] protected ToastService ToastService { get; set; }
+        [Inject] protected LoadingService LoadingService { get; set; }
         [Inject] protected JsModalService JsModalService { get; set; }
         protected CancellationTokenSource CancellationTokenSource { get; set; }
         protected Task<IList<IntDropDownField>> CategoryTypes => GetCategoryTypes();

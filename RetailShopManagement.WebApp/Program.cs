@@ -9,6 +9,7 @@ using RetailShopManagement.WebApp.Components;
 using RetailShopManagement.WebApp.Extensions;
 using RetailShopManagement.WebApp.Middlewares;
 using RetailShopManagement.WebApp.Services.AppServices;
+using RetailShopManagement.WebApp.Services.AppServices.LoadingService;
 using RetailShopManagement.WebApp.Services.AppServices.ToastService;
 using System.Reflection;
 using System.Text;
@@ -36,6 +37,7 @@ builder.Services.AddInfrastructure(configuration);
 builder.Services.AddApplicationModule();
 
 builder.Services.AddScoped<ToastService>();
+builder.Services.AddScoped<LoadingService>();
 builder.Services.AddScoped<JsModalService>();
 
 // Add controllers so ApiController endpoints are available

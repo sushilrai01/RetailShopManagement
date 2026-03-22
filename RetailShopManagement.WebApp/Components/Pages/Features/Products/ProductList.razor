@@ -165,19 +165,28 @@
 
         //     return;
         // }
-
-        var response = await ProductService.GetAllProductsAsync(selectedCategoryId, fromDate: StartDate, toDate: EndDate);
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+
+            var response = await ProductService.GetAllProductsAsync(selectedCategoryId, fromDate: StartDate, toDate: EndDate);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            productList = response.Data.ToList();
+            TotalRecords = productList.Count();
+
+            StateHasChanged();
         }
-
-        ToastService.ShowSuccess(response.Message);
-        productList = response.Data.ToList();
-        TotalRecords = productList.Count();
-
-        StateHasChanged();
+        finally
+        {
+            LoadingService.Hide();
+        }
+        
     }
 
     private void FilterByDate()
@@ -250,15 +259,24 @@
 
         if (!isConfirm) return;
 
-        var response = await ProductService.DeleteProductAsync(item.Id);
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
-        }
+            LoadingService.Show();
+            
+            var response = await ProductService.DeleteProductAsync(item.Id);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
 
-        ToastService.ShowSuccess(response.Message);
-        await LoadProducts();
+            ToastService.ShowSuccess(response.Message);
+            await LoadProducts();
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
 
 

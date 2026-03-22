@@ -16,7 +16,7 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Payment Status</label>
-                        <select class="form-select" @bind="selectedStatus">
+                        <select class="form-control" @bind="selectedStatus">
                             @foreach (var category in invoiceStatusFields)
                             {
                                 <option value="@category.Value">
@@ -109,9 +109,9 @@
                             else
                             {
                                 <a class="btn btn-warning btn-sm"
-                                   href="/invoice/save-pdf/@item.Id"
-                                   target="_blank" title="Generate Invoice Pdf"
-                                   @onclick:stopPropagation="true">
+                                       href="/invoice/save-pdf/@item.Id"
+                                       target="_blank" title="Generate Invoice Pdf"
+                                       @onclick:stopPropagation="true">
                                     <i class="fa-solid fa-file-circle-plus fa-lg"></i>
                                 </a>
                             }
@@ -156,18 +156,27 @@
 
     private async Task LoadData()
     {
-        var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, fromDate: StartDate, toDate: EndDate);
-        if (!response.IsSuccess)
+        try
         {
-            ToastService.ShowError(response.Message);
-            return;
+            LoadingService.Show();
+
+            var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, fromDate: StartDate, toDate: EndDate);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            invoicesList = response.Data.ToList();
+            TotalRecords = invoicesList.Count();
+
+            StateHasChanged();
         }
-
-        ToastService.ShowSuccess(response.Message);
-        invoicesList = response.Data.ToList();
-        TotalRecords = invoicesList.Count();
-
-        StateHasChanged();
+        finally
+        {
+            LoadingService.Hide();
+        }
     }
      
     private void SelectInvoice(InvoicesDto? selectedInvoice)
