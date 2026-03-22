@@ -1,0 +1,61 @@
+﻿
+<Dialog IsOpen="IsVisible"
+        IsOpenChanged="HandleDialogClosed"
+        Title="Retail Shop Invoice"
+        ShowCloseButton="true"
+        CloseOnOverlayClick="true"
+        ShowFooter = "false"
+        CssContainerMaxWidth="550px">
+    <ChildContent>
+
+        <InvoiceComponent InvoiceInfo="InvoiceInfo" />
+
+    </ChildContent>
+     
+</Dialog>
+
+@code {
+
+    private string registerErrorMessage;
+    private bool IsVisible { get; set; }
+    public InvoicesDto InvoiceInfo { get; set; }
+    [Parameter] public EventCallback<bool> OnSubmitCallback { get; set; } //bool: button is submitted or cancelled
+
+    protected override async Task OnInitializedAsync()
+    {
+        IsVisible = false;
+        ResetForm();
+    }
+
+    #region Dialog Action Handle
+
+    public void ShowDialog(InvoicesDto invoicesDto)
+    {
+        IsVisible = true;
+        InvoiceInfo = invoicesDto;
+
+        StateHasChanged();
+    }
+
+    private void HandleDialogClosed(bool isOpen)
+    {
+        IsVisible = isOpen;
+        if (!isOpen)
+        {
+            ResetForm();
+        }
+    }
+    private void ResetForm()
+    {
+        InvoiceInfo = new InvoicesDto();
+        StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        HandleDialogClosed(isOpen: false);
+    }
+
+    #endregion
+
+}

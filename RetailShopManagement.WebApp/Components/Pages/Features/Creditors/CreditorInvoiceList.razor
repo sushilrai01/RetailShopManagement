@@ -1,5 +1,6 @@
 ﻿@page "/invoices/creditor/{CreditorId:guid}"
 @using RetailShopManagement.Domain.Constants
+@using RetailShopManagement.WebApp.Components.Pages.Features.Invoices
 
 @attribute [StreamRendering]
 
@@ -102,12 +103,18 @@
                             }
                             else
                             {
+                                
+                                <button class="btn btn-warning btn-sm m-1" @onclick="() => ShowPdfDialog(item)"
+                                        @onclick:stopPropagation="true" title="Show Pdf">
+                                    <i class="fa-solid fa-file-circle-plus fa-lg"></i>
+                                </button>
+@* 
                                 <a class="btn btn-warning btn-sm"
                                        href="/invoice/save-pdf/@item.Id"
                                        target="_blank" title="Generate Invoice Pdf"
                                        @onclick:stopPropagation="true">
                                     <i class="fa-solid fa-file-circle-plus fa-lg"></i>
-                                </a>
+                                </a> *@
                             }
 
                         </td>
@@ -131,6 +138,8 @@
     </em>
 </p>
 
+<ShowInvoiceDialog @ref="refShowInvoice" OnSubmitCallback="SubmitCallbackHandler" />
+
 @code {
     [Parameter] public Guid CreditorId { get; set; }
     private List<InvoicesDto> invoicesList = new List<InvoicesDto>();
@@ -141,6 +150,7 @@
     private DateTime? EndDate { get; set; } = DateTime.Now;
     private int TotalRecords { get; set; }
     private string CreditorName { get; set; }
+    private ShowInvoiceDialog refShowInvoice;
 
     [Inject] private IInvoiceService InvoiceService { get; set; }
 
@@ -186,6 +196,21 @@
     {
         if (selectedInvoice is null) return;
         NavigationManager.NavigateTo($"/invoice/view-pdf/{selectedInvoice.Id}");
+    }
+
+    private void ShowPdfDialog(InvoicesDto? selectedInvoice)
+    {
+        if (selectedInvoice is null) return;
+        
+        refShowInvoice.ShowDialog(selectedInvoice);
+    }
+    
+    private async Task SubmitCallbackHandler(bool isActionSubmit)
+    {
+        if (isActionSubmit)
+        {
+            await LoadData();
+        }
     }
 
 }

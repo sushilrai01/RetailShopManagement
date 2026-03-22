@@ -2,6 +2,13 @@
 
 <PageTitle>Save Invoice Pdf</PageTitle>
 
+
+<a class="btn btn-success btn-sm mb-2"
+   href="/invoices"
+   title="Go Back"
+   @onclick:stopPropagation="true">
+    <i class="fa-solid fa-arrow-left"></i> Invoices List
+</a>  
 <h3 class="subtitle">Retail Shop Invoice</h3>
 
 <InvoiceComponent InvoiceInfo="InvoiceInfo" />
