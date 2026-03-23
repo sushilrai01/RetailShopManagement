@@ -35,11 +35,11 @@ namespace RetailShopManagement.Domain.Entities
         public ICollection<Invoice> Invoices { get; set; } = new HashSet<Invoice>();
 
         // Computed properties (not mapped to DB)
-        [NotMapped]
-        public decimal TotalAmount => Invoices.Sum(i => i.BalanceAmount);
+        [NotMapped] 
+        public decimal TotalAmount => Invoices.Sum(i => i.TotalAmount);
 
         [NotMapped]
-        public decimal TotalPaid => PaySlips.Sum(p => p.AmountPaid);
+        public decimal TotalPaid => Invoices.Sum(p => p.PaidAmount);
 
         [NotMapped]
         public decimal DueAmount => (TotalAmount - TotalPaid);

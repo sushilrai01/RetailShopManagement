@@ -18,7 +18,7 @@ public class Invoice : BaseDerivedEntity<Guid>
 
     public Guid? CreditorId { get; set; }
     public Creditor? Creditor { get; set; }
-    
+
     [Column(TypeName = "decimal(18,2)")]
     public decimal SubTotal { get; set; }
 
@@ -47,9 +47,12 @@ public class Invoice : BaseDerivedEntity<Guid>
 
     [StringLength(500)]
     public string? Remarks { get; set; }
-     
+
     public Guid? SupplierId { get; set; }
 
+    public bool IsPurchaseInvoice { get; set; } = false;
+    public bool IsPdfGenerated { get; set; } = false;
+    public string InvoicePdfPath { get; set; } = string.Empty;
     //List of InvoiceItems
     public ICollection<ProductSale> InvoiceItems { get; set; } = new HashSet<ProductSale>();
     public ICollection<PaySlip> PaySlips { get; set; } = new HashSet<PaySlip>();
