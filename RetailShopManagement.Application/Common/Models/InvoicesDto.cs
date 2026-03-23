@@ -49,6 +49,7 @@ public class InvoicesDto
 
     //List of Invoice Items
     public IList<ProductSalesDto> InvoiceItems { get; set; } = new List<ProductSalesDto>();
+    public IList<PaySlipDto> PaySlipHistory { get; set; } = new List<PaySlipDto>();
 }
 public class ProductSalesDto
 {

@@ -70,14 +70,20 @@
         <div class="line"></div>
 
         <div class="bold">PAYMENTS</div>
-
-        <p>
-            @{
-                var latestPaidDate = InvoiceInfo.LastModifiedOn ?? InvoiceInfo.InvoiceDate;
+        
+        @if (InvoiceInfo.PaySlipHistory != null)
+        {
+            @foreach (var pay in InvoiceInfo.PaySlipHistory)
+            {
+                <p>
+                    @{
+                        // var latestPaidDate = InvoiceInfo.LastModifiedOn ?? InvoiceInfo.InvoiceDate;
+                    }
+                    Paid on @pay.PaymentDate.ToString("dd/MM/yyyy")
+                    <span class="right" style="float:right">@pay.AmountPaid.ToString("N2")</span>
+                </p>
             }
-            Paid on @latestPaidDate.ToString("dd/MM/yyyy")
-            <span class="right" style="float:right">@InvoiceInfo.PaidAmount.ToString("N2")</span>
-        </p>
+        }
 
         <div class="line"></div>
 

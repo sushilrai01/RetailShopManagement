@@ -21,6 +21,7 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Query
 
             var creditorsList = await context.Creditors
                 .Include(x => x.PaySlips)
+                .ThenInclude(x => x.Invoice)
                 .Include(x => x.Invoices)
                 .AsNoTracking()
                 .Select(x => new CreditorDto()
@@ -45,9 +46,10 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Query
                     {
                         Id = y.Id,
                         AmountPaid = y.AmountPaid,
+                        InvoiceNumber = y.Invoice!.InvoiceNumber,
                         PaymentDate = y.PaymentDate,
                         Remarks = y.Remarks
-                    }).ToList(),
+                    }).OrderByDescending(y => y.PaymentDate).ToList(),
 
                     //TODO: Incomplete mapping of InvoiceItems; separated query
                     InvoiceLists = x.Invoices.Select(y => new InvoicesDto()

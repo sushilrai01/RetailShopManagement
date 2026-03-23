@@ -13,13 +13,13 @@ public class CreditorDto
     public string Address { get; set; } = null!;
 
     //Remaining amount to be paid to the creditor
-    public decimal DueAmount { get; set; } 
+    public decimal DueAmount { get; set; }
 
     //Total amount paid to the creditor (total sum of PaySlips' AmountPaid)
-    public decimal PaidAmount { get; set; } 
+    public decimal PaidAmount { get; set; }
 
     //Total amount owed to the creditor (total sum of invoices' TotalAmount)
-    public decimal TotalAmount { get; set; } 
+    public decimal TotalAmount { get; set; }
 
     public string Status { get; set; } = PaymentStatus.Pending;
 
@@ -33,13 +33,14 @@ public class CreditorDto
     public IList<InvoicesDto> InvoiceLists { get; set; } = new List<InvoicesDto>();
 
 }
-public class PaySlipDto 
+public class PaySlipDto
 {
     public Guid Id { get; set; }
     public Guid CreditorId { get; set; }
     public Guid InvoiceId { get; set; }
+    public string InvoiceNumber { get; set; } = string.Empty;
     public DateTime PaymentDate { get; set; } = DateTime.Now;
-    public decimal DueAmount{ get; set; }
+    public decimal DueAmount { get; set; }
     public decimal AmountPaid { get; set; }
     public string Remarks { get; set; } = null!;
     public string CreditorName { get; set; } = string.Empty;

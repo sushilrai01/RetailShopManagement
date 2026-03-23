@@ -80,7 +80,15 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                         UnitPrice = z.UnitPrice,
                         Subtotal = z.Subtotal,
                         Notes = z.Notes
-                    }).ToList()
+                    }).ToList(),
+
+                    PaySlipHistory = x.PaySlips.Select(y => new PaySlipDto()
+                    {
+                        Id = y.Id,
+                        AmountPaid = y.AmountPaid,
+                        PaymentDate = y.PaymentDate,
+                        Remarks = y.Remarks
+                    }).OrderBy(y => y.PaymentDate).ToList()
 
                 })
                 .OrderByDescending(x => x.InvoiceNumber)

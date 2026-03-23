@@ -86,6 +86,24 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Command
                 }).ToList()
             };
 
+            if (request.PaidAmount > 0)
+            {
+                invoice.PaySlips = new List<PaySlip>
+                {
+                    new()
+                    {
+                        Id = Guid.NewGuid(),
+                        InvoiceId = invoice.Id,
+                        CreditorId = request.CreditorId,
+                        AmountPaid = request.PaidAmount,
+                        PaymentDate = DateTime.Now,
+                        Remarks = "Initial Payment",
+                        CreatedBy = userServiceProvider.UserName,
+                        CreatedOn = DateTime.Now
+                    }
+                };
+            }
+
             await context.Invoices.AddAsync(invoice, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
 

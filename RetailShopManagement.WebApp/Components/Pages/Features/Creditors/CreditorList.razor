@@ -129,18 +129,20 @@
 
                                             <!-- Header -->
                                             <div class="row  border-bottom pb-2 mb-2 bg-warning">
-                                                <div class="col-4">Payment Date</div>
-                                                <div class="col-4">Amount Paid</div>
-                                                <div class="col-4">Remarks</div>
+                                                <div class="col-3">Payment Date</div>
+                                                <div class="col-3">Invoice Number</div>
+                                                <div class="col-3">Amount Paid</div>
+                                                <div class="col-3">Remarks</div>
                                             </div>
 
                                             <!-- Data -->
                                             @foreach (var ps in item.PaySlips)
                                             {
                                                 <div class="row border-bottom py-1">
-                                                    <div class="col-4">@ps.PaymentDate</div>
-                                                    <div class="col-4">@ps.AmountPaid</div>
-                                                    <div class="col-4">@ps.Remarks</div>
+                                                    <div class="col-3">@ps.PaymentDate</div>
+                                                    <div class="col-3">@ps.InvoiceNumber</div>
+                                                    <div class="col-3">@ps.AmountPaid</div>
+                                                    <div class="col-3">@ps.Remarks</div>
                                                 </div>
                                             }
                                         </div>
