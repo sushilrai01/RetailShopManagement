@@ -1,5 +1,4 @@
 ﻿@page "/invoices"
-@using RetailShopManagement.Domain.Constants
 
 @attribute [StreamRendering]
 
@@ -84,49 +83,61 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in invoicesList)
-                {
-                    <tr @onclick="() => SelectInvoice(item)">
-                        <td class="cell-no-wrap">@item.InvoiceNumber</td>
-                        <td>@item.InvoiceDate.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@item.CreditorName</td>
-                        <td>@item.TaxAmount</td>
-                        <td>@item.DiscountAmount</td>
-                        <td>@item.SubTotal</td>
-                        <td>@item.TotalAmount</td>
-                        <td>@item.PaidAmount</td>
-                        <td>@item.BalanceAmount</td>
-                        <td class="cell-no-wrap">@item.Status</td>
-                        <td class="cell-no-wrap">
+            @foreach (var item in invoicesList)
+            {
+                <tr @onclick="() => SelectInvoice(item)">
+                    <td class="cell-no-wrap">@item.InvoiceNumber</td>
+                    <td>@item.InvoiceDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@item.CreditorName</td>
+                    <td>@item.TaxAmount</td>
+                    <td>@item.DiscountAmount</td>
+                    <td>@item.SubTotal</td>
+                    <td>@item.TotalAmount</td>
+                    <td>@item.PaidAmount</td>
+                    <td>@item.BalanceAmount</td>
+                    <td class="cell-no-wrap">@item.Status</td>
+                    <td class="cell-no-wrap">
                             
-                            @if (item.IsPdfGenerated)
-                            {
-                                <button class="btn btn-danger btn-sm m-1" @onclick="() => ShowPdf(item)"
-                                        @onclick:stopPropagation="true" title="Show Pdf">
-                                    <i class="fa-regular fa-file-pdf fa-lg"></i>
-                                </button>
-                            }
-                            else
-                            {
-                                <button class="btn btn-warning btn-sm m-1" @onclick="() => ShowPdfDialog(item)"
-                                        @onclick:stopPropagation="true" title="Show Invoice">
-                                    <i class="fa-solid fa-file-circle-plus fa-lg"></i>
-                                </button>
-@* 
+                        @if (item.IsPdfGenerated)
+                        {
+                            <button class="btn btn-danger btn-sm m-1" @onclick="() => ShowPdf(item)"
+                                    @onclick:stopPropagation="true" title="Show Pdf">
+                                <i class="fa-regular fa-file-pdf fa-lg"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-warning btn-sm m-1" @onclick="() => ShowPdfDialog(item)"
+                                    @onclick:stopPropagation="true" title="Show Invoice">
+                                <i class="fa-solid fa-file-circle-plus fa-lg"></i>
+                            </button>
+                            @*
                                 <a class="btn btn-warning btn-sm"
                                        href="/invoice/save-pdf/@item.Id"
                                        target="_blank" title="Generate Invoice Pdf"
                                        @onclick:stopPropagation="true">
                                     <i class="fa-solid fa-file-circle-plus fa-lg"></i>
                                 </a> *@
-                            }
+                        }
 
-                        </td>
-                        <td>@item.Remarks</td>
+                    </td>
+                    <td>@item.Remarks</td>
 
-                    </tr>
-                }
+                </tr>
+            }
             </tbody>
+            <tfoot class="sticky-footer">
+            <tr class="table-active fw-bold">
+                <td colspan="3" class="text-end">Grand Total:</td>
+                <td>@invoicesList.Sum(x => x.TaxAmount)</td>
+                <td>@invoicesList.Sum(x => x.DiscountAmount)</td>
+                <td>@invoicesList.Sum(x => x.SubTotal)</td>
+                <td>@invoicesList.Sum(x => x.TotalAmount)</td>
+                <td>@invoicesList.Sum(x => x.PaidAmount)</td>
+                <td>@invoicesList.Sum(x => x.BalanceAmount)</td>
+                <td colspan="3"></td>
+            </tr>
+            </tfoot>
         </table>
     }
 

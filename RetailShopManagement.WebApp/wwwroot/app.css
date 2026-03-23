@@ -68,7 +68,7 @@ h1:focus {
 
 .table-overflow-y {
     /* 100vh - top-row(3.5rem) - filter(80px) - padding/margins */
-    max-height: calc(100vh - 3.5rem - 80px - 7rem);
+    max-height: calc(100vh - 3.5rem - 80px - 8rem);
     overflow-y: auto;
 }
 
@@ -85,6 +85,19 @@ h1:focus {
     border-width: 0.5px;
 }
 
+.sticky-footer {
+    position: sticky;
+    bottom: 0;
+    background-color: #c280c9;
+    z-index: 100;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-footer td {
+    border-top: 2px solid #dee2e6;
+    color: #0e0e40;
+}
+
 tr > th {
     background-color: rgb(86, 75, 100);
     color: #c2d3d8;
@@ -99,9 +112,9 @@ tr > th {
     background-color: #d1e7fd !important; /* Light blue */
 }
 
-.selected-row:hover {
-    background-color: #b8daff !important; /* Slightly darker on hover */
-}
+    .selected-row:hover {
+        background-color: #b8daff !important; /* Slightly darker on hover */
+    }
 
 .cell-no-wrap {
     white-space: nowrap;
