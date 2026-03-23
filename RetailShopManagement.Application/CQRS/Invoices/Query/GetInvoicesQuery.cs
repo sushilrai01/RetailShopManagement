@@ -40,7 +40,7 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
 
             if (request is { FromDate: not null, ToDate: not null })
             {
-                query = query.Where(x => x.InvoiceDate >= request.FromDate && x.InvoiceDate <= request.ToDate);
+                query = query.Where(x => x.InvoiceDate >= request.FromDate && x.InvoiceDate < request.ToDate);
             }
 
             var invoices = await query

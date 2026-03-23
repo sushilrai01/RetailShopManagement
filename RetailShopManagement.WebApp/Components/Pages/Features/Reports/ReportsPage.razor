@@ -1,0 +1,246 @@
+﻿@page "/reports"
+@using RetailShopManagement.WebApp.Services.AppServices.Reports
+
+@attribute [StreamRendering]
+
+<PageTitle>Reports Summary</PageTitle>
+
+<h3 class="subtitle"> Sales Reports Summary</h3>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row align-items-end">
+
+            <div class="col-md-3">
+                <label class="form-label">Report Type</label>
+                <InputSelect class="form-control" @bind-Value="selectedReportType" @bind-Value:after="LoadData">
+                    @foreach (var category in ReportTypeFields)
+                    {
+                        <option value="@category.Value">
+                            @category.Text
+                        </option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-5">
+
+                <DateRangePicker StartDate="StartDate"
+                                 EndDate="EndDate"
+                                 OnDateRangeChanged="OnDateRangeChangeEventHandler" />
+            </div>
+            
+            <div class="col-md-2">
+                <label class="form-label">Report Timeline</label>
+                <InputSelect class="form-control" @bind-Value="selectedTimeLine" @bind-Value:after="OnReportTimelineChange">
+                    @foreach (var category in ReportTimelineFields)
+                    {
+                        <option value="@category.Value">
+                            @category.Text
+                        </option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-secondary w-100"
+                        @onclick="Filter">
+                    <i class="fa-solid fa-magnifying-glass me-2"></i>
+                    Filter
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive table-overflow-y">
+    @if (!salesSummary.ReportList.Any())
+    {
+        <p>
+            <em>No item found...</em>
+        </p>
+    }
+    else
+    {
+        <table class="table table-borderless table-striped table-hover">
+            <thead>
+                <tr class="no-wrap-head">
+                    @if (selectedReportType == ReportTypeConst.SalesByCategory)
+                    {
+                        <th>Category Name</th>
+                    }
+                    else if (selectedReportType == ReportTypeConst.SalesByProduct)
+                    {
+                        <th>Product Name</th>
+                    }
+
+                    <th @onclick="@(() => OrderRecords("Quantity"))" style="cursor: pointer;">
+                        Total Qty
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                    <th @onclick="@(() => OrderRecords("Sales"))" style="cursor: pointer;">
+                        Total Sales
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                    <th @onclick="@(() => OrderRecords("Tax"))" style="cursor: pointer;">
+                        Total Tax
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                    <th @onclick="@(() => OrderRecords("Discount"))" style="cursor: pointer;">
+                        Total Discount
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in salesSummary.ReportList)
+                {
+                    <tr>
+                        @if (selectedReportType == ReportTypeConst.SalesByCategory)
+                        {
+                            <td>@item.CategoryName</td>
+                        }
+                        else if (selectedReportType == ReportTypeConst.SalesByProduct)
+                        {
+                            <td>@item.ProductName</td>
+                        }
+                        <td>@item.TotalQuantity</td>
+                        <td>@item.TotalSales</td>
+                        <td>@item.TotalTax</td>
+                        <td>@item.TotalDiscount</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot class="sticky-footer">
+                <tr class="table-active fw-bold">
+                    <td>Grand Total:</td>
+                    <td>@salesSummary.TotalQuantity</td>
+                    <td>@salesSummary.TotalSales</td>
+                    <td>@salesSummary.TotalTax</td>
+                    <td>@salesSummary.TotalDiscount</td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+
+</div>
+
+<hr />
+<p class="list-counter-margin">
+    <em>
+        <small>
+            Total Records = @TotalRecords
+        </small>
+    </em>
+</p>
+
+@code {
+    private SalesSummaryDto salesSummary = new();
+
+    private bool IsAscending { get; set; } = true;
+
+    private string selectedReportType { get; set; }
+    private string selectedTimeLine { get; set; }
+
+    private IList<DropDownField> ReportTypeFields { get; set; } = ReportTypeConst.GetDropdown();
+    private IList<DropDownField> ReportTimelineFields { get; set; } = ReportTypeConst.GetTimelineFields();
+
+    private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
+    private DateTime? EndDate { get; set; } = DateTime.Now;
+
+    private int TotalRecords { get; set; }
+
+    [Inject] private IReportService ReportService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            LoadingService.Show();
+
+            var response = await ReportService.GetSaleReportSummary(reportType: selectedReportType, fromDate: StartDate, toDate: EndDate);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            salesSummary = response.Data;
+            TotalRecords = salesSummary.ReportList.Count();
+
+            StateHasChanged();
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
+    }
+
+    private async Task Filter()
+    {
+        await LoadData();
+
+    }
+
+    private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)
+    {
+        selectedTimeLine = string.Empty;
+        StartDate = dateRange.StartDate;
+        EndDate = dateRange.EndDate;
+
+        await LoadData();
+    }
+
+    private void OnReportTimelineChange()
+    {
+        var today = DateTime.Now.Date;
+
+        if (selectedTimeLine == ReportTypeConst.Daily)
+        {
+            StartDate = today;
+            EndDate = today.AddDays(1);
+        }
+        else if (selectedTimeLine == ReportTypeConst.Weekly)
+        {
+            StartDate = today.AddDays(-7);
+            EndDate = today.AddDays(1);
+        }
+        else if (selectedTimeLine == ReportTypeConst.Monthly)
+        {
+            StartDate = today.AddDays(-30);
+            EndDate = today.AddDays(1);
+        }
+    }
+    
+    private void OrderRecords(string? orderParm = null)
+    {
+        var salesReportList = salesSummary.ReportList;
+
+        salesSummary.ReportList = orderParm switch
+        {
+            "Quantity" => IsAscending
+                ? salesReportList.OrderBy(x => x.TotalQuantity).ToList()
+                : salesReportList.OrderByDescending(x => x.TotalQuantity).ToList(),
+            "Tax" => IsAscending
+                ? salesReportList.OrderBy(x => x.TotalTax).ToList()
+                : salesReportList.OrderByDescending(x => x.TotalTax).ToList(),
+            "Discount" => IsAscending
+                ? salesReportList.OrderBy(x => x.TotalDiscount).ToList()
+                : salesReportList.OrderByDescending(x => x.TotalDiscount).ToList(),
+            "Sales" => IsAscending
+                ? salesReportList.OrderBy(x => x.TotalSales).ToList()
+                : salesReportList.OrderByDescending(x => x.TotalSales).ToList(),
+            _ => salesReportList
+        };
+
+        IsAscending = !IsAscending;
+
+        StateHasChanged();
+    }
+}
