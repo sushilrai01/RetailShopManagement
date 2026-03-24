@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RetailShopManagement.Application.Common.Models;
+using RetailShopManagement.Application.Helpers;
 using RetailShopManagement.Application.Persistence;
+using RetailShopManagement.Domain.Constants;
 using RetailShopManagement.Domain.Entities;
 using RetailShopManagement.Domain.Shared;
 
@@ -18,6 +20,7 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
     }
 
     public class CreateProductCommandHandler( IDbContextFactory<ApplicationDbContext> contextFactory,
+        ICacheService cacheService,
         IUserServiceProvider userServiceProvider)
         : IRequestHandler<CreateProductCommand, Guid>
     {
@@ -39,6 +42,9 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
             };
             await context.Products.AddAsync(product, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
+
+            // Invalidate all product caches
+            cacheService.Remove(CacheKeyConst.AllProduct);
 
             return product.Id;
         }

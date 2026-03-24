@@ -2,7 +2,9 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RetailShopManagement.Application.Common.Models;
+using RetailShopManagement.Application.Helpers;
 using RetailShopManagement.Application.Persistence;
+using RetailShopManagement.Domain.Constants;
 using RetailShopManagement.Domain.Entities;
 
 namespace RetailShopManagement.Application.CQRS.Products.Command
@@ -18,7 +20,8 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
         public int CategoryId { get; set; }
     }
 
-    public class UpdateProductCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+    public class UpdateProductCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory,
+        ICacheService cacheService)
         : IRequestHandler<UpdateProductCommand, Unit>
     {
         public async Task<Unit> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -41,6 +44,9 @@ namespace RetailShopManagement.Application.CQRS.Products.Command
             existingProduct.LastModifiedOn = DateTime.Now;
 
             await context.SaveChangesAsync(cancellationToken);
+
+            // Invalidate all product caches
+            cacheService.Remove(CacheKeyConst.AllProduct);
 
             return Unit.Value;
         }
