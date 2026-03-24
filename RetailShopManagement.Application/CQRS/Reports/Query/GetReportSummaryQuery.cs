@@ -8,6 +8,7 @@ namespace RetailShopManagement.Application.CQRS.Reports.Query
 {
     public class GetReportSummaryQuery : IRequest<SalesSummaryDto>
     {
+        public string Status { get; set; } = string.Empty;
         public string ReportType { get; set; } = string.Empty;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
@@ -32,6 +33,11 @@ namespace RetailShopManagement.Application.CQRS.Reports.Query
                 .AsNoTracking()
                 .Where(x =>
                     (x.Invoice.InvoiceDate >= request.FromDate && x.Invoice.InvoiceDate <= request.ToDate));
+
+            if (!string.IsNullOrWhiteSpace(request.Status) && request.Status != PaymentStatus.All)
+            {
+                baseQuery = baseQuery.Where(x => x.Invoice.Status == request.Status);
+            }
 
             var salesSummaryResult = new SalesSummaryDto();
 

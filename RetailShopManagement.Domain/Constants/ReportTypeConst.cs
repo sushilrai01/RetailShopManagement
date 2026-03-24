@@ -25,7 +25,7 @@ public static class ReportTypeConst
     {
         return new List<DropDownField>
         {
-            new(){ Value = string.Empty },
+            new(){ Value = string.Empty , Text = "--Select Timeline--"},
             new() { Value = Daily, Text = Daily },
             new() { Value = Weekly, Text = Weekly},
             new() { Value = Monthly, Text = Monthly},

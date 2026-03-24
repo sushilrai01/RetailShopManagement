@@ -11,7 +11,7 @@
     <div class="card-body">
         <div class="row align-items-end">
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label">Report Type</label>
                 <InputSelect class="form-control" @bind-Value="selectedReportType" @bind-Value:after="LoadData">
                     @foreach (var category in ReportTypeFields)
@@ -22,13 +22,25 @@
                     }
                 </InputSelect>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-4">
 
                 <DateRangePicker StartDate="StartDate"
                                  EndDate="EndDate"
                                  OnDateRangeChanged="OnDateRangeChangeEventHandler" />
             </div>
             
+            <div class="col-md-2">
+                <label class="form-label">Payment Status</label>
+                <select class="form-control" @bind="selectedStatus">
+                    @foreach (var category in invoiceStatusFields)
+                    {
+                        <option value="@category.Value">
+                            @category.Text
+                        </option>
+                    }
+                </select>
+            </div>
+
             <div class="col-md-2">
                 <label class="form-label">Report Timeline</label>
                 <InputSelect class="form-control" @bind-Value="selectedTimeLine" @bind-Value:after="OnReportTimelineChange">
@@ -40,6 +52,7 @@
                     }
                 </InputSelect>
             </div>
+
             <div class="col-md-2">
                 <button class="btn btn-secondary w-100"
                         @onclick="Filter">
@@ -140,7 +153,9 @@
 
     private string selectedReportType { get; set; }
     private string selectedTimeLine { get; set; }
+    private string selectedStatus { get; set; }
 
+    private IList<DropDownField> invoiceStatusFields { get; set; } = PaymentStatus.GetDropdown();
     private IList<DropDownField> ReportTypeFields { get; set; } = ReportTypeConst.GetDropdown();
     private IList<DropDownField> ReportTimelineFields { get; set; } = ReportTypeConst.GetTimelineFields();
 
@@ -163,7 +178,7 @@
         {
             LoadingService.Show();
 
-            var response = await ReportService.GetSaleReportSummary(reportType: selectedReportType, fromDate: StartDate, toDate: EndDate);
+            var response = await ReportService.GetSaleReportSummary(reportType: selectedReportType, paymentStatus: selectedStatus, fromDate: StartDate, toDate: EndDate);
             if (!response.IsSuccess)
             {
                 ToastService.ShowError(response.Message);

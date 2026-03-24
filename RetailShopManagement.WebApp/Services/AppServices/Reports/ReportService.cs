@@ -10,7 +10,9 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Reports
 {
     public class ReportService(IMediator mediator) : BaseService(mediator), IReportService
     {
-        public async Task<ApiResponse<SalesSummaryDto>> GetSaleReportSummary(string reportType, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<SalesSummaryDto>> GetSaleReportSummary(string reportType, string paymentStatus = "All",
+            DateTime? fromDate = null, DateTime? toDate = null, 
+            CancellationToken cancellationToken = default)
         {
             var method = "Get Sales Report";
             var apiAction = ApiAction.Fetch;
@@ -20,6 +22,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Reports
                 var result = await Mediator.Send(new GetReportSummaryQuery()
                 {
                     ReportType = reportType,
+                    Status = paymentStatus,
                     FromDate = fromDate,
                     ToDate = toDate
                 }, cancellationToken);
