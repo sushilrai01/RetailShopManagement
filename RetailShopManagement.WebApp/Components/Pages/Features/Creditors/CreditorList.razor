@@ -4,12 +4,13 @@
 
 <PageTitle>Creditors</PageTitle>
 
+<h3 class="subtitle"> Creditors History</h3>
+
 <div class="card shadow-sm mb-3">
     <div class="card-body">
         <div class="row align-items-end">
 
             <div class="col-2">
-                <label class="form-label"></label>
                 <button class="btn btn-success w-100"
                         @onclick="CreateNewCreditor">
                     <i class="fa-solid fa-plus me-2"></i>Create New
@@ -17,7 +18,6 @@
             </div>
             
             <div class="col-2">
-                <label class="form-label"></label>
                 <button class="btn btn-warning"
                         @onclick="ShowMakePayment">
                     <i class="fa-solid fa-hand-holding-dollar"></i>
@@ -25,7 +25,6 @@
                 </button>
             </div>
             <div class="col-2">
-                <label class="form-label"></label>
                 <button class="btn btn-secondary"
                         @onclick="LoadData">
                     <i class="fa-solid fa-arrow-rotate-right"></i>
@@ -272,7 +271,7 @@
         {
             CreditorId = SelectedCreditorId!.Value,
             CreditorName = SelectedCreditor!.FullName,
-            DueAmount = SelectedCreditor.DueAmount
+            // DueAmount = SelectedCreditor.DueAmount
         };
 
         refCreatePaySlip.ShowForm(paySlipForm, SelectedCreditor.InvoiceLists);

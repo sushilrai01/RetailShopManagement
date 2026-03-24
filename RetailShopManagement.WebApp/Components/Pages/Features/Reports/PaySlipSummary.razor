@@ -1,35 +1,17 @@
-﻿@page "/report/sales"
+﻿@page "/report/payslips"
 @using RetailShopManagement.WebApp.Services.AppServices.Reports
 
 @attribute [StreamRendering]
 
-<PageTitle>Reports Summary</PageTitle>
+<PageTitle>Payslip Summary</PageTitle>
 
-<h3 class="subtitle"> Sales Reports Summary</h3>
+<h3 class="subtitle"> Payslip Summary</h3>
 
 <div class="card shadow-sm mb-3">
     <div class="card-body">
         <div class="row align-items-end">
-
-            <div class="col-md-2">
-                <label class="form-label">Report Type</label>
-                <InputSelect class="form-control" @bind-Value="selectedReportType" @bind-Value:after="LoadData">
-                    @foreach (var category in ReportTypeFields)
-                    {
-                        <option value="@category.Value">
-                            @category.Text
-                        </option>
-                    }
-                </InputSelect>
-            </div>
-            <div class="col-md-4">
-
-                <DateRangePicker StartDate="StartDate"
-                                 EndDate="EndDate"
-                                 OnDateRangeChanged="OnDateRangeChangeEventHandler" />
-            </div>
             
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="form-label">Payment Status</label>
                 <select class="form-control" @bind="selectedStatus">
                     @foreach (var category in invoiceStatusFields)
@@ -41,7 +23,14 @@
                 </select>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-md-4">
+
+                <DateRangePicker StartDate="StartDate"
+                                 EndDate="EndDate"
+                                 OnDateRangeChanged="OnDateRangeChangeEventHandler" />
+            </div>
+            
+            <div class="col-md-3">
                 <label class="form-label">Report Timeline</label>
                 <InputSelect class="form-control" @bind-Value="selectedTimeLine" @bind-Value:after="OnReportTimelineChange">
                     @foreach (var category in ReportTimelineFields)
@@ -67,7 +56,7 @@
 </div>
 
 <div class="table-responsive table-overflow-y">
-    @if (!salesSummary.ReportList.Any())
+    @if (!paySlipList.Any())
     {
         <p>
             <em>No item found...</em>
@@ -78,59 +67,39 @@
         <table class="table table-borderless table-striped table-hover">
             <thead>
                 <tr class="no-wrap-head">
-                    @if (selectedReportType == ReportTypeConst.SalesByCategory)
-                    {
-                        <th>Category Name</th>
-                    }
-                    else if (selectedReportType == ReportTypeConst.SalesByProduct)
-                    {
-                        <th>Product Name</th>
-                    }
-
-                    <th @onclick="@(() => OrderRecords("Quantity"))" style="cursor: pointer;">
-                        Total Qty
+                    <th @onclick="@(() => OrderRecords("InvoiceNumber"))" style="cursor: pointer;">
+                        Invoice Number
                         <i class="fa-solid fa-sort fa-sm"></i>
                     </th>
-                    <th @onclick="@(() => OrderRecords("Sales"))" style="cursor: pointer;">
-                        Total Sales
+                    <th> Creditor Name</th>
+                    <th @onclick="@(() => OrderRecords("PaymentDate"))" style="cursor: pointer;">
+                        Payment Date
                         <i class="fa-solid fa-sort fa-sm"></i>
                     </th>
-                    <th @onclick="@(() => OrderRecords("Tax"))" style="cursor: pointer;">
-                        Total Tax
+                    <th @onclick="@(() => OrderRecords("AmountPaid"))" style="cursor: pointer;">
+                        Amount Paid
                         <i class="fa-solid fa-sort fa-sm"></i>
                     </th>
-                    <th @onclick="@(() => OrderRecords("Discount"))" style="cursor: pointer;">
-                        Total Discount
-                        <i class="fa-solid fa-sort fa-sm"></i>
-                    </th>
+                    <th> Remarks</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in salesSummary.ReportList)
+                @foreach (var item in paySlipList)
                 {
                     <tr>
-                        @if (selectedReportType == ReportTypeConst.SalesByCategory)
-                        {
-                            <td>@item.CategoryName</td>
-                        }
-                        else if (selectedReportType == ReportTypeConst.SalesByProduct)
-                        {
-                            <td>@item.ProductName</td>
-                        }
-                        <td>@item.TotalQuantity</td>
-                        <td>@item.TotalSales</td>
-                        <td>@item.TotalTax</td>
-                        <td>@item.TotalDiscount</td>
+                        <td>@item.InvoiceNumber</td>
+                        <td>@item.CreditorName</td>
+                        <td>@item.PaymentDate</td>
+                        <td>@item.AmountPaid</td>
+                        <td>@item.Remarks</td>
                     </tr>
                 }
             </tbody>
             <tfoot class="sticky-footer">
                 <tr class="table-active fw-bold">
-                    <td>Grand Total:</td>
-                    <td>@salesSummary.TotalQuantity</td>
-                    <td>@salesSummary.TotalSales</td>
-                    <td>@salesSummary.TotalTax</td>
-                    <td>@salesSummary.TotalDiscount</td>
+                    <td colspan="3">Grand Total:</td>
+                    <td>@paySlipList.Sum(x => x.AmountPaid)</td>
+                    <td> </td>
                 </tr>
             </tfoot>
         </table>
@@ -148,16 +117,14 @@
 </p>
 
 @code {
-    private SalesSummaryDto salesSummary = new();
+    private IList<PaySlipDto> paySlipList = new List<PaySlipDto>();
 
     private bool IsAscending { get; set; } = true;
 
-    private string selectedReportType { get; set; }
     private string selectedTimeLine { get; set; }
     private string selectedStatus { get; set; }
 
     private IList<DropDownField> invoiceStatusFields { get; set; } = PaymentStatus.GetDropdown();
-    private IList<DropDownField> ReportTypeFields { get; set; } = ReportTypeConst.GetDropdown();
     private IList<DropDownField> ReportTimelineFields { get; set; } = ReportTypeConst.GetTimelineFields();
 
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
@@ -179,7 +146,7 @@
         {
             LoadingService.Show();
 
-            var response = await ReportService.GetSaleReportSummary(reportType: selectedReportType, paymentStatus: selectedStatus, fromDate: StartDate, toDate: EndDate);
+            var response = await ReportService.GetPaySlipSummaryAsync(paymentStatus: selectedStatus, fromDate: StartDate, toDate: EndDate);
             if (!response.IsSuccess)
             {
                 ToastService.ShowError(response.Message);
@@ -187,8 +154,8 @@
             }
 
             ToastService.ShowSuccess(response.Message);
-            salesSummary = response.Data;
-            TotalRecords = salesSummary.ReportList.Count();
+            paySlipList = response.Data;
+            TotalRecords = paySlipList.Count();
 
             StateHasChanged();
         }
@@ -236,23 +203,18 @@
     
     private void OrderRecords(string? orderParm = null)
     {
-        var salesReportList = salesSummary.ReportList;
-
-        salesSummary.ReportList = orderParm switch
+        paySlipList = orderParm switch
         {
-            "Quantity" => IsAscending
-                ? salesReportList.OrderBy(x => x.TotalQuantity).ToList()
-                : salesReportList.OrderByDescending(x => x.TotalQuantity).ToList(),
-            "Tax" => IsAscending
-                ? salesReportList.OrderBy(x => x.TotalTax).ToList()
-                : salesReportList.OrderByDescending(x => x.TotalTax).ToList(),
-            "Discount" => IsAscending
-                ? salesReportList.OrderBy(x => x.TotalDiscount).ToList()
-                : salesReportList.OrderByDescending(x => x.TotalDiscount).ToList(),
-            "Sales" => IsAscending
-                ? salesReportList.OrderBy(x => x.TotalSales).ToList()
-                : salesReportList.OrderByDescending(x => x.TotalSales).ToList(),
-            _ => salesReportList
+            "InvoiceNumber" => IsAscending
+                ? paySlipList.OrderBy(x => x.InvoiceNumber).ToList()
+                : paySlipList.OrderByDescending(x => x.InvoiceNumber).ToList(),
+            "PaymentDate" => IsAscending
+                ? paySlipList.OrderBy(x => x.PaymentDate).ToList()
+                : paySlipList.OrderByDescending(x => x.PaymentDate).ToList(),
+            "AmountPaid" => IsAscending
+                ? paySlipList.OrderBy(x => x.AmountPaid).ToList()
+                : paySlipList.OrderByDescending(x => x.AmountPaid).ToList(),
+            _ => paySlipList
         };
 
         IsAscending = !IsAscending;

@@ -109,11 +109,34 @@
                             </span>
                             Creditors
                         </NavLink>
-                        <NavLink class="nav-link submenu-item" href="reports">
+                    </div>
+                </div>
+
+                <!-- Accordion Menu for Reports & Summary -->
+                <div class="nav-item px-3">
+                    <input type="checkbox" id="report-toggle" class="submenu-toggle" />
+                    <label for="report-toggle" class="nav-link submenu-header">
+                        <span class="nav-icon-margin-right">
+                            <i class="fa-solid fa-chart-pie fa-lg" style="color: rgb(223, 220, 220);"></i>
+                        </span>
+                        Reports & Summary
+                       
+                        <i class="fa-solid fa-chevron-down fa-sm chevron-icon" style="color: rgb(223, 220, 220);"></i>
+                    </label>
+                    <div class="submenu">
+                        <NavLink class="nav-link submenu-item" href="report/sales">
                             <span class="nav-icon-margin-right">
                                 <i class="fa-solid fa-chart-line" style="color: rgb(223, 220, 220);"></i>
                             </span>
-                            Report
+                            Sales Report
+                        </NavLink>
+                    </div>
+                    <div class="submenu">
+                        <NavLink class="nav-link submenu-item" href="report/payslips">
+                            <span class="nav-icon-margin-right">
+                                <i class="fa-solid fa-rupee-sign" style="color: rgb(223, 220, 220);"></i>
+                            </span>
+                            Payslip History
                         </NavLink>
                     </div>
                 </div>

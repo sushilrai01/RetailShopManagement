@@ -142,5 +142,7 @@
         display: block;
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
+        scrollbar-color: rgb(236 236 236 / 30%) rgb(255 255 255 / 18%);
+        scrollbar-width: thin;
     }
 }
