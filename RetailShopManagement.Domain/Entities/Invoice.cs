@@ -48,7 +48,6 @@ public class Invoice : BaseDerivedEntity<Guid>
     [StringLength(500)]
     public string? Remarks { get; set; }
 
-    public Guid? SupplierId { get; set; }
 
     public bool IsPurchaseInvoice { get; set; } = false;
     public bool IsPdfGenerated { get; set; } = false;

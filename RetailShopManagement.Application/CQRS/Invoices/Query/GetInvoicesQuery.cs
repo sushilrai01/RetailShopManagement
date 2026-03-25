@@ -63,7 +63,6 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
 
                     Status = PaymentStatus.GetPaymentStatus(x.PaidAmount, x.TotalAmount),
                     Remarks = x.Remarks,
-                    SupplierId = x.SupplierId,
 
                     CreatedOn = x.CreatedOn,
                     CreatedBy = x.CreatedBy,

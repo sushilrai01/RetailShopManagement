@@ -6,6 +6,7 @@ using RetailShopManagement.WebApp.Services.AppServices.Creditors;
 using RetailShopManagement.WebApp.Services.AppServices.Invoices;
 using RetailShopManagement.WebApp.Services.AppServices.Products;
 using RetailShopManagement.WebApp.Services.AppServices.Reports;
+using RetailShopManagement.WebApp.Services.AppServices.Suppliers;
 
 namespace RetailShopManagement.WebApp.Extensions
 {
@@ -19,6 +20,7 @@ namespace RetailShopManagement.WebApp.Extensions
             services.AddScoped<ICreditorService, CreditorService>();
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<ISupplierService, SupplierService>();
 
             services.AddSingleton<IUserServiceProvider, UserServiceProvider>();
 

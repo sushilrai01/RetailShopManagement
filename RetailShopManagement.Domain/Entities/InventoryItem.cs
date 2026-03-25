@@ -1,8 +1,9 @@
-﻿namespace RetailShopManagement.Domain.Entities;
+﻿using RetailShopManagement.Domain.Abstractions;
 
-public class InventoryItem
+namespace RetailShopManagement.Domain.Entities;
+
+public class InventoryItem : BaseDerivedEntity<int>
 {
-    public int Id { get; set; }
     public int ProductId { get; set; }
 
     public int QuantityInStock { get; set; }

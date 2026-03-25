@@ -1,0 +1,168 @@
+﻿@page "/supplier/create"
+@page "/supplier/edit/{Id:int}"
+
+<PageTitle>New Supplier</PageTitle>
+
+@if (Id < 1)
+{
+    <h3 class="subtitle">Create Supplier</h3>
+}
+else
+{
+    <h3 class="subtitle">Update Supplier</h3>
+}
+
+<EditForm Model="SupplierModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+ 
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label sn-required-field">Supplier Name</label>
+            <InputText class="form-control" @bind-Value="SupplierModel.Name" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label sn-required-field">Phone No.</label>
+            <InputText class="form-control" @bind-Value="SupplierModel.Phone" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label sn-required-field">Email</label>
+            <InputText class="form-control" @bind-Value="SupplierModel.Email" />
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label sn-required-field">Address</label>
+            <InputText class="form-control" @bind-Value="SupplierModel.Address" />
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        <i class="fa-regular fa-floppy-disk"></i>
+        Save
+    </button>
+
+    <a href="/suppliers" class="btn btn-secondary ms-2">
+        Cancel
+    </a>
+
+</EditForm>
+
+@code {
+
+    private SupplierDto SupplierModel { get; set; } = new();
+
+    [Parameter] public int Id { get; set; }
+
+    [Inject] private ISupplierService SupplierService { get; set; }
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await Initialize();
+        StateHasChanged();
+    }
+
+    private async Task Initialize()
+    {
+        try
+        {
+            LoadingService.Show();
+            
+            if (Id == 0) return;
+
+            var response = await SupplierService.GetSupplierByIdAsync(id: Id);
+
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            SupplierModel = response.Data;
+            StateHasChanged();
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            LoadingService.Show();
+            
+            if (!IsValidSave()) return;
+
+            if (Id > 0)
+            {
+                SupplierModel.Id = Id;
+                await Update();
+            }
+            else
+            {
+                await Create();
+            }
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
+    }
+
+    private async Task Create()
+    {
+        var response = await SupplierService.CreateSupplierAsync(SupplierModel);
+
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return;
+        }
+
+        ToastService.ShowSuccess(response.Message);
+        NavigationManager.NavigateTo("/suppliers");
+    }
+
+    private async Task Update()
+    {
+        var updateResponse = await SupplierService.UpdateSupplierAsync(SupplierModel);
+        if (!updateResponse.IsSuccess)
+        {
+            ToastService.ShowError(updateResponse.Message);
+            return;
+        }
+        ToastService.ShowSuccess(updateResponse.Message);
+        NavigationManager.NavigateTo("/suppliers");
+    }
+
+    private bool IsValidSave()
+    {
+        if (string.IsNullOrWhiteSpace(SupplierModel.Name))
+        {
+            ToastService.ShowWarning("Please enter supplier name.");
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(SupplierModel.Phone) || !SupplierModel.Phone.IsValidMobile())
+        {
+            ToastService.ShowWarning("Please enter valid mobile with max. 10 digits");
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(SupplierModel.Email) || !SupplierModel.Email.IsValidEmail())
+        {
+            ToastService.ShowWarning("Enter a valid email (e.g., name@example.com).");
+            return false;
+        }
+        else if (string.IsNullOrWhiteSpace(SupplierModel.Address))
+        {
+            ToastService.ShowWarning("Please enter Address.");
+            return false;
+        }
+        return true;
+    }
+}

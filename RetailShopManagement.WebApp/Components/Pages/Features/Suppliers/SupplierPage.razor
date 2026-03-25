@@ -1,0 +1,170 @@
+﻿@page "/suppliers" 
+ 
+@attribute [StreamRendering]
+
+<PageTitle>Suppliers</PageTitle>
+
+<h3 class="subtitle"> Suppliers List</h3>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row align-items-end">
+
+            <div class="col-md-12">
+                <label class="form-label"></label>
+                <button class="btn btn-success"
+                        @onclick="CreateNewSupplier">
+                    <i class="fa-solid fa-plus me-2"></i>
+                    Create New
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive table-overflow-y">
+    @if (!supplierList.Any())
+    {
+        <p>
+            <em>No item found...</em>
+        </p>
+    }
+    else
+    {
+        <table class="table table-borderless table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone No.</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>CreatedOn</th>
+                    <th>Actions</th>
+                    <th>LastModifiedOn</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in supplierList)
+                {
+                    <tr @onclick="() => SelectProduct(item)">
+                        <td>@item.Name</td>
+                        <td>@item.Phone</td>
+                        <td>@item.Email</td>
+                        <td>@item.Address</td>
+                        <td>@item.CreatedOn</td>
+                        <td>
+                            <button class="btn btn-primary m-1" @onclick="() => Edit(item)"
+                                    @onclick:stopPropagation="true">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                Edit
+                            </button>
+
+                            <button class="btn btn-danger m-1" @onclick="() => Delete(item)"
+                                    @onclick:stopPropagation="true">
+                                <i class="fa-solid fa-trash-can"></i>
+                                Delete
+                            </button>
+                        </td>
+                        <td>@item.LastModifiedOn</td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+</div>
+
+<hr />
+<p class="list-counter-margin">
+    <em>
+        <small>
+            Total Records = @TotalRecords
+        </small>
+    </em>
+</p>
+
+@code {
+    private List<SupplierDto> supplierList = new List<SupplierDto>();
+    private SupplierDto? SelectedSupplier { get; set; }
+    private int TotalRecords { get; set; }
+    [Inject] private ISupplierService SupplierService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    { 
+        await LoadData();
+        StateHasChanged();
+    }
+
+
+    private async Task LoadData()
+    {
+        try
+        {
+            LoadingService.Show();
+            
+            var response = await SupplierService.GetAllSuppliersAsync();
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            supplierList = response.Data.ToList();
+            TotalRecords = supplierList.Count();
+
+            StateHasChanged();
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
+    }
+     
+    private void SelectProduct(SupplierDto? selectedSupplier)
+    {
+        // Console.WriteLine("row selected!");
+        if (selectedSupplier is null) return;
+        SelectedSupplier = selectedSupplier;
+        StateHasChanged();
+    }
+
+    private async Task Delete(SupplierDto item)
+    {
+        var isConfirm = await JsModalService.ConfirmAsync("Are you sure you want to delete?");
+
+        if (!isConfirm) return;
+
+        try
+        {
+            LoadingService.Show();
+            
+            var response = await SupplierService.DeleteSupplierAsync(item.Id);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            await LoadData();
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
+    }
+    private void CreateNewSupplier()
+    {
+        NavigationManager.NavigateTo("/supplier/create");
+    }
+
+    private void Edit(SupplierDto? selectedSupplier)
+    {
+        if (selectedSupplier is null) return;
+        NavigationManager.NavigateTo($"/supplier/edit/{selectedSupplier.Id}");
+    }
+}

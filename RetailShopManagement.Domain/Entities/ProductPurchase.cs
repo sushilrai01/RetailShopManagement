@@ -11,10 +11,18 @@ public class ProductPurchase : BaseDerivedEntity<Guid>
     [Required]
     public Guid InvoiceId { get; set; }
     public Invoice Invoice { get; set; } = null!;
+
     // Foreign key to Product
     [Required]
     public Guid ProductId { get; set; }
     public Product Product { get; set; } = null!;
+
+    // Foreign key to Supplier
+    [Required]
+    public int SupplierId { get; set; }
+
+    public Supplier Supplier { get; set; } = null!;
+
 
     [Required]
     [StringLength(200)]

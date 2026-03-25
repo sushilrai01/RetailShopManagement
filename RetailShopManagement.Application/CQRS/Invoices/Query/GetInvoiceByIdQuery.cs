@@ -41,7 +41,6 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                     
                     Status = x.Status,
                     Remarks = x.Remarks,
-                    SupplierId = x.SupplierId,
                     
                     CreatedOn = x.CreatedOn,
                     CreatedBy = x.CreatedBy,

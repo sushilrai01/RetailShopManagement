@@ -68,7 +68,6 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Query
 
                         Status = y.Status,
                         Remarks = y.Remarks,
-                        SupplierId = y.SupplierId,
 
                         CreatedOn = y.CreatedOn,
                         CreatedBy = y.CreatedBy,

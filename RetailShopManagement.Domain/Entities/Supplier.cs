@@ -1,12 +1,13 @@
-﻿namespace RetailShopManagement.Domain.Entities;
+﻿using RetailShopManagement.Domain.Abstractions;
 
-public class Supplier
+namespace RetailShopManagement.Domain.Entities;
+
+public class Supplier : BaseDerivedEntity<int>
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
-    public string? Phone { get; set; }
-    public string? Email { get; set; }
-    public string? Address { get; set; }
+    public string Phone { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Address { get; set; } = string.Empty;
 
     // Navigation
     public ICollection<ProductPurchase> Purchases { get; set; } = new List<ProductPurchase>();
