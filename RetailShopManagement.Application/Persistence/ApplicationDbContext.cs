@@ -13,6 +13,9 @@ namespace RetailShopManagement.Application.Persistence
         public DbSet<PaySlip> PaySlips { get; set; } = null!;
         public DbSet<Invoice> Invoices { get; set; } = null!;
         public DbSet<ProductSale> ProductSales { get; set; } = null!;
+        public DbSet<ProductPurchase> ProductPurchases { get; set; } = null!;
+        public DbSet<InventoryItem> InventoryItems { get; set; } = null!;
+        public DbSet<Supplier> Suppliers { get; set; } = null!;
 
 
     }

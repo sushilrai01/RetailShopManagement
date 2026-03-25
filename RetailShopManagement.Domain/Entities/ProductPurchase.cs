@@ -1,10 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using RetailShopManagement.Domain.Abstractions;
 
 namespace RetailShopManagement.Domain.Entities;
 
-public class ProductSale : BaseDerivedEntity<Guid>
+public class ProductPurchase : BaseDerivedEntity<Guid>
 {
     // Foreign key to Invoice
     [Required]

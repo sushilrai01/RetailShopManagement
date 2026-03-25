@@ -55,6 +55,7 @@ public class Invoice : BaseDerivedEntity<Guid>
     public string InvoicePdfPath { get; set; } = string.Empty;
     //List of InvoiceItems
     public ICollection<ProductSale> InvoiceItems { get; set; } = new HashSet<ProductSale>();
+    public ICollection<ProductPurchase> PurchaseItems { get; set; } = new HashSet<ProductPurchase>();
     public ICollection<PaySlip> PaySlips { get; set; } = new HashSet<PaySlip>();
 
 }
