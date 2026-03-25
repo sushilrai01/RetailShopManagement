@@ -11,6 +11,7 @@ namespace RetailShopManagement.Application.CQRS.Reports.Query
         public string Status { get; set; } = string.Empty;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public bool IsPurchase { get; set; } // true for purchase, false for sales
     }
 
     public class GetPaySlipHistoryQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
@@ -36,6 +37,10 @@ namespace RetailShopManagement.Application.CQRS.Reports.Query
             {
                 baseQuery = baseQuery.Where(x => x.Invoice!.Status == request.Status);
             }
+
+            baseQuery = request.IsPurchase
+                        ? baseQuery.Where(x => x.Invoice!.IsPurchaseInvoice)
+                        : baseQuery.Where(x => !x.Invoice!.IsPurchaseInvoice);
 
             var paySlipHistory = await baseQuery.Select(x => new PaySlipDto()
             {

@@ -9,7 +9,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Reports
             DateTime? fromDate = null, DateTime? toDate = null,
             CancellationToken cancellationToken = default);
 
-        Task<ApiResponse<IList<PaySlipDto>>> GetPaySlipSummaryAsync(string paymentStatus = "All",
+        Task<ApiResponse<IList<PaySlipDto>>> GetPaySlipSummaryAsync(bool isPurchase = false, string paymentStatus = "All",
             DateTime? fromDate = null, DateTime? toDate = null,
             CancellationToken cancellationToken = default);
     }

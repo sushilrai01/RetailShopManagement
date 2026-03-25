@@ -47,7 +47,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Reports
 
         }
 
-        public async Task<ApiResponse<IList<PaySlipDto>>> GetPaySlipSummaryAsync(string paymentStatus = "All",
+        public async Task<ApiResponse<IList<PaySlipDto>>> GetPaySlipSummaryAsync(bool isPurchase = false, string paymentStatus = "All",
             DateTime? fromDate = null, DateTime? toDate = null,
             CancellationToken cancellationToken = default)
         {
@@ -58,6 +58,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Reports
             {
                 var result = await Mediator.Send(new GetPaySlipHistoryQuery()
                 {
+                    IsPurchase = isPurchase,
                     Status = paymentStatus,
                     FromDate = fromDate,
                     ToDate = toDate
