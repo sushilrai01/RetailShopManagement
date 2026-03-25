@@ -44,7 +44,7 @@ namespace RetailShopManagement.Application.CQRS.Creditors.Command
             var paySlip = new PaySlip()
             {
                 CreditorId = request.CreditorId,
-                InvoiceId = request.InvoiceId,
+                InvoiceId = request.InvoiceId!.Value,
                 PaymentDate = DateTime.Now,
                 AmountPaid = request.AmountPaid,
                 Remarks = request.Remarks,

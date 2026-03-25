@@ -80,7 +80,7 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Command
                     Quantity = item.Quantity,
                     Unit = item.Unit,
                     UnitPrice = item.UnitPrice,
-                    Subtotal = item.Subtotal,
+                    SubTotal = item.SubTotal,
                     CreatedBy = userServiceProvider.UserName,
                     CreatedOn = DateTime.Now
                 }).ToList()

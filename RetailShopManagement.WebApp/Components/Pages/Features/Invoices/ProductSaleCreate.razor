@@ -96,7 +96,7 @@
 
             <div class="form-group-x col-2">
                 <InputNumber class="form-control"
-                             @bind-Value="invoiceForm.InvoiceItems[localCounter].Subtotal"
+                             @bind-Value="invoiceForm.InvoiceItems[localCounter].SubTotal"
                              @bind-Value:after="OnSubTotalChange" />
             </div>
 
@@ -424,7 +424,7 @@
     private void OnQuantityUnitPriceChanged(int localCounter)
     {
         var currentItem = invoiceForm.InvoiceItems[localCounter];
-        invoiceForm.InvoiceItems[localCounter].Subtotal = currentItem.Quantity * currentItem.UnitPrice;
+        invoiceForm.InvoiceItems[localCounter].SubTotal = currentItem.Quantity * currentItem.UnitPrice;
 
         UpdateInvoiceSubTotal();
 
@@ -438,7 +438,7 @@
 
     private void UpdateInvoiceSubTotal()
     {
-        invoiceForm.SubTotal = invoiceForm.InvoiceItems.Sum(x => x.Subtotal);
+        invoiceForm.SubTotal = invoiceForm.InvoiceItems.Sum(x => x.SubTotal);
 
         CalculateDiscountAmount();
         // CalculateTaxAmount();

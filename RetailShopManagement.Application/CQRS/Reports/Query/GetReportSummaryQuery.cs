@@ -54,7 +54,7 @@ namespace RetailShopManagement.Application.CQRS.Reports.Query
                         ProductName = null,
 
                         TotalQuantity = g.Sum(x => x.Quantity),
-                        TotalSales = g.Sum(x => x.Subtotal),
+                        TotalSales = g.Sum(x => x.SubTotal),
                         TotalTax = g.Sum(x => x.TaxAmount),
                         TotalDiscount = g.Sum(x => x.DiscountAmount)
                     })
@@ -82,7 +82,7 @@ namespace RetailShopManagement.Application.CQRS.Reports.Query
                       CategoryName = string.Empty,
 
                       TotalQuantity = g.Sum(x => x.Quantity),
-                      TotalSales = g.Sum(x => x.Subtotal),
+                      TotalSales = g.Sum(x => x.SubTotal),
                       TotalTax = g.Sum(x => x.TaxAmount),
                       TotalDiscount = g.Sum(x => x.DiscountAmount)
                   })

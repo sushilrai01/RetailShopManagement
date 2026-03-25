@@ -78,7 +78,7 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                         Unit = z.Unit,
                         Quantity = z.Quantity,
                         UnitPrice = z.UnitPrice,
-                        Subtotal = z.Subtotal,
+                        SubTotal = z.SubTotal,
                         Notes = z.Notes
                     }).ToList(),
 

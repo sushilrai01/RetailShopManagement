@@ -36,7 +36,7 @@ namespace RetailShopManagement.Application.Validators
             RuleFor(x => x.UnitPrice)
                 .GreaterThan(0).WithMessage("Unit Price must be greater than zero.");
             
-            RuleFor(x => x.Subtotal)
+            RuleFor(x => x.SubTotal)
                 .GreaterThan(0).WithMessage("SubTotal must be greater than zero.");
         }
     }

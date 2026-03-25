@@ -67,7 +67,7 @@ public class ProductSalesDto
 
     public decimal UnitPrice { get; set; }
 
-    public decimal Subtotal { get; set; }
+    public decimal SubTotal { get; set; }
 
     public decimal TaxRate { get; set; } // Tax percentage (e.g., 13.00 for 13%)
 
