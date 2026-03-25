@@ -3,6 +3,7 @@ using RetailShopManagement.WebApp.Services;
 using RetailShopManagement.WebApp.Services.AppServices.AuthServices;
 using RetailShopManagement.WebApp.Services.AppServices.Categories;
 using RetailShopManagement.WebApp.Services.AppServices.Creditors;
+using RetailShopManagement.WebApp.Services.AppServices.Inventory;
 using RetailShopManagement.WebApp.Services.AppServices.Invoices;
 using RetailShopManagement.WebApp.Services.AppServices.Products;
 using RetailShopManagement.WebApp.Services.AppServices.Reports;
@@ -21,6 +22,7 @@ namespace RetailShopManagement.WebApp.Extensions
             services.AddScoped<IInvoiceService, InvoiceService>();
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<ISupplierService, SupplierService>();
+            services.AddScoped<IInventoryService, InventoryService>();
 
             services.AddSingleton<IUserServiceProvider, UserServiceProvider>();
 

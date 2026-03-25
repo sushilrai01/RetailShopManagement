@@ -16,7 +16,7 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Category</label>
-                        <select class="form-select" @bind="selectedCategoryId">
+                        <select class="form-control" @bind="selectedCategoryId">
                             @foreach (var category in categoryTypes)
                             {
                                 <option value="@category.Value">
@@ -189,16 +189,6 @@
         
     }
 
-    private void FilterByDate()
-    {
-        if (StartDate.HasValue && EndDate.HasValue)
-        {
-            var filtered = productList
-                .Where(x => x.CreatedOn >= StartDate.Value
-                            && x.CreatedOn <= EndDate.Value)
-                .ToList();
-        }
-    }
     private void SelectProduct(ProductDto? selectedProduct)
     {
         // Console.WriteLine("row selected!");

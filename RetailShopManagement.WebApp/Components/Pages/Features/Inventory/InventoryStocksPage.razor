@@ -1,0 +1,211 @@
+﻿@page "/inventory/stocks"
+@using RetailShopManagement.WebApp.Services.AppServices.Inventory
+
+@attribute [StreamRendering]
+
+<PageTitle>Inventory Stocks</PageTitle>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row align-items-end">
+             
+            <!-- LEFT HALF (Category + Filter) -->
+            <div class="col-md-8">
+                <div class="row align-items-end g-2">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Category</label>
+                        <select class="form-control" @bind="selectedCategoryId">
+                            @foreach (var category in categoryTypes)
+                            {
+                                <option value="@category.Value">
+                                    @category.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+
+                        <DateRangePicker StartDate="StartDate"
+                                         EndDate="EndDate"
+                                         OnDateRangeChanged="OnDateRangeChangeEventHandler" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-secondary w-100"
+                                @onclick="Filter">
+                            <i class="fa-solid fa-magnifying-glass me-2"></i>
+                            Filter
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive table-overflow-y">
+    @if (!inventoryList.Any())
+    {
+        <p>
+            <em>No item found...</em>
+        </p>
+    }
+    else
+    {
+        <table class="table table-borderless table-striped table-hover">
+            <thead>
+                <tr>
+                    <th @onclick="@(() => OrderRecords("ProductName"))" style="cursor: pointer;">
+                        Product Name
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                    <th @onclick="@(() => OrderRecords("CategoryName"))" style="cursor: pointer;">
+                        Category
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+
+                    <th @onclick="@(() => OrderRecords("QuantityInStock"))" style="cursor: pointer;">
+                        Qty In Stock
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                    <th>Unit</th>
+                    <th>Actions</th>
+                    <th>LastModifiedOn</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in inventoryList)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.CategoryName</td>
+                        <td>@item.QuantityInStock</td>
+                        <td>@item.Unit</td>
+                        <td>
+                            <button class="btn btn-info m-1" @onclick="() => ShowHistory(item)"
+                                    @onclick:stopPropagation="true">
+                                <i class="fa-solid fa-info"></i>
+                                Show History
+                            </button>
+                        </td>
+                        <td>@item.LastModifiedOn</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+
+</div>
+
+<hr />
+<p class="list-counter-margin">
+    <em>
+        <small>
+            Total Records = @TotalRecords
+        </small>
+    </em>
+</p>
+
+@code {
+    private List<InventoryItemDto> inventoryList = new();
+    private InventoryItemDto? SelectedStock { get; set; }
+    private int selectedCategoryId { get; set; }
+    private IList<IntDropDownField> categoryTypes { get; set; } = new List<IntDropDownField>();
+    private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
+    private DateTime? EndDate { get; set; } = DateTime.Now;
+    private int TotalRecords { get; set; }
+    private bool IsAscending { get; set; } = true;
+
+    [Inject] protected IInventoryService InventoryService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        categoryTypes = await CategoryTypes;
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            LoadingService.Show();
+
+            var response = await InventoryService.GetInventoryStockAsync(selectedCategoryId, fromDate: StartDate, toDate: EndDate);
+            if (!response.IsSuccess)
+            {
+                ToastService.ShowError(response.Message);
+                return;
+            }
+
+            ToastService.ShowSuccess(response.Message);
+            inventoryList = response.Data.ToList();
+            TotalRecords = inventoryList.Count();
+
+            StateHasChanged();
+        }
+        finally
+        {
+            LoadingService.Hide();
+        }
+        
+    }
+    
+    private async Task ShowHistory(InventoryItemDto? selectedStock)
+    {
+        SelectedStock = selectedStock;
+
+        if (SelectedStock is null)
+        {
+            await Javascript.InvokeVoidAsync(
+                "alert",
+                "Please select item."
+            );
+            return;
+        }
+
+        var alertMsg = $"Product: {SelectedStock.ProductName} - {SelectedStock.CategoryName} - {SelectedStock.QuantityInStock}";
+
+        await Javascript.InvokeVoidAsync(
+            "alert",
+            alertMsg);
+    }
+     
+    private async Task Filter()
+    {
+        await LoadData();
+
+    }
+ 
+    private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)
+    {
+        StartDate = dateRange.StartDate;
+        EndDate = dateRange.EndDate;
+        await LoadData();
+    }
+    private void OrderRecords(string? orderParm = null)
+    {
+        inventoryList = orderParm switch
+        {
+            "QuantityInStock" => IsAscending
+                ? inventoryList.OrderBy(x => x.QuantityInStock).ToList()
+                : inventoryList.OrderByDescending(x => x.QuantityInStock).ToList(),
+            "ProductName" => IsAscending
+                ? inventoryList.OrderBy(x => x.ProductName).ToList()
+                : inventoryList.OrderByDescending(x => x.ProductName).ToList(),
+            "CategoryName" => IsAscending
+                ? inventoryList.OrderBy(x => x.CategoryName).ToList()
+                : inventoryList.OrderByDescending(x => x.CategoryName).ToList(),
+            _ => inventoryList
+        };
+
+        IsAscending = !IsAscending;
+
+        StateHasChanged();
+    }
+
+}

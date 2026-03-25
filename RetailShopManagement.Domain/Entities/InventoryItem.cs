@@ -4,9 +4,11 @@ namespace RetailShopManagement.Domain.Entities;
 
 public class InventoryItem : BaseDerivedEntity<int>
 {
-    public int ProductId { get; set; }
+    public Guid ProductId { get; set; }
 
-    public int QuantityInStock { get; set; }
+    public decimal QuantityInStock { get; set; }
+
+    public string Unit { get; set; } = null!;
 
     // Navigation
     public Product Product { get; set; } = null!;
