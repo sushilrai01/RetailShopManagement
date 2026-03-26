@@ -11,7 +11,10 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Invoices
 {
     public class InvoiceService(IMediator mediator) : BaseService(mediator), IInvoiceService
     {
-        public async Task<ApiResponse<IList<InvoicesDto>>> GetInvoicesListAsync(string status = PaymentStatus.All, Guid? creditorId = null, DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+        public async Task<ApiResponse<IList<InvoicesDto>>> GetInvoicesListAsync(string status = PaymentStatus.All, Guid? creditorId = null,
+            DateTime? fromDate = null, DateTime? toDate = null,
+            bool isPurchase = false,
+            CancellationToken cancellationToken = default)
         {
             var method = "Get Invoices";
             var apiAction = ApiAction.Fetch;
@@ -23,7 +26,8 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Invoices
                     Status = status,
                     CreditorId = creditorId,
                     FromDate = fromDate,
-                    ToDate = toDate
+                    ToDate = toDate,
+                    IsPurchase = isPurchase
                 }, cancellationToken);
 
                 return new ApiResponse<IList<InvoicesDto>>()

@@ -1,22 +1,19 @@
-﻿@page "/bill-generate"
-@using RetailShopManagement.Application.Validators
-@using RetailShopManagement.Domain.Constants
-@using RetailShopManagement.Domain.Extensions
-@using RetailShopManagement.WebApp.Services.AppServices.Invoices
+﻿@page "/purchaseOrder/create"
+@page "/purchaseOrder/edit/{InvoiceId:guid}"
 
-<PageTitle>Product Sale</PageTitle>
+<PageTitle>Product Purchase</PageTitle>
 
-<h3 class="subtitle">Product Sale/Generate Invoice</h3>
+<h3 class="subtitle">Purchase Order Create</h3>
 
 <div class="px-3 pb-3">
 
     <div class="row">
 
         <div class="form-group-x col-6">
-            <label class="sn-required-field">Creditor</label>
-            <InputSelect class="form-control" @bind-Value="invoiceForm.CreditorId">
+            <label class="sn-required-field">Supplier</label>
+            <InputSelect class="form-control" @bind-Value="invoiceForm.SupplierId">
 
-                @foreach (var creditor in CreditorDropDownFields)
+                @foreach (var creditor in SupplierDropDownFields)
                 {
                     <option value="@creditor.Value">
                         @creditor.Text
@@ -63,7 +60,7 @@
                 <div class="row">
                     <div class="form-group-x col-6">
                         <InputSelect class="form-control"
-                                     @bind-Value="invoiceForm.InvoiceItems[localCounter].ProductId"
+                                     @bind-Value="invoiceForm.PurchaseItems[localCounter].ProductId"
                                      @bind-Value:after="@(() => OnProductChange(localCounter))">
 
                             @foreach (var unit in ProductListFields)
@@ -74,7 +71,7 @@
 
                     </div>
                     <div class="form-group-x col-6">
-                        <InputSelect class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].Unit">
+                        <InputSelect class="form-control" @bind-Value="invoiceForm.PurchaseItems[localCounter].Unit">
                             @foreach (var unit in UnitsFields)
                             {
                                 <option value="@unit.Value">@unit.Text</option>
@@ -85,18 +82,18 @@
             </div>
 
             <div class="form-group-x col-2">
-                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].Quantity"
+                <InputNumber class="form-control" @bind-Value="invoiceForm.PurchaseItems[localCounter].Quantity"
                              @bind-Value:after="@(() => OnQuantityUnitPriceChanged(localCounter))" />
             </div>
 
             <div class="form-group-x col-2">
-                <InputNumber class="form-control" @bind-Value="invoiceForm.InvoiceItems[localCounter].UnitPrice"
+                <InputNumber class="form-control" @bind-Value="invoiceForm.PurchaseItems[localCounter].UnitPrice"
                              @bind-Value:after="@(() => OnQuantityUnitPriceChanged(localCounter))" />
             </div>
 
             <div class="form-group-x col-2">
                 <InputNumber class="form-control"
-                             @bind-Value="invoiceForm.InvoiceItems[localCounter].SubTotal"
+                             @bind-Value="invoiceForm.PurchaseItems[localCounter].SubTotal"
                              @bind-Value:after="OnSubTotalChange" />
             </div>
 
@@ -249,11 +246,21 @@
     <!-- Submit -->
     <div class="row justify-content-end">
         <div class="col-auto">
-            <button class="btn btn-success me-2" @onclick="Save">
-                <i class="fas fa-check"></i>
-                Generate Invoice
-            </button>
-            <button type="button" class="btn btn-dark" @onclick="@(() => NavigationManager.NavigateTo("/invoices"))">
+            @if (InvoiceId.Empty())
+            {
+                <button class="btn btn-success me-2" @onclick="Save">
+                    <i class="fas fa-check"></i>
+                    Quote & Generate Invoice
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-success me-2" @onclick="Save">
+                    <i class="fas fa-check"></i>
+                    Complete Order
+                </button>
+            }
+            <button type="button" class="btn btn-dark" @onclick="@(() => NavigationManager.NavigateTo("/purchase-orders"))">
                 <i class="fas fa-times"></i> Cancel
             </button>
         </div>
@@ -261,8 +268,10 @@
 </div>
 
 @code {
+    [Parameter] public Guid InvoiceId { get; set; }
+
     private InvoicesDto invoiceForm = new();
-    private IList<NullableGuidDropDownField> CreditorDropDownFields { get; set; } = new List<NullableGuidDropDownField>();
+    private IList<IntDropDownField> SupplierDropDownFields { get; set; } = new List<IntDropDownField>();
 
     private IList<DropDownField> UnitsFields { get; set; } = UnitsConst.BasicUnitsFields;
 
@@ -273,8 +282,9 @@
 
     private int Count;
 
-
     [Inject] private IInvoiceService InvoiceService { get; set; }
+
+    [Inject] private IPurchaseService PurchaseService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -288,17 +298,35 @@
         {
             LoadingService.Show();
 
-            CreditorDropDownFields = await CreditorsFieldList;
+            SupplierDropDownFields = await SuppliersFieldList;
 
             (ProductListFields, ProductsDictionary) = await GetProductsList();
 
-            // Initialize with one empty row
-            invoiceForm.InvoiceItems = new List<ProductSalesDto>()
+            if (!InvoiceId.Empty())
             {
-                new(),
-            };
+                var response = await InvoiceService.GetInvoiceByIdAsync(InvoiceId);
 
-            Count++;
+                if (!response.IsSuccess)
+                {
+                    ToastService.ShowError(response.Message);
+                    return;
+                }
+
+                ToastService.ShowSuccess(response.Message, 3000);
+                invoiceForm = response.Data;
+
+                Count = invoiceForm.PurchaseItems.Count;
+            }
+            else
+            {
+                // Initialize with one empty row
+                invoiceForm.PurchaseItems = new List<ProductPurchaseDto>()
+                {
+                    new(),
+                };
+
+                Count++;
+            }
         }
         finally
         {
@@ -312,24 +340,24 @@
         try
         {
             LoadingService.Show();
-            
+
             if (!ValidateFormOnSave()) return;
 
-            var response = await InvoiceService.CreateInvoiceAsync(invoiceForm);
+            invoiceForm.Status = invoiceForm.PaidAmount > 0
+                                ? PaymentStatus.GetPaymentStatus(invoiceForm.PaidAmount, invoiceForm.TotalAmount)
+                                : PaymentStatus.Quoted;
 
-            if (!response.IsSuccess)
+            if (InvoiceId.Empty())
             {
-                ToastService.ShowError(response.Message);
-                return;
+                if (!await CreatePurchase()) return;
+
+            }
+            else
+            {
+                if (!await UpdatePurchase()) return;
             }
 
-            ToastService.ShowSuccess(response.Message, 3000);
-
-            var invoiceData = response.Data;
-            invoiceForm.Id = invoiceData.Id;
-            invoiceForm.InvoiceNumber = invoiceData.InvoiceNumber;
-
-            NavigationManager.NavigateTo($"/invoice/save-pdf/Sale/{invoiceData.Id}");
+            NavigationManager.NavigateTo($"/invoice/save-pdf/Purchase/{InvoiceId}");
         }
         finally
         {
@@ -337,12 +365,43 @@
         }
     }
 
+    private async Task<bool> UpdatePurchase()
+    {
+        invoiceForm.Id = InvoiceId;
+        var response = await PurchaseService.UpdatePurchaseOrderInvoiceAsync(invoiceForm);
+
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return false;
+        }
+
+        ToastService.ShowSuccess(response.Message, 3000);
+        return true;
+    }
+
+    private async Task<bool> CreatePurchase()
+    {
+        var response = await PurchaseService.CreatePurchaseOrderInvoiceAsync(invoiceForm);
+
+        if (!response.IsSuccess)
+        {
+            ToastService.ShowError(response.Message);
+            return false;
+        }
+
+        ToastService.ShowSuccess(response.Message, 3000);
+        InvoiceId = response.Data.Id;
+
+        return true;
+    }
+
     #region Row management
     private void AddNewRow()
     {
-        if (!Validate(invoiceForm.InvoiceItems[Count - 1])) return;
+        if (!Validate(invoiceForm.PurchaseItems[Count - 1])) return;
         Count += 1;
-        invoiceForm.InvoiceItems.Add(new ProductSalesDto());
+        invoiceForm.PurchaseItems.Add(new ProductPurchaseDto());
 
         StateHasChanged();
     }
@@ -358,7 +417,7 @@
 
     private void RemoveConfirmed(int index)
     {
-        invoiceForm.InvoiceItems.RemoveAt(index);
+        invoiceForm.PurchaseItems.RemoveAt(index);
         Count--;
 
         StateHasChanged();
@@ -366,7 +425,7 @@
 
     #endregion
 
-    private bool Validate(ProductSalesDto productSales)
+    private bool Validate(ProductPurchaseDto productSales)
     {
         var validator = new ProductSalesValidator();
         var validationResult = validator.Validate(productSales);
@@ -387,9 +446,9 @@
             ToastService.ShowInfo("Please enter Invoice Date.");
             return false;
         }
-        else if (invoiceForm.CreditorId.Empty() && invoiceForm.BalanceAmount != 0)
+        else if (invoiceForm.SupplierId is null or 0)
         {
-            ToastService.ShowInfo("Please either select creditor or make full payment (Paid Amount cannot be 0).");
+            ToastService.ShowInfo("Please select supplier.");
             return false;
         }
         else if (invoiceForm.PaidAmount < 0 || invoiceForm.PaidAmount > invoiceForm.TotalAmount)
@@ -397,8 +456,13 @@
             ToastService.ShowInfo("Paid amount cannot be less than 0 or greater than total amount.");
             return false;
         }
+        else if (!InvoiceId.Empty() && invoiceForm.PaidAmount < 1)
+        {
+            ToastService.ShowInfo("Please enter paid amount.");
+            return false;
+        }
 
-        return Validate(invoiceForm.InvoiceItems[Count - 1]);
+        return Validate(invoiceForm.PurchaseItems[Count - 1]);
     }
 
 
@@ -406,15 +470,15 @@
 
     private void OnProductChange(int localCounter)
     {
-        var productId = invoiceForm.InvoiceItems[localCounter].ProductId;
+        var productId = invoiceForm.PurchaseItems[localCounter].ProductId;
 
         if (productId.Empty()) return;
 
         var selectedProduct = ProductsDictionary[productId];
 
-        invoiceForm.InvoiceItems[localCounter].ProductName = selectedProduct.Name;
-        invoiceForm.InvoiceItems[localCounter].Unit = selectedProduct.Unit;
-        invoiceForm.InvoiceItems[localCounter].UnitPrice = selectedProduct.Price;
+        invoiceForm.PurchaseItems[localCounter].ProductName = selectedProduct.Name;
+        invoiceForm.PurchaseItems[localCounter].Unit = selectedProduct.Unit;
+        invoiceForm.PurchaseItems[localCounter].UnitPrice = selectedProduct.Price;
 
         OnQuantityUnitPriceChanged(localCounter);
 
@@ -423,8 +487,8 @@
 
     private void OnQuantityUnitPriceChanged(int localCounter)
     {
-        var currentItem = invoiceForm.InvoiceItems[localCounter];
-        invoiceForm.InvoiceItems[localCounter].SubTotal = currentItem.Quantity * currentItem.UnitPrice;
+        var currentItem = invoiceForm.PurchaseItems[localCounter];
+        invoiceForm.PurchaseItems[localCounter].SubTotal = currentItem.Quantity * currentItem.UnitPrice;
 
         UpdateInvoiceSubTotal();
 
@@ -438,7 +502,7 @@
 
     private void UpdateInvoiceSubTotal()
     {
-        invoiceForm.SubTotal = invoiceForm.InvoiceItems.Sum(x => x.SubTotal);
+        invoiceForm.SubTotal = invoiceForm.PurchaseItems.Sum(x => x.SubTotal);
 
         CalculateDiscountAmount();
         // CalculateTaxAmount();

@@ -45,8 +45,6 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Command
         IUniqueCodeService uniqueCodeService)
         : IRequestHandler<CreateInvoiceCommand, InvoiceResponseModel>
     {
-        private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-
         public async Task<InvoiceResponseModel> Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
         {
             await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);

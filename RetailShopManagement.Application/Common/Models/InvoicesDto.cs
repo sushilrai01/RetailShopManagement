@@ -39,7 +39,8 @@ public class InvoicesDto
 
     public string? Remarks { get; set; } = string.Empty;
 
-    public Guid? SupplierId { get; set; }
+    public int? SupplierId { get; set; }
+    public string SupplierName { get; set; } = string.Empty;
 
     public DateTime CreatedOn { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
@@ -49,9 +50,21 @@ public class InvoicesDto
 
     //List of Invoice Items
     public IList<ProductSalesDto> InvoiceItems { get; set; } = new List<ProductSalesDto>();
+    public IList<ProductPurchaseDto> PurchaseItems { get; set; } = new List<ProductPurchaseDto>();
     public IList<PaySlipDto> PaySlipHistory { get; set; } = new List<PaySlipDto>();
 }
-public class ProductSalesDto
+public class ProductSalesDto : InvoiceItemBaseModel
+{
+
+}
+
+public class ProductPurchaseDto : InvoiceItemBaseModel
+{
+    public int SupplierId { get; set; }
+    public string SupplierName { get; set; } = string.Empty;
+}
+
+public class InvoiceItemBaseModel
 {
     public Guid Id { get; set; }
     public Guid InvoiceId { get; set; }

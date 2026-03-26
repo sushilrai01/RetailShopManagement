@@ -1,20 +1,21 @@
-﻿@page "/invoice/save-pdf/{InvoiceId:guid}"
+﻿@page "/invoice/save-pdf/{InvoiceType}/{InvoiceId:guid}"
 
 <PageTitle>Save Invoice Pdf</PageTitle>
 
 
 <a class="btn btn-success btn-sm mb-2"
-   href="/invoices"
-   title="Go Back"
-   @onclick:stopPropagation="true">
+       href="@(InvoiceType == "Sale" ? "/invoices" : "/purchase-orders")"
+       title="Go Back"
+       @onclick:stopPropagation="true">
     <i class="fa-solid fa-arrow-left"></i> Invoices List
-</a>  
+</a>
 <h3 class="subtitle">Retail Shop Invoice</h3>
 
-<InvoiceComponent InvoiceInfo="InvoiceInfo" />
+<InvoiceComponent InvoiceType="@InvoiceType" InvoiceInfo="InvoiceInfo" />
 
 @code {
     [Parameter] public Guid InvoiceId { get; set; }
+    [Parameter] public string InvoiceType { get; set; } = string.Empty;
 
     public InvoicesDto InvoiceInfo { get; set; }
 

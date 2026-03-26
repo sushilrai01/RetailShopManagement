@@ -27,6 +27,7 @@ namespace RetailShopManagement.Infrastructure
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IUniqueCodeService, UniqueCodeService>();
             services.AddScoped<ICacheService, CacheService>();
+            services.AddScoped<IInventoryHelper, InventoryHelper>();
 
             return services;
         }

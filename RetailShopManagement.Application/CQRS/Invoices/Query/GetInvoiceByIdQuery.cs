@@ -30,6 +30,8 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                     DueDate = x.DueDate,
                     CreditorId = x.CreditorId,
                     CreditorName = x.Creditor != null ? x.Creditor.FullName : string.Empty,
+                    SupplierId = x.SupplierId,
+                    SupplierName = x.Supplier != null ? x.Supplier.Name : string.Empty,
                     SubTotal = x.SubTotal,
                     TaxAmount = x.TaxAmount,
                     TaxRate = x.TaxRate,
@@ -38,16 +40,28 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                     TotalAmount = x.TotalAmount,
                     PaidAmount = x.PaidAmount,
                     BalanceAmount = x.BalanceAmount,
-                    
+
                     Status = x.Status,
                     Remarks = x.Remarks,
-                    
+
                     CreatedOn = x.CreatedOn,
                     CreatedBy = x.CreatedBy,
                     LastModifiedOn = x.LastModifiedOn,
                     LastModifiedBy = x.LastModifiedBy ?? string.Empty,
 
                     InvoiceItems = x.InvoiceItems.Select(z => new ProductSalesDto()
+                    {
+                        Id = z.Id,
+                        ProductId = z.ProductId,
+                        ProductName = z.ProductName,
+                        Unit = z.Unit,
+                        Quantity = z.Quantity,
+                        UnitPrice = z.UnitPrice,
+                        SubTotal = z.SubTotal,
+                        Notes = z.Notes
+                    }).ToList(),
+
+                    PurchaseItems = x.PurchaseItems.Select(z => new ProductPurchaseDto()
                     {
                         Id = z.Id,
                         ProductId = z.ProductId,

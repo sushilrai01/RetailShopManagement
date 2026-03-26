@@ -5,6 +5,7 @@ namespace RetailShopManagement.Application.Helpers
     public interface IUniqueCodeService
     {
         Task<string> GetUniqueInvoiceNumberAsync(CancellationToken cancellationToken = default);
+        Task<string> GetUniquePurchaseOrderInvoiceNumberAsync(CancellationToken cancellationToken = default);
 
     }
 }

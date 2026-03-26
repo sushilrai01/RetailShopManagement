@@ -9,6 +9,7 @@ using RetailShopManagement.WebApp.Services.AppServices.Categories;
 using RetailShopManagement.WebApp.Services.AppServices.Creditors;
 using RetailShopManagement.WebApp.Services.AppServices.LoadingService;
 using RetailShopManagement.WebApp.Services.AppServices.Products;
+using RetailShopManagement.WebApp.Services.AppServices.Suppliers;
 using RetailShopManagement.WebApp.Services.AppServices.ToastService;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -26,12 +27,15 @@ namespace RetailShopManagement.WebApp.Components
         [Inject] protected ICategoryService CategoryService { get; set; }
         [Inject] protected ICreditorService CreditorService { get; set; }
         [Inject] protected IProductService ProductService { get; set; }
+        [Inject] protected ISupplierService SupplierService { get; set; }
         [Inject] protected ToastService ToastService { get; set; }
         [Inject] protected LoadingService LoadingService { get; set; }
         [Inject] protected JsModalService JsModalService { get; set; }
         protected CancellationTokenSource CancellationTokenSource { get; set; }
         protected Task<IList<IntDropDownField>> CategoryTypes => GetCategoryTypes();
         protected Task<IList<NullableGuidDropDownField>> CreditorsFieldList => GetCreditorsFieldList();
+
+        protected Task<IList<IntDropDownField>> SuppliersFieldList => GetSuppliersFieldList();
 
         protected bool IsAdmin()
         {
@@ -63,6 +67,31 @@ namespace RetailShopManagement.WebApp.Components
             }
 
             return new List<NullableGuidDropDownField>();
+        }
+
+        private async Task<IList<IntDropDownField>> GetSuppliersFieldList()
+        {
+            var response = await SupplierService.GetAllSuppliersAsync();
+
+            if (response.IsSuccess)
+            {
+                var categoryTypes = new List<IntDropDownField>()
+                {
+                    new() { Value = 0, Text = "--Select Supplier--"}
+                };
+
+                categoryTypes.AddRange(response.Data
+                    .OrderBy(x => x.Name)
+                    .Select(c => new IntDropDownField
+                    {
+                        Value = c.Id,
+                        Text = c.Name
+                    }).ToList());
+
+                return categoryTypes;
+            }
+
+            return new List<IntDropDownField>();
         }
 
         private async Task<IList<IntDropDownField>> GetCategoryTypes()

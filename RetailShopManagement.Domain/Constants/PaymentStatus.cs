@@ -9,6 +9,7 @@ public static class PaymentStatus
     public const string Paid = "Paid";
     public const string Overdue = "Overdue";
     public const string Cancelled = "Cancelled";
+    public const string Quoted = "Quoted";
     public const string All = "All";
 
     public static IList<DropDownField> GetDropdown()
@@ -20,7 +21,8 @@ public static class PaymentStatus
             new DropDownField { Value = PaidPartial, Text = PaidPartial },
             new DropDownField { Value = Paid, Text = Paid },
             new DropDownField { Value = Overdue, Text = Overdue},
-            new DropDownField { Value = Cancelled, Text = Cancelled}
+            new DropDownField { Value = Cancelled, Text = Cancelled},
+            new DropDownField { Value = Quoted, Text = Quoted},
         };
     }
 

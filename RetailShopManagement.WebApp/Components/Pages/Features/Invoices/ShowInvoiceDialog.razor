@@ -8,7 +8,7 @@
         CssContainerMaxWidth="600px">
     <ChildContent>
 
-        <InvoiceComponent InvoiceInfo="InvoiceInfo" />
+        <InvoiceComponent InvoiceType="@InvoiceType" InvoiceInfo="InvoiceInfo" />
 
     </ChildContent>
      
@@ -20,6 +20,7 @@
     private bool IsVisible { get; set; }
     public InvoicesDto InvoiceInfo { get; set; }
     [Parameter] public EventCallback<bool> OnSubmitCallback { get; set; } //bool: button is submitted or cancelled
+    [Parameter] public string InvoiceType { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

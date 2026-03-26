@@ -11,5 +11,6 @@ public class Supplier : BaseDerivedEntity<int>
 
     // Navigation
     public ICollection<ProductPurchase> Purchases { get; set; } = new List<ProductPurchase>();
+    public ICollection<Invoice> Invoices { get; set; } = new HashSet<Invoice>();
 
 }

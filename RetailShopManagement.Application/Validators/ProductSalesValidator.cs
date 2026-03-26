@@ -8,7 +8,7 @@ using RetailShopManagement.Application.Common.Models;
 
 namespace RetailShopManagement.Application.Validators
 {
-    public class ProductSalesValidator : AbstractValidator<ProductSalesDto>
+    public class ProductSalesValidator : AbstractValidator<InvoiceItemBaseModel>
     {
         public ProductSalesValidator()
         {

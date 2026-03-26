@@ -19,6 +19,9 @@ public class Invoice : BaseDerivedEntity<Guid>
     public Guid? CreditorId { get; set; }
     public Creditor? Creditor { get; set; }
 
+    public int? SupplierId { get; set; }
+    public Supplier? Supplier { get; set; }
+
     [Column(TypeName = "decimal(18,2)")]
     public decimal SubTotal { get; set; }
 

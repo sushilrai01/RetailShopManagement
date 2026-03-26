@@ -13,6 +13,7 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
         public string Status { get; set; } = null!;
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public bool IsPurchase { get; set; } // true for purchase, false for sales
     }
 
     public class GetInvoicesQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
@@ -27,6 +28,10 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                 .Include(x => x.InvoiceItems)
                 .AsNoTracking()
                 .AsQueryable();
+
+            query = request.IsPurchase
+                ? query.Where(x => x.IsPurchaseInvoice)
+                : query.Where(x => !x.IsPurchaseInvoice);
 
             if (!string.IsNullOrWhiteSpace(request.Status) && request.Status != PaymentStatus.All)
             {
@@ -52,6 +57,8 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                     DueDate = x.DueDate,
                     CreditorId = x.CreditorId,
                     CreditorName = x.Creditor != null ? x.Creditor.FullName : string.Empty,
+                    SupplierId = x.SupplierId,
+                    SupplierName = x.Supplier != null ? x.Supplier.Name : string.Empty,
                     SubTotal = x.SubTotal,
                     TaxAmount = x.TaxAmount,
                     TaxRate = x.TaxRate,
@@ -61,7 +68,7 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                     PaidAmount = x.PaidAmount,
                     BalanceAmount = x.BalanceAmount,
 
-                    Status = PaymentStatus.GetPaymentStatus(x.PaidAmount, x.TotalAmount),
+                    Status = x.Status == PaymentStatus.Quoted ? PaymentStatus.Quoted : PaymentStatus.GetPaymentStatus(x.PaidAmount, x.TotalAmount),
                     Remarks = x.Remarks,
 
                     CreatedOn = x.CreatedOn,
@@ -70,6 +77,18 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Query
                     LastModifiedBy = x.LastModifiedBy ?? string.Empty,
 
                     InvoiceItems = x.InvoiceItems.Select(z => new ProductSalesDto()
+                    {
+                        Id = z.Id,
+                        ProductId = z.ProductId,
+                        ProductName = z.ProductName,
+                        Unit = z.Unit,
+                        Quantity = z.Quantity,
+                        UnitPrice = z.UnitPrice,
+                        SubTotal = z.SubTotal,
+                        Notes = z.Notes
+                    }).ToList(),
+
+                    PurchaseItems = x.PurchaseItems.Select(z => new ProductPurchaseDto()
                     {
                         Id = z.Id,
                         ProductId = z.ProductId,

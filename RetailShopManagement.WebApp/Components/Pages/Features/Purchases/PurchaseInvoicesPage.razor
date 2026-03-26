@@ -1,29 +1,22 @@
-﻿@page "/invoices/creditor/{CreditorId:guid}"
-@using RetailShopManagement.Domain.Constants
+﻿@page "/purchase-orders"
 @using RetailShopManagement.WebApp.Components.Pages.Features.Invoices
 
 @attribute [StreamRendering]
 
-<PageTitle>Creditor Invoices</PageTitle>
+<PageTitle>Purchase Orders</PageTitle>
 
-<h3 class="subtitle">
-    Invoices For
-    <span class="fw-bold" style="border-bottom: 1px dashed #000;">
-        @CreditorName
-    </span>
-</h3>
-     
 <div class="card shadow-sm mb-3">
     <div class="card-body">
         <div class="row align-items-end">
 
-            <!-- LEFT HALF (InvoiceStatus + Filter) -->
+
+            <!-- LEFT HALF (Category + Filter) -->
             <div class="col-md-8">
                 <div class="row align-items-end g-2">
 
                     <div class="col-md-4">
                         <label class="form-label">Payment Status</label>
-                        <select class="form-select" @bind="selectedStatus">
+                        <select class="form-control" @bind="selectedStatus">
                             @foreach (var category in invoiceStatusFields)
                             {
                                 <option value="@category.Value">
@@ -31,6 +24,12 @@
                                 </option>
                             }
                         </select>
+                    </div>
+                    <div class="col-md-6">
+
+                        <DateRangePicker StartDate="StartDate"
+                                         EndDate="EndDate"
+                                         OnDateRangeChanged="OnDateRangeChangeEventHandler" />
                     </div>
 
                     <div class="col-md-2">
@@ -43,7 +42,16 @@
 
                 </div>
             </div>
-             
+            <!-- RIGHT HALF (Create) -->
+
+            <div class="col-md-4 text-end">
+                <label class="form-label"></label>
+                <button class="btn btn-success"
+                        @onclick="CreateInvoice">
+                    <i class="fa-solid fa-plus me-2"></i>
+                    Create New Order
+                </button>
+            </div>
 
         </div>
     </div>
@@ -63,7 +71,7 @@
                 <tr class="no-wrap-head">
                     <th>Invoice No.</th>
                     <th>Invoice Date</th>
-                    <th>CreditorName</th>
+                    <th>Supplier Name</th>
                     <th>TaxAmount</th>
                     <th>DiscountAmount</th>
                     <th>SubTotal </th>
@@ -81,7 +89,7 @@
                     <tr @onclick="() => SelectInvoice(item)">
                         <td class="cell-no-wrap">@item.InvoiceNumber</td>
                         <td>@item.InvoiceDate.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@item.CreditorName</td>
+                        <td>@item.SupplierName</td>
                         <td>@item.TaxAmount</td>
                         <td>@item.DiscountAmount</td>
                         <td>@item.SubTotal</td>
@@ -100,18 +108,20 @@
                             }
                             else
                             {
-                                
                                 <button class="btn btn-warning btn-sm m-1" @onclick="() => ShowPdfDialog(item)"
                                         @onclick:stopPropagation="true" title="Show Invoice">
                                     <i class="fa-solid fa-file-circle-plus fa-lg"></i>
                                 </button>
-                                @* 
-                                <a class="btn btn-warning btn-sm"
-                                       href="/invoice/save-pdf/@item.Id"
-                                       target="_blank" title="Generate Invoice Pdf"
-                                       @onclick:stopPropagation="true">
-                                    <i class="fa-solid fa-file-circle-plus fa-lg"></i>
-                                </a> *@
+                                
+                                if (item.Status == PaymentStatus.Quoted)
+                                {
+                                    <a class="btn btn-warning btn-sm"
+                                           href="/purchaseOrder/edit/@item.Id"
+                                           title="Update Purchase"
+                                           @onclick:stopPropagation="true">
+                                        <i class="fa-solid fa-pen-to-square fa-lg"></i>
+                                    </a>
+                                }
                             }
 
                         </td>
@@ -120,6 +130,18 @@
                     </tr>
                 }
             </tbody>
+            <tfoot class="sticky-footer">
+                <tr class="table-active fw-bold">
+                    <td colspan="3" class="text-end">Grand Total:</td>
+                    <td>@invoicesList.Sum(x => x.TaxAmount)</td>
+                    <td>@invoicesList.Sum(x => x.DiscountAmount)</td>
+                    <td>@invoicesList.Sum(x => x.SubTotal)</td>
+                    <td>@invoicesList.Sum(x => x.TotalAmount)</td>
+                    <td>@invoicesList.Sum(x => x.PaidAmount)</td>
+                    <td>@invoicesList.Sum(x => x.BalanceAmount)</td>
+                    <td colspan="3"></td>
+                </tr>
+            </tfoot>
         </table>
     }
 
@@ -135,10 +157,9 @@
     </em>
 </p>
 
-<ShowInvoiceDialog @ref="refShowInvoice" InvoiceType="Sale" OnSubmitCallback="SubmitCallbackHandler" />
+<ShowInvoiceDialog @ref="refShowInvoice" InvoiceType="Purchase" OnSubmitCallback="SubmitCallbackHandler" />
 
 @code {
-    [Parameter] public Guid CreditorId { get; set; }
     private List<InvoicesDto> invoicesList = new List<InvoicesDto>();
     private InvoicesDto? SelectedInvoice { get; set; }
     private string selectedStatus { get; set; }
@@ -146,10 +167,9 @@
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
     private DateTime? EndDate { get; set; } = DateTime.Now;
     private int TotalRecords { get; set; }
-    private string? CreditorName { get; set; }
-    private ShowInvoiceDialog refShowInvoice;
 
     [Inject] private IInvoiceService InvoiceService { get; set; }
+    private ShowInvoiceDialog refShowInvoice;
 
     protected override async Task OnInitializedAsync()
     {
@@ -163,7 +183,7 @@
         {
             LoadingService.Show();
 
-            var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, creditorId: CreditorId);
+            var response = await InvoiceService.GetInvoicesListAsync(status: selectedStatus, fromDate: StartDate, toDate: EndDate, isPurchase: true);
             if (!response.IsSuccess)
             {
                 ToastService.ShowError(response.Message);
@@ -172,8 +192,6 @@
 
             ToastService.ShowSuccess(response.Message);
             invoicesList = response.Data.ToList();
-            CreditorName ??= invoicesList.FirstOrDefault()?.CreditorName;
-           
             TotalRecords = invoicesList.Count();
 
             StateHasChanged();
@@ -183,7 +201,7 @@
             LoadingService.Hide();
         }
     }
-
+     
     private void SelectInvoice(InvoicesDto? selectedInvoice)
     {
         // Console.WriteLine("row selected!");
@@ -198,10 +216,22 @@
 
     }
 
+    private void CreateInvoice()
+    {
+        NavigationManager.NavigateTo("/purchaseOrder/create");
+    }
+
     private void ShowPdf(InvoicesDto? selectedInvoice)
     {
         if (selectedInvoice is null) return;
         NavigationManager.NavigateTo($"/invoice/view-pdf/{selectedInvoice.Id}");
+    }
+    
+    private async Task OnDateRangeChangeEventHandler(DateRangePicker.DateRange dateRange)
+    {
+        StartDate = dateRange.StartDate;
+        EndDate = dateRange.EndDate;
+        await LoadData();
     }
 
     private void ShowPdfDialog(InvoicesDto? selectedInvoice)
