@@ -25,6 +25,14 @@ public static class PaymentStatus
             new DropDownField { Value = Quoted, Text = Quoted},
         };
     }
+    public static IList<DropDownField> GetOrderStatus()
+    {
+        return new List<DropDownField>
+        {
+            new DropDownField { Value = All, Text = All },
+            new DropDownField { Value = Quoted, Text = Quoted},
+        };
+    }
 
     public static string GetPaymentStatus(decimal paidAmount, decimal totalAmount)
     {

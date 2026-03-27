@@ -41,6 +41,7 @@ public class InventoryHelper(IUserServiceProvider userServiceProvider) : IInvent
             {
                 // Increment existing inventory
                 inventoryItem.QuantityInStock += purchase.Quantity;
+                inventoryItem.LastModifiedOn = DateTime.Now;
             }
         }
 
@@ -74,6 +75,7 @@ public class InventoryHelper(IUserServiceProvider userServiceProvider) : IInvent
 
             // Decrement inventory
             inventoryItem.QuantityInStock -= sale.Quantity;
+            inventoryItem.LastModifiedOn = DateTime.Now;
         }
 
     }

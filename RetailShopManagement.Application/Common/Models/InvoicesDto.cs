@@ -64,10 +64,18 @@ public class ProductPurchaseDto : InvoiceItemBaseModel
     public string SupplierName { get; set; } = string.Empty;
 }
 
+public class ProductPurchaseInfoDto
+{
+    public decimal TotalQuantity { get; set; }
+    public decimal GrandTotal { get; set; }
+    public IList<ProductPurchaseDto> PurchaseItems { get; set; } = new List<ProductPurchaseDto>();
+}
+
 public class InvoiceItemBaseModel
 {
     public Guid Id { get; set; }
     public Guid InvoiceId { get; set; }
+    public string InvoiceNumber { get; set; } = string.Empty;
     public Guid ProductId { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string Description => $"{ProductName} ({Unit})";
@@ -90,6 +98,7 @@ public class InvoiceItemBaseModel
 
     public decimal TotalAmount { get; set; } // Subtotal + Tax - Discount
     public string? Notes { get; set; }
+    public DateTime CreatedOn { get; set; }
 }
 public class InvoiceResponseModel
 {

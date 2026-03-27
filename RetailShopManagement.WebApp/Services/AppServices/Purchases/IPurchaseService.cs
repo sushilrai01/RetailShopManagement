@@ -8,5 +8,7 @@ namespace RetailShopManagement.WebApp.Services.AppServices.Purchases
     {
         Task<ApiResponse<InvoiceResponseModel>> CreatePurchaseOrderInvoiceAsync(InvoicesDto invoiceForm, CancellationToken cancellationToken = default);
         Task<ApiResponse<InvoiceResponseModel>> UpdatePurchaseOrderInvoiceAsync(InvoicesDto invoiceForm, CancellationToken cancellationToken = default);
+        Task<ApiResponse<ProductPurchaseInfoDto>> GetProductPurchaseHistoryAsync(int supplierId, string orderStatus = "All",
+            DateTime? fromDate = null, DateTime? toDate = null, CancellationToken ct = default);
     }
 }

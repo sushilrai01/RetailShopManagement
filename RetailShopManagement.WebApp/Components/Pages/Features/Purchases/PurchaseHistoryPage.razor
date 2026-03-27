@@ -1,29 +1,29 @@
-﻿@page "/report/payslips"
+﻿@page "/purchase-history"
 
 @attribute [StreamRendering]
 
-<PageTitle>Payslip Summary</PageTitle>
+<PageTitle>Purchase History</PageTitle>
 
-<h3 class="subtitle"> Payslip Summary</h3>
+<h3 class="subtitle"> Purchase History</h3>
 
 <div class="card shadow-sm mb-3">
     <div class="card-body">
         <div class="row align-items-end">
             
-            <div class="col-md-3">
-                <label class="form-label">Payment Status</label>
-                <select class="form-control" @bind="selectedStatus">
-                    @foreach (var category in invoiceStatusFields)
+            <div class="col-3">
+                <label class="sn-required-field">Supplier</label>
+                <InputSelect class="form-control" @bind-Value="selectedSupplierId" @bind-Value:after="LoadData">
+
+                    @foreach (var creditor in SupplierDropDownFields)
                     {
-                        <option value="@category.Value">
-                            @category.Text
+                        <option value="@creditor.Value">
+                            @creditor.Text
                         </option>
                     }
-                </select>
+                </InputSelect>
             </div>
 
             <div class="col-md-4">
-
                 <DateRangePicker StartDate="StartDate"
                                  EndDate="EndDate"
                                  OnDateRangeChanged="OnDateRangeChangeEventHandler" />
@@ -40,17 +40,17 @@
                     }
                 </InputSelect>
             </div>
-
+            
             <div class="col-md-2">
-                <label class="form-label">Invoice Type</label>
-                <InputSelect class="form-control" @bind-Value="selectedInvoiceType" @bind-Value:after="OnInvoiceTypeChange">
-                    @foreach (var category in invoiceTypeFields)
+                <label class="form-label">Order Status</label>
+                <select class="form-control" @bind-Value="selectedStatus" @bind-Value:after="LoadData">
+                    @foreach (var category in invoiceStatusFields)
                     {
                         <option value="@category.Value">
                             @category.Text
                         </option>
                     }
-                </InputSelect>
+                </select>
             </div>
 
             <div class="col-md-2">
@@ -67,7 +67,7 @@
 </div>
 
 <div class="table-responsive table-overflow-y">
-    @if (!paySlipList.Any())
+    @if (ProductPurchaseInfoDto == null || !ProductPurchaseInfoDto.PurchaseItems.Any())
     {
         <p>
             <em>No item found...</em>
@@ -82,35 +82,54 @@
                         Invoice Number
                         <i class="fa-solid fa-sort fa-sm"></i>
                     </th>
-                    <th> Creditor Name</th>
-                    <th @onclick="@(() => OrderRecords("PaymentDate"))" style="cursor: pointer;">
-                        Payment Date
+                    <th @onclick="@(() => OrderRecords("Description"))" style="cursor: pointer;">
+                        Description
                         <i class="fa-solid fa-sort fa-sm"></i>
                     </th>
-                    <th @onclick="@(() => OrderRecords("AmountPaid"))" style="cursor: pointer;">
-                        Amount Paid
+                    <th @onclick="@(() => OrderRecords("SupplierName"))" style="cursor: pointer;">
+                        Supplier Name
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                    <th @onclick="@(() => OrderRecords("Quantity"))" style="cursor: pointer;">
+                        Qty
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                    <th>Unit Price</th>
+                   
+                    <th @onclick="@(() => OrderRecords("SubTotal"))" style="cursor: pointer;">
+                        SubTotal
+                        <i class="fa-solid fa-sort fa-sm"></i>
+                    </th>
+                    
+                    <th @onclick="@(() => OrderRecords("CreatedOn"))" style="cursor: pointer;">
+                        CreatedOn
                         <i class="fa-solid fa-sort fa-sm"></i>
                     </th>
                     <th> Remarks</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in paySlipList)
+                @foreach (var item in ProductPurchaseInfoDto.PurchaseItems)
                 {
                     <tr>
                         <td>@item.InvoiceNumber</td>
-                        <td>@item.CreditorName</td>
-                        <td>@item.PaymentDate</td>
-                        <td>@item.AmountPaid</td>
-                        <td>@item.Remarks</td>
+                        <td>@item.Description</td>
+                        <td>@item.SupplierName</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.UnitPrice</td>
+                        <td>@item.SubTotal</td>
+                        <td>@item.CreatedOn</td>
+                        <td>@item.Notes</td>
                     </tr>
                 }
             </tbody>
             <tfoot class="sticky-footer">
                 <tr class="table-active fw-bold">
                     <td colspan="3">Grand Total:</td>
-                    <td>@paySlipList.Sum(x => x.AmountPaid)</td>
+                    <td>@ProductPurchaseInfoDto.TotalQuantity</td>
                     <td> </td>
+                    <td>@ProductPurchaseInfoDto.GrandTotal</td>
+                    <td colspan="2"> </td>
                 </tr>
             </tfoot>
         </table>
@@ -128,28 +147,29 @@
 </p>
 
 @code {
-    private IList<PaySlipDto> paySlipList = new List<PaySlipDto>();
+    private ProductPurchaseInfoDto ProductPurchaseInfoDto { get; set; }
 
     private bool IsAscending { get; set; } = true;
-    private bool IsPurchaseInvoice { get; set; } = false;
 
     private string selectedTimeLine { get; set; }
     private string selectedStatus { get; set; }
-    private string selectedInvoiceType { get; set; }
+    private int selectedSupplierId { get; set; }
 
-    private IList<DropDownField> invoiceStatusFields { get; set; } = PaymentStatus.GetDropdown();
-    private IList<DropDownField> invoiceTypeFields { get; set; } = InvoiceTypeConst.DropDownFields;
+    private IList<DropDownField> invoiceStatusFields { get; set; } = PaymentStatus.GetOrderStatus();
     private IList<DropDownField> ReportTimelineFields { get; set; } = ReportTypeConst.GetTimelineFields();
+    private IList<IntDropDownField> SupplierDropDownFields { get; set; } = new List<IntDropDownField>();
 
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
     private DateTime? EndDate { get; set; } = DateTime.Now;
 
     private int TotalRecords { get; set; }
 
-    [Inject] private IReportService ReportService { get; set; }
+    [Inject] private IPurchaseService PurchaseService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        SupplierDropDownFields = await SuppliersFieldList;
+
         await LoadData();
         StateHasChanged();
     }
@@ -160,7 +180,7 @@
         {
             LoadingService.Show();
 
-            var response = await ReportService.GetPaySlipSummaryAsync(isPurchase: IsPurchaseInvoice, paymentStatus: selectedStatus, fromDate: StartDate, toDate: EndDate);
+            var response = await PurchaseService.GetProductPurchaseHistoryAsync(supplierId: selectedSupplierId, orderStatus: selectedStatus, fromDate: StartDate, toDate: EndDate);
             if (!response.IsSuccess)
             {
                 ToastService.ShowError(response.Message);
@@ -168,8 +188,9 @@
             }
 
             ToastService.ShowSuccess(response.Message);
-            paySlipList = response.Data;
-            TotalRecords = paySlipList.Count();
+
+            ProductPurchaseInfoDto = response.Data;
+            TotalRecords = ProductPurchaseInfoDto.PurchaseItems.Count();
 
             StateHasChanged();
         }
@@ -214,27 +235,32 @@
             EndDate = today.AddDays(1);
         }
     }
-
-    private async Task OnInvoiceTypeChange()
-    {
-        IsPurchaseInvoice = selectedInvoiceType != InvoiceTypeConst.Sale;
-        await LoadData();
-    }
     
     private void OrderRecords(string? orderParm = null)
     {
-        paySlipList = orderParm switch
+        var orderList = ProductPurchaseInfoDto.PurchaseItems.AsQueryable();
+        ProductPurchaseInfoDto.PurchaseItems = orderParm switch
         {
             "InvoiceNumber" => IsAscending
-                ? paySlipList.OrderBy(x => x.InvoiceNumber).ToList()
-                : paySlipList.OrderByDescending(x => x.InvoiceNumber).ToList(),
-            "PaymentDate" => IsAscending
-                ? paySlipList.OrderBy(x => x.PaymentDate).ToList()
-                : paySlipList.OrderByDescending(x => x.PaymentDate).ToList(),
-            "AmountPaid" => IsAscending
-                ? paySlipList.OrderBy(x => x.AmountPaid).ToList()
-                : paySlipList.OrderByDescending(x => x.AmountPaid).ToList(),
-            _ => paySlipList
+                ? orderList.OrderBy(x => x.InvoiceNumber).ToList()
+                : orderList.OrderByDescending(x => x.InvoiceNumber).ToList(),
+            "Description" => IsAscending
+                ? orderList.OrderBy(x => x.Description).ToList()
+                : orderList.OrderByDescending(x => x.Description).ToList(),
+            "SupplierName" => IsAscending
+                ? orderList.OrderBy(x => x.SupplierName).ToList()
+                : orderList.OrderByDescending(x => x.SupplierName).ToList(),
+            "Quantity" => IsAscending
+                ? orderList.OrderBy(x => x.Quantity).ToList()
+                : orderList.OrderByDescending(x => x.Quantity).ToList(),
+            "SubTotal" => IsAscending
+                ? orderList.OrderBy(x => x.SubTotal).ToList()
+                : orderList.OrderByDescending(x => x.SubTotal).ToList(),
+            "CreatedOn" => IsAscending
+                ? orderList.OrderBy(x => x.CreatedOn).ToList()
+                : orderList.OrderByDescending(x => x.CreatedOn).ToList(),
+         
+            _ => orderList.ToList()
         };
 
         IsAscending = !IsAscending;

@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="CQRS\Purchases\Command\" />
     <Folder Include="CQRS\Reports\Command\" />
   </ItemGroup>
 
