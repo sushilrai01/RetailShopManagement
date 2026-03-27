@@ -18,11 +18,11 @@ namespace RetailShopManagement.Domain.Extensions
                 return false;
 
             // Check length
-            if (mobile.Length != 10)
+            if (mobile.Trim().Length != 10)
                 return false;
 
             // Check only digits
-            return mobile.All(char.IsDigit);
+            return mobile.Trim().All(char.IsDigit);
         }
     }
 }

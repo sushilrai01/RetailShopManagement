@@ -112,7 +112,6 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Command
                     CreatedOn = DateTime.Now
                 }).ToList();
 
-                //TODO: Handle Inventory stock quantity update for purchased products
                 if (request.Status != PaymentStatus.Quoted)
                 {
                     await inventoryHelper.UpdateInventoryForPurchasesAsync(invoice.PurchaseItems.ToList(),context, cancellationToken);

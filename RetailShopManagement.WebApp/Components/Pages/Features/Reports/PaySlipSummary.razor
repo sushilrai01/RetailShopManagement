@@ -43,6 +43,18 @@
             </div>
 
             <div class="col-md-2">
+                <label class="form-label">Invoice Type</label>
+                <InputSelect class="form-control" @bind-Value="selectedInvoiceType" @bind-Value:after="OnInvoiceTypeChange">
+                    @foreach (var category in invoiceTypeFields)
+                    {
+                        <option value="@category.Value">
+                            @category.Text
+                        </option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="col-md-2">
                 <label class="form-label"></label>
                 <button class="btn btn-secondary w-100"
                         @onclick="Filter">
@@ -120,11 +132,14 @@
     private IList<PaySlipDto> paySlipList = new List<PaySlipDto>();
 
     private bool IsAscending { get; set; } = true;
+    private bool IsPurchaseInvoice { get; set; } = false;
 
     private string selectedTimeLine { get; set; }
     private string selectedStatus { get; set; }
+    private string selectedInvoiceType { get; set; }
 
     private IList<DropDownField> invoiceStatusFields { get; set; } = PaymentStatus.GetDropdown();
+    private IList<DropDownField> invoiceTypeFields { get; set; } = InvoiceTypeConst.DropDownFields;
     private IList<DropDownField> ReportTimelineFields { get; set; } = ReportTypeConst.GetTimelineFields();
 
     private DateTime? StartDate { get; set; } = DateTime.Now.AddDays(-14);
@@ -146,7 +161,7 @@
         {
             LoadingService.Show();
 
-            var response = await ReportService.GetPaySlipSummaryAsync(paymentStatus: selectedStatus, fromDate: StartDate, toDate: EndDate);
+            var response = await ReportService.GetPaySlipSummaryAsync(isPurchase: IsPurchaseInvoice, paymentStatus: selectedStatus, fromDate: StartDate, toDate: EndDate);
             if (!response.IsSuccess)
             {
                 ToastService.ShowError(response.Message);
@@ -199,6 +214,12 @@
             StartDate = today.AddDays(-30);
             EndDate = today.AddDays(1);
         }
+    }
+
+    private async Task OnInvoiceTypeChange()
+    {
+        IsPurchaseInvoice = selectedInvoiceType != InvoiceTypeConst.Sale;
+        await LoadData();
     }
     
     private void OrderRecords(string? orderParm = null)

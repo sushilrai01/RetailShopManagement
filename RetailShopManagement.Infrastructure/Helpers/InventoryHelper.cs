@@ -13,7 +13,7 @@ public class InventoryHelper(IUserServiceProvider userServiceProvider) : IInvent
         if (purchases == null || !purchases.Any())
             return;
 
-        var productIds = purchases.Select(p => p.ProductId).ToList();
+        var productIds = purchases.Select(p => p.ProductId).Distinct().ToList();
 
         // Get existing inventory items
         var inventoryItems = await context.InventoryItems

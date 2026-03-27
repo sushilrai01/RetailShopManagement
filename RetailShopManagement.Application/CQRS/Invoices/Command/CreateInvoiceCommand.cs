@@ -40,76 +40,97 @@ namespace RetailShopManagement.Application.CQRS.Invoices.Command
         public IList<ProductSalesDto> InvoiceItems { get; set; } = new List<ProductSalesDto>();
     }
 
-    public class CreateInvoiceCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory,
+    public class CreateInvoiceCommandHandler(
+        IDbContextFactory<ApplicationDbContext> contextFactory,
         IUserServiceProvider userServiceProvider,
+        IInventoryHelper inventoryHelper,
         IUniqueCodeService uniqueCodeService)
         : IRequestHandler<CreateInvoiceCommand, InvoiceResponseModel>
     {
-        public async Task<InvoiceResponseModel> Handle(CreateInvoiceCommand request, CancellationToken cancellationToken)
+        public async Task<InvoiceResponseModel> Handle(CreateInvoiceCommand request,
+            CancellationToken cancellationToken)
         {
             await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-            var invoice = new Invoice()
+            // Begin transaction
+            await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            try
             {
-                Id = Guid.NewGuid(),
-                InvoiceNumber = await uniqueCodeService.GetUniqueInvoiceNumberAsync(cancellationToken),
-                InvoiceDate = request.InvoiceDate,
-                DueDate = request.DueDate,
-                CreditorId = request.CreditorId,
-                Status = PaymentStatus.GetPaymentStatus(request.PaidAmount, request.TotalAmount),
-                SubTotal = request.SubTotal,
-                TaxAmount = request.TaxAmount,
-                TaxRate = request.TaxRate,
-                DiscountAmount = request.DiscountAmount,
-                DiscountPercent = request.DiscountPercent,
-                TotalAmount = request.TotalAmount,
-                PaidAmount = request.PaidAmount,
-                BalanceAmount = request.BalanceAmount,
-                Remarks = request.Remarks,
-
-                CreatedBy = userServiceProvider.UserName,
-                CreatedOn = DateTime.Now,
-
-                InvoiceItems = request.InvoiceItems.Select(item => new ProductSale
+                var invoice = new Invoice()
                 {
                     Id = Guid.NewGuid(),
-                    ProductId = item.ProductId,
-                    ProductName = item.ProductName,
-                    Quantity = item.Quantity,
-                    Unit = item.Unit,
-                    UnitPrice = item.UnitPrice,
-                    SubTotal = item.SubTotal,
-                    CreatedBy = userServiceProvider.UserName,
-                    CreatedOn = DateTime.Now
-                }).ToList()
-            };
+                    InvoiceNumber = await uniqueCodeService.GetUniqueInvoiceNumberAsync(cancellationToken),
+                    InvoiceDate = request.InvoiceDate,
+                    DueDate = request.DueDate,
+                    CreditorId = request.CreditorId,
+                    Status = PaymentStatus.GetPaymentStatus(request.PaidAmount, request.TotalAmount),
+                    SubTotal = request.SubTotal,
+                    TaxAmount = request.TaxAmount,
+                    TaxRate = request.TaxRate,
+                    DiscountAmount = request.DiscountAmount,
+                    DiscountPercent = request.DiscountPercent,
+                    TotalAmount = request.TotalAmount,
+                    PaidAmount = request.PaidAmount,
+                    BalanceAmount = request.BalanceAmount,
+                    Remarks = request.Remarks,
 
-            if (request.PaidAmount > 0)
-            {
-                invoice.PaySlips = new List<PaySlip>
-                {
-                    new()
+                    CreatedBy = userServiceProvider.UserName,
+                    CreatedOn = DateTime.Now,
+
+                    InvoiceItems = request.InvoiceItems.Select(item => new ProductSale
                     {
                         Id = Guid.NewGuid(),
-                        InvoiceId = invoice.Id,
-                        CreditorId = request.CreditorId,
-                        AmountPaid = request.PaidAmount,
-                        PaymentDate = DateTime.Now,
-                        Remarks = "Initial Payment",
+                        ProductId = item.ProductId,
+                        ProductName = item.ProductName,
+                        Quantity = item.Quantity,
+                        Unit = item.Unit,
+                        UnitPrice = item.UnitPrice,
+                        SubTotal = item.SubTotal,
                         CreatedBy = userServiceProvider.UserName,
                         CreatedOn = DateTime.Now
-                    }
+                    }).ToList()
                 };
+
+                if (request.PaidAmount > 0)
+                {
+                    invoice.PaySlips = new List<PaySlip>
+                    {
+                        new()
+                        {
+                            Id = Guid.NewGuid(),
+                            InvoiceId = invoice.Id,
+                            CreditorId = request.CreditorId,
+                            AmountPaid = request.PaidAmount,
+                            PaymentDate = DateTime.Now,
+                            Remarks = "Initial Payment",
+                            CreatedBy = userServiceProvider.UserName,
+                            CreatedOn = DateTime.Now
+                        }
+                    };
+                }
+
+                await context.Invoices.AddAsync(invoice, cancellationToken);
+
+                await inventoryHelper.UpdateInventoryForSalesAsync(invoice.InvoiceItems.ToList(), context, cancellationToken);
+
+                await context.SaveChangesAsync(cancellationToken);
+
+                // Commit (make permanent)
+                await transaction.CommitAsync(cancellationToken);
+
+                return new InvoiceResponseModel()
+                {
+                    Id = invoice.Id,
+                    InvoiceNumber = invoice.InvoiceNumber
+                };
+
             }
-
-            await context.Invoices.AddAsync(invoice, cancellationToken);
-            await context.SaveChangesAsync(cancellationToken);
-
-            return new InvoiceResponseModel()
+            catch (Exception ex)
             {
-                Id = invoice.Id,
-                InvoiceNumber = invoice.InvoiceNumber
-            };
-        } 
+                // Rollback (undo everything)
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
     }
 }
